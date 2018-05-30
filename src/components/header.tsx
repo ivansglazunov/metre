@@ -21,6 +21,9 @@ export const styles: StyleRulesCallback = (theme: Theme) => ({
   },
   floatright: {
     float: "right",
+  },
+  tab: {
+    minWidth: 0,
   }
 });
 
@@ -60,26 +63,31 @@ export const Header = (props : any) => {
             label="Расписание" 
             value="/shadule" 
             component={props => <Link {...props} to={`/shadule`}/>}
+            className={classes.tab}
           />
           <Tab 
             label="Профподготовка" 
             value="/prof" 
             component={props => <Link {...props} to={`/prof`}/>}
+            className={classes.tab}
           />
           <Tab 
             label="Курсы" 
             value="/courses" 
             component={props => <Link {...props} to={`/courses`}/>}
+            className={classes.tab}
           />
           <Tab 
             label="Мастер-классы" 
             value="/master-classes" 
             component={props => <Link {...props} to={`/master-classes`}/>}
+            className={classes.tab}
           />
           <Tab 
             label="Консалтинг" 
             value="/сonsulting" 
             component={props => <Link {...props} to={`/сonsulting`}/>}
+            className={classes.tab}
           />
         </Tabs>
       </div>
