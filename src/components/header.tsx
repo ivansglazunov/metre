@@ -46,10 +46,6 @@ export const Header = (props : any) => {
           <Button color="inherit">О школе</Button>
           <Button color="inherit">Запись на обучение</Button>
           <Button color="inherit">Контакты</Button>
-          <span  className={classes.flex}/>
-          <IconButton aria-haspopup="true" color="inherit">
-            <AccountCircle />
-          </IconButton>
         </Toolbar>
       </AppBar>
       <div style={{ overflow: 'hidden' }}>
