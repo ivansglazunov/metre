@@ -49,9 +49,31 @@ export const Header = (props : any) => {
           >
             Высшая школа стилистики
           </Typography>
-          <Button color="inherit">О школе</Button>
-          <Button color="inherit">Запись на обучение</Button>
-          <Button color="inherit">Контакты</Button>
+          <Tabs
+            value={props.location.pathname}
+            indicatorColor="primary"
+            textColor="primary"
+            className={classes.floatright}
+          >
+            <Tab 
+              label="О школе" 
+              value="/about" 
+              component={props => <Link {...props} to={`/about`}/>}
+              className={classes.tab}
+            />
+            <Tab 
+              label="Запись на обучение" 
+              value="/education" 
+              component={props => <Link {...props} to={`/education`}/>}
+              className={classes.tab}
+            />
+            <Tab 
+              label="Контакты" 
+              value="/contacts" 
+              component={props => <Link {...props} to={`/contacts`}/>}
+              className={classes.tab}
+            />
+          </Tabs>
         </Toolbar>
       </AppBar>
       <div style={{ overflow: 'hidden' }}>
