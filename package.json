@@ -5,6 +5,7 @@
   "author": "Kyle Mathews <mathews.kyle@gmail.com>",
   "dependencies": {
     "@material-ui/core": "^1.1.0",
+    "@material-ui/icons": "^1.1.0",
     "@types/graphql": "^0.13.1",
     "@types/prop-types": "^15.5.3",
     "@types/react-helmet": "^5.0.6",
@@ -13,6 +14,7 @@
     "gatsby-plugin-react-helmet": "^2.0.10",
     "gatsby-plugin-typescript": "^1.4.20",
     "react-helmet": "^5.2.0",
+    "tslint": "^5.10.0",
     "tslint-config-evolvator": "github:Evolvator/tslint-config-evolvator",
     "typescript": "^2.8.3"
   },
