@@ -40,7 +40,13 @@ export const Header = (props : any) => {
               margin: '0 16px 0 0',
             }}
           />
-          <Typography variant="title" color="inherit">
+          <Typography 
+            variant="title" 
+            color="inherit" 
+            style={{
+              margin: '0 16px 0 0',
+            }}
+          >
             Высшая школа стилистики
           </Typography>
           <Button color="inherit">О школе</Button>
