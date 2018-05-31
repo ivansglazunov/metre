@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-class IndexPage extends React.Component { 
+export default class MasterClasses extends React.Component { 
   render() {
     return (
       <div>
@@ -8,6 +8,4 @@ class IndexPage extends React.Component {
       </div>
     );
   }
-}
-
-export default IndexPage   
+}  

@@ -1,3 +1,6 @@
+html, body {
+  min-height: 100%;
+}
 html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;

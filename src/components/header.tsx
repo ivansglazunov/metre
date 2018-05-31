@@ -28,9 +28,14 @@ export const styles: StyleRulesCallback = (theme: Theme) => ({
 });
 
 export const Header = (props : any) => {
-  const { classes } = props;
+  const { classes, siteTitle } = props;
   return(
-    <div>
+    <div style = {{ 
+      position: 'absolute', 
+      zIndex: 9, 
+      minWidth:'100%', 
+      backgroundColor: 'rgba(255, 255, 255, 0.9)'
+    }}>
       <AppBar position="static" color="default">
         <Toolbar>
           <img 
@@ -47,7 +52,7 @@ export const Header = (props : any) => {
               margin: '0 16px 0 0',
             }}
           >
-            Высшая школа стилистики
+            {siteTitle}
           </Typography>
           <Tabs
             value={props.location.pathname}
@@ -103,8 +108,8 @@ export const Header = (props : any) => {
           />
           <Tab 
             label="Мастер-классы" 
-            value="/master-classes" 
-            component={props => <Link {...props} to={`/master-classes`}/>}
+            value="/masterClasses" 
+            component={props => <Link {...props} to={`/masterClasses`}/>}
             className={classes.tab}
           />
           <Tab 
