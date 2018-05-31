@@ -36,7 +36,7 @@ export const Header = (props : any) => {
       minWidth:'100%', 
       backgroundColor: 'rgba(255, 255, 255, 0.9)'
     }}>
-      <AppBar position="static" color="default">
+      <AppBar position="fixed" color="default" style={{ zIndex: 999 }}>
         <Toolbar>
           <img 
             src='http://styleschool.ru/theme/image.php?theme=bootstrap&amp;component=theme&amp;image=logo64' 
@@ -81,7 +81,7 @@ export const Header = (props : any) => {
           </Tabs>
         </Toolbar>
       </AppBar>
-      <div style={{ overflow: 'hidden' }}>
+      <Paper style={{ overflow: 'hidden', marginTop: 64, backgroundColor: 'transparent' }}>
         <Tabs
           value={props.location.pathname}
           indicatorColor="primary"
@@ -119,7 +119,7 @@ export const Header = (props : any) => {
             className={classes.tab}
           />
         </Tabs>
-      </div>
+      </Paper>
     </div>
   )
 };

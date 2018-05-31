@@ -15,6 +15,7 @@ export const About = (props : any) => {
     <div>        
       <Fillimage imgSrc="https://styleschool.ru/fm_ajax.php?action=get_standart_file&type=category&id=204&name=fullscreen.jpg" height={600} positionY='top' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ 
+          marginTop: 64,
           background: 'rgba(0,0,0,0.5)',
           maxWidth: '50%',
           color: '#fff',
