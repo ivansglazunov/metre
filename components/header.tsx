@@ -9,12 +9,10 @@ import Typography from '@material-ui/core/Typography';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
-import IconButton from '@material-ui/core/IconButton';
-import AccountCircle from '@material-ui/icons/AccountCircle';
 
 import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles';
 
-export const styles: StyleRulesCallback = (theme: Theme) => ({
+export const styles: StyleRulesCallback = () => ({
   flex: {
     flex: 1,
   },
