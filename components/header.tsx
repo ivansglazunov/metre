@@ -36,7 +36,7 @@ export const Header = (props : any) => {
       <AppBar position="fixed" color="default" style={{ zIndex: 999 }}>
         <Toolbar>
           <img
-            src="http://styleschool.ru/theme/image.php?theme=bootstrap&amp;component=theme&amp;image=logo64"
+            src="/logo.png"
             style={{
               width: '3em',
               margin: '0 16px 0 0',
