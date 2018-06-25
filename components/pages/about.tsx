@@ -1,12 +1,13 @@
 import * as React from 'react';
-import Fillimage from '../features/fillimage';
-import Grid from '@material-ui/core/Grid';
-import Container from '../widgets/container';
-import Button from '@material-ui/core/Button';
-
-import { withStyles, StyleRulesCallback } from '@material-ui/core/styles';
 
 import Department from '../widgets/department';
+import Container from '../widgets/container';
+import Fillimage from '../features/fillimage';
+import Header from '../header';
+
+import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
+import { withStyles, StyleRulesCallback } from '@material-ui/core/styles';
 
 export const styles: StyleRulesCallback = () => ({
   root: {
@@ -14,11 +15,11 @@ export const styles: StyleRulesCallback = () => ({
   },
 });
 
-
 export const About = (props : any) => {
   const { classes } = props;
   return (
     <div className={classes.root}>
+    <Header/>
       <Fillimage imgSrc="/pages/about/fullscreen.jpg" height={600} positionY='top' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
         <div style={{ 
           marginTop: 64,

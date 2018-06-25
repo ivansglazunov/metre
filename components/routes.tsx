@@ -1,7 +1,5 @@
 import * as React from 'react';
-
 import { Route } from 'react-router';
-
 import About from './pages/about';
 
 export class Routes extends React.Component {
