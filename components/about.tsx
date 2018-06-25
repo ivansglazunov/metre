@@ -32,6 +32,7 @@ export const About = (props : any) => {
           Очное, заочное и дистанционное обучение</p>
         </div>
       </Fillimage>
+
       <Container props={{ style: { marginTop: 60 } }}>
         <Grid container spacing={24}>
           <Grid item xs={12} sm={4}>
@@ -50,26 +51,29 @@ export const About = (props : any) => {
           </Grid>
         </Grid>
       </Container>
+
       <div style={{textAlign: 'center'}}><h2>Факультеты</h2></div>
       <Container>
         <Grid container spacing={24}>
           <Grid item xs={12} sm={3}>
-            <Department logo="https://styleschool.ru/fm_ajax.php?action=get_standart_file&type=category&id=204&name=imedg_icon.png"  title="Факультет Имиджмейкинга" link="#"/>
+            <Department logo="/departments/imedg_icon.png"  title="Факультет «Имиджмейкинга»" link="#"/>
           </Grid>
           <Grid item xs={12} sm={3}>
-            <Department logo="https://styleschool.ru/fm_ajax.php?action=get_standart_file&type=category&id=204&name=imedg_icon.png"  title="Факультет Имиджмейкинга" link="#"/>
+            <Department logo="/departments/moda_icon.png"  title="Факультет «Индустрии моды»" link="#"/>
           </Grid>
           <Grid item xs={12} sm={3}>
-            <Department logo="https://styleschool.ru/fm_ajax.php?action=get_standart_file&type=category&id=204&name=imedg_icon.png"  title="Факультет Имиджмейкинга" link="#"/>
+            <Department logo="/departments/design_icon.png"  title="Факультет «Дизайна»" link="#"/>
           </Grid>
           <Grid item xs={12} sm={3}>
-            <Department logo="https://styleschool.ru/fm_ajax.php?action=get_standart_file&type=category&id=204&name=imedg_icon.png"  title="Факультет Имиджмейкинга" link="#"/>
+            <Department logo="/departments/beauty.png"  title="Факультет «Бьюти индустрии»" link="#"/>
           </Grid>
         </Grid>
       </Container>
+
       <div style={{ textAlign: 'center'}}> <Button variant="raised" href="#"> Клуб выпускников </Button></div>
-      <img src="/pages/about/aboutData_1.png" style={{display: 'block', margin:'0 auto'}}/>
-      <h3 style={{ textAlign: 'center'}}>Преподаватели</h3>
+
+      <img src="/pages/about/about_data_1.png" style={{display: 'block', margin:'0 auto'}}/>
+      
       <h3 style={{ textAlign: 'center'}}>Наша география</h3>
       <img src="/pages/about/map.jpg" style={{display: 'block', margin:'0 auto'}}/>
     </div>
