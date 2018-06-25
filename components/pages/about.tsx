@@ -1,4 +1,3 @@
-<<<<<<< HEAD:components/pages/about.tsx
 import * as React from 'react';
 import Fillimage from '../features/fillimage';
 import Grid from '@material-ui/core/Grid';
