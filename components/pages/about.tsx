@@ -4,6 +4,7 @@ import Department from '../widgets/department';
 import Container from '../widgets/container';
 import Fillimage from '../features/fillimage';
 import Header from '../header';
+import Footer from '../footer';
 
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
@@ -78,6 +79,7 @@ export const About = (props : any) => {
       <h3 style={{ textAlign: 'center' }}>Наша география</h3>
       <img src="/pages/about/map.jpg" style={{ display: 'block', margin:'0 auto' }
     }/>
+    <Footer/>
     </div>
   );
 };
