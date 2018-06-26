@@ -3,8 +3,8 @@ import { withStyles, Theme, StyleRulesCallback } from '@material-ui/core/styles'
 
 const styles: StyleRulesCallback = (theme: Theme) => ({
   container: {
-    [theme.breakpoints.up("lg")]: {
-      width: 1024
+    [theme.breakpoints.up('lg')]: {
+      width: 1024,
     },
     margin: '0 auto',
   },
@@ -18,4 +18,4 @@ class Container extends React.Component<any> {
   }
 }
 
-export default withStyles(styles)(Container)
+export default withStyles(styles)(Container);

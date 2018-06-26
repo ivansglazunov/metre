@@ -20,16 +20,16 @@ export const About = (props : any) => {
   return (
     <div className={classes.root}>
     <Header/>
-      <Fillimage imgSrc="/pages/about/fullscreen.jpg" height={600} positionY='top' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
-        <div style={{ 
+      <Fillimage imgSrc="/pages/about/fullscreen.jpg" height={600} positionY="top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{
           marginTop: 64,
           background: 'rgba(0,0,0,0.5)',
           maxWidth: '50%',
           color: '#fff',
           textAlign: 'center',
-          flex: 1
+          flex: 1,
         }}>
-          <h1 style={{paddingTop: '0.5em', paddingBottom: '0.5em'}}> Высшая Школа Стилистики </h1>
+          <h1 style={{ paddingTop: '0.5em', paddingBottom: '0.5em' }}> Высшая Школа Стилистики </h1>
           <p>Профессиональное образование в индустрии моды и дизайна <br/>
           Очное, заочное и дистанционное обучение</p>
         </div>
@@ -42,7 +42,7 @@ export const About = (props : any) => {
           </Grid>
           <Grid item xs={12} sm={8}>
             <div> Наши цели
-              <ul> 
+              <ul>
                 <li>Подготовить специалистов, чьи знания и профессиональные навыки соответствуют требованиям современного мира</li>
                 <li>Дать возможность применить лучшим выпускникам Школы свои знания и практические навыки посредством работы с реальными как частными, так и с корпоративными клиентами</li>
                 <li>Реализовать не только необходимые спецдисциплины в той или иной области, но и актуальные общекультурные дисциплины, без которых нельзя стать успешным и современным профессионалом</li>
@@ -54,7 +54,7 @@ export const About = (props : any) => {
         </Grid>
       </Container>
 
-      <div style={{textAlign: 'center'}}><h2>Факультеты</h2></div>
+      <div style={{ textAlign: 'center' }}><h2>Факультеты</h2></div>
       <Container>
         <Grid container spacing={24}>
           <Grid item xs={12} sm={3}>
@@ -72,14 +72,14 @@ export const About = (props : any) => {
         </Grid>
       </Container>
 
-      <div style={{ textAlign: 'center'}}> <Button variant="raised" href="#"> Клуб выпускников </Button></div>
+      <div style={{ textAlign: 'center' }}> <Button variant="raised" href="#"> Клуб выпускников </Button></div>
 
-      <img src="/pages/about/about_data_1.png" style={{display: 'block', margin:'0 auto'}}/>
-      
-      <h3 style={{ textAlign: 'center'}}>Наша география</h3>
-      <img src="/pages/about/map.jpg" style={{display: 'block', margin:'0 auto'}}/>
+      <img src="/pages/about/about_data_1.png" style={{ display: 'block', margin:'0 auto' }}/>
+      <h3 style={{ textAlign: 'center' }}>Наша география</h3>
+      <img src="/pages/about/map.jpg" style={{ display: 'block', margin:'0 auto' }
+    }/>
     </div>
   );
-}
+};
 
-export default withStyles(styles)(About)
+export default withStyles(styles)(About);

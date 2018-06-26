@@ -1,10 +1,7 @@
-import { Meteor } from 'meteor/meteor';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { renderToString } from 'react-dom/server';
 import { onPageLoad } from 'meteor/server-render';
 import { StaticRouter } from 'react-router';
-import { BrowserRouter } from 'react-router-dom';
 
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';

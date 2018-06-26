@@ -4,7 +4,7 @@ import About from './pages/about';
 
 export class Routes extends React.Component {
   render() {
-    return <div>      
+    return <div>
       <Route path="/about" component={About} />
     </div>;
   }
