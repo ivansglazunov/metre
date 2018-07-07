@@ -10,11 +10,52 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import { withStyles, StyleRulesCallback } from '@material-ui/core/styles';
 
+import SimpleSchema from 'simpl-schema';
+import { AutoForm, AutoField, SubmitField } from 'uniforms-material';
+
+import TextField from 'uniforms-material/TextField';
+import SimpleSchema2Bridge from 'uniforms/SimpleSchema2Bridge';
+import MaskedUnifomTextField from '../features/masked-uniform-textfield';
+
+import MaterialField from '@material-ui/core/TextField';
+
+import * as InputMask from 'react-input-mask';
+
 export const styles: StyleRulesCallback = () => ({
   root: {
     flexGrow: 1,
   },
 });
+
+const PostSchema =  new SimpleSchema2Bridge(new SimpleSchema({
+  phone: {
+    type: String,
+  },
+}));
+
+export class MaskedMaterial extends React.Component {
+  state = {
+    phone: '',
+  };
+
+  onChange = (data) => {
+    this.setState({ phone: data.target.value })
+  }
+
+  render() {
+    return (
+      <InputMask
+        mask="(0)999 999 99 99"
+        value={this.state.phone}
+        onChange={this.onChange}
+        {...this.props}
+      >
+        {(props: any) => <MaterialField {...props}/>}
+      </InputMask>
+    );
+  }
+}
+
 
 export const About = (props : any) => {
   const { classes } = props;
@@ -77,9 +118,14 @@ export const About = (props : any) => {
 
       <img src="/pages/about/about_data_1.png" style={{ display: 'block', margin:'0 auto' }}/>
       <h3 style={{ textAlign: 'center' }}>Наша география</h3>
-      <img src="/pages/about/map.jpg" style={{ display: 'block', margin:'0 auto' }
-    }/>
-    <Footer/>
+      <img src="/pages/about/map.jpg" style={{ display: 'block', margin:'0 auto' }}/>
+
+      <AutoForm schema={PostSchema}>
+        <AutoField component={MaskedUnifomTextField} name="phone"/>
+        <SubmitField />
+      </AutoForm>
+
+      <Footer/>
     </div>
   );
 };

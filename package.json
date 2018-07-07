@@ -16,10 +16,14 @@
     "@types/react-router-dom": "^4.2.7",
     "meteor-node-stubs": "^0.3.2",
     "normalize.css": "^8.0.0",
-    "react": "^16.4.0",
-    "react-dom": "^16.4.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-input-mask": "^2.0.2",
     "react-router": "^4.2.0",
-    "react-router-dom": "^4.2.2"
+    "react-router-dom": "^4.2.2",
+    "simpl-schema": "^1.5.0",
+    "uniforms": "^1.25.0-rc.3",
+    "uniforms-material": "^1.25.0-rc.3"
   },
   "devDependencies": {
     "tslint": "^5.10.0",
