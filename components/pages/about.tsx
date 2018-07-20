@@ -6,17 +6,15 @@ import Fillimage from '../features/fillimage';
 import Header from '../header';
 import Footer from '../footer';
 
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
+import { IconButton, Menu, MenuItem, Button, Grid } from '@material-ui/core';
 import { withStyles, StyleRulesCallback } from '@material-ui/core/styles';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 import SimpleSchema from 'simpl-schema';
-import { AutoForm, TextField } from 'uniforms-material';
-
+import { AutoForm, TextField as UniformsTextField  } from 'uniforms-material';
 import SimpleSchema2Bridge from 'uniforms/SimpleSchema2Bridge';
-import MaskedUnifomTextField from '../features/masked-uniform-textfield';
-
 import MaskedInput from 'react-text-mask';
+import { allCountries } from 'country-telephone-data';
 
 export const styles: StyleRulesCallback = () => ({
   root: {
@@ -28,17 +26,65 @@ const PostSchema =  new SimpleSchema2Bridge(new SimpleSchema({
   phone: {
     type: String,
     uniforms: {
-      component: TextField,
+      component: class extends React.Component {
+        constructor(props: any) {
+          super(props);
+          this.state = { lang: 'ru', anchorEl: null };
+        }
+        handleClick = (event: any) => {
+          this.setState({ anchorEl: event.currentTarget });
+        }
+        handleClose = (lang: any) => {
+          this.setState({ lang, anchorEl: null });
+        }
+        render() {
+          const { anchorEl, lang } = this.state;
+          return <Grid container spacing={8} alignItems="flex-end">
+            <Grid item>
+              <IconButton
+                aria-label="More"
+                aria-owns={anchorEl ? 'long-menu' : null}
+                aria-haspopup="true"
+                onClick={this.handleClick}
+              >
+                <MoreVertIcon />
+              </IconButton>
+              <Menu
+                id="long-menu"
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={this.handleClose}
+                PaperProps={{
+                  style: {
+                    maxHeight: 216,
+                    width: 200,
+                  },
+                }}
+              >
+                {allCountries.map((current : any) => (
+                  <MenuItem key={current.iso2} selected={current.iso2 === lang} onClick={(e: any) => this.handleClose(current.iso2)}>
+                    {current.dialCode + ' ' + current.name}
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Grid>
+            <Grid item>
+              <UniformsTextField {... this.props} inputProps = {{ mask: ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/] }}/>
+            </Grid>
+          </Grid>;
+        }
+      },
       InputProps: {
-        inputComponent: ({ inputRef, ...props }: any) => {
+        inputComponent: ({ inputRef, mask, ...props }: any) => {
           return <MaskedInput { ...props }
             ref={inputRef}
-            mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+            mask={mask}
             placeholderChar={'\u2000'}
             showMask
           />;
         },
       },
+      label: false,
     },
   },
 }));
