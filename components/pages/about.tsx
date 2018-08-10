@@ -22,74 +22,7 @@ export const styles: StyleRulesCallback = () => ({
   },
 });
 
-const PostSchema =  new SimpleSchema2Bridge(new SimpleSchema({
-  phone: {
-    type: String,
-    uniforms: {
-      component: class extends React.Component {
-        constructor(props: any) {
-          super(props);
-          this.state = { lang: 'ru', anchorEl: null };
-        }
-        handleClick = (event: any) => {
-          this.setState({ anchorEl: event.currentTarget });
-        }
-        handleClose = (lang: any) => {
-          this.setState({ lang, anchorEl: null });
-        }
-        render() {
-          const { anchorEl, lang } = this.state;
-          return <Grid container spacing={8} alignItems="flex-end">
-            <Grid item>
-              <IconButton
-                aria-label="More"
-                aria-owns={anchorEl ? 'long-menu' : null}
-                aria-haspopup="true"
-                onClick={this.handleClick}
-              >
-                <MoreVertIcon />
-              </IconButton>
-              <Menu
-                id="long-menu"
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={this.handleClose}
-                PaperProps={{
-                  style: {
-                    maxHeight: 216,
-                    width: 200,
-                  },
-                }}
-              >
-                {allCountries.map((current : any) => (
-                  <MenuItem key={current.iso2} selected={current.iso2 === lang} onClick={(e: any) => this.handleClose(current.iso2)}>
-                    {current.dialCode + ' ' + current.name}
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Grid>
-            <Grid item>
-              <UniformsTextField {... this.props} inputProps = {{ mask: ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/] }}/>
-            </Grid>
-          </Grid>;
-        }
-      },
-      InputProps: {
-        inputComponent: ({ inputRef, mask, ...props }: any) => {
-          return <MaskedInput { ...props }
-            ref={inputRef}
-            mask={mask}
-            placeholderChar={'\u2000'}
-            showMask
-          />;
-        },
-      },
-      label: false,
-    },
-  },
-}));
-
-export const About = (props : any) => {
+export const Component = (props : any) => {
   const { classes } = props;
   return (
     <div className={classes.root}>
@@ -152,11 +85,9 @@ export const About = (props : any) => {
       <h3 style={{ textAlign: 'center' }}>Наша география</h3>
       <img src="/pages/about/map.jpg" style={{ display: 'block', margin:'0 auto' }}/>
 
-      <AutoForm schema={PostSchema} />
-
       <Footer/>
     </div>
   );
 };
 
-export default withStyles(styles)(About);
+export default withStyles(styles)(Component);

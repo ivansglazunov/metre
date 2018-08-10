@@ -1,11 +1,14 @@
 import * as React from 'react';
-import { Route } from 'react-router';
+import { Route, Switch } from 'react-router';
 import About from './pages/about';
 
 export class Routes extends React.Component {
   render() {
     return <div>
-      <Route path="/about" component={About} />
+      <Switch>
+        <Route path="/about" component={About} />
+        <Route component={About} />
+      </Switch>
     </div>;
   }
 }
