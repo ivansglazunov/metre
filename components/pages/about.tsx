@@ -26,7 +26,7 @@ export const Component = (props : any) => {
   const { classes } = props;
   return (
     <div className={classes.root}>
-    <Header/>
+      <Header/>
       <Fillimage imgSrc="/pages/about/fullscreen.jpg" height={600} positionY="top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{
           marginTop: 64,
