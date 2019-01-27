@@ -3,13 +3,10 @@
     "sourceMap": true,
     "noImplicitAny": true,
     "module": "commonjs",
-    "target": "esnext",
+    "target": "es2015",
     "jsx": "react",
-    "lib": ["dom", "es2015", "es2017"]
-  },
-  "include": [
-    "*.ts","*.tsx",
-    "**/*.ts","**/*.tsx",
-    "**/**/*.ts","**/**/*.tsx"
-  ]
+    "lib": ["dom", "es2015", "es2017"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  }
 }

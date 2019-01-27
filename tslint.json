@@ -1,5 +1,25 @@
 {
   "extends": [
-    "tslint-config-evolvator"
-  ]
+    "tslint-config-airbnb"
+  ],
+  "rules": {
+    "prefer-const": false, // bug in for usage
+    "no-increment-decrement": false, // sometimes it is necessary, prohibitions do not lead to good
+    "no-unused-variable": true, // todo: import too
+    "no-var-keyword": false, // airbnb 2.2 in practice, interference
+    "function-name": false, // airbnb 23.1 is good, but... the rest is dictate
+    "max-line-length": false, // airbnb 13.12 just no
+    "import-name": false, // airbnb 23.6 just no
+    "one-variable-per-declaration": false, // airbnb 13.2 is good, but painfully for experiments
+    "variable-name": [ // airbnb 23.2 just no, sometimes it is necessary, private variables and so on
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore",
+      "allow-trailing-underscore",
+      "allow-pascal-case",
+      "allow-snake-case"
+    ],
+    "object-shorthand-properties-first": false, // airbnb 3.3 why? wtf? no! pain
+  }
 }

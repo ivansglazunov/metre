@@ -5,16 +5,14 @@ import { StaticRouter } from 'react-router';
 
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
-import { MuiThemeProvider, createMuiTheme, createGenerateClassName } from '@material-ui/core/styles';
+import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
 
-import { Routes } from '../components/routes';
+import { Routes } from '../imports/components/routes';
+import theme from '../imports/theme';
 
-onPageLoad((sink) => {
+onPageLoad((sink: any) => {
 
   const sheetsRegistry = new SheetsRegistry();
-
-  const theme = createMuiTheme({
-  });
 
   const generateClassName = createGenerateClassName();
 
