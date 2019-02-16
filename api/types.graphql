@@ -1,0 +1,22 @@
+type Role {
+  name: String!
+  group: String!
+}
+
+type User {
+  id: String!
+  email: String
+  username: String
+  firstname: String
+  lastname: String
+  secondname: String
+  phone: String
+  region: String
+  roles: [Role]!
+  inRole(name: String!, group: String!): Boolean
+}
+
+type Query {
+  user: User
+  getUser(id: String): User
+}

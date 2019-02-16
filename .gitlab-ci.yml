@@ -1,0 +1,99 @@
+stages:
+  - build
+  - docker
+  - deploy
+
+build_job:
+  stage: build
+  image: valentineus/meteor:build-1.6
+
+  only:
+    - dev
+    - dev-ci
+    - master
+
+  tags:
+    - docker
+
+  artifacts:
+    paths:
+      - build
+
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - node_modules
+
+  variables:
+    METEOR_ALLOW_SUPERUSER: "true"
+    TOOL_NODE_FLAGS: "--max_old_space_size=4096"
+
+  before_script:
+    - apt-get update
+    - apt-get --no-install-recommends --no-install-suggests --yes install procps
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+    - meteor npm install
+    - meteor reset
+
+  script:
+    - meteor build --directory ./build-source --architecture "os.linux.x86_64"
+    - mv ./build-source/bundle ./build
+    - cd ./build/programs/server
+    - meteor npm install
+
+docker_job:
+  stage: docker
+  image: docker:stable
+
+  services:
+    - docker:dind
+
+  only:
+    - dev
+    - dev-ci
+    - master
+
+  tags:
+    - docker
+
+  artifacts:
+    paths:
+      - build
+
+  before_script:
+    - docker login --username "$(printenv GITLAB_USERNAME)" --password "$(printenv GITLAB_PASSWORD)" registry.styleschool.ru
+
+  script:
+    - docker build --tag "$(printenv GITLAB_REPOSITORY):$(printenv CI_COMMIT_REF_SLUG)" ./
+    - docker push "$(printenv GITLAB_REPOSITORY):$(printenv CI_COMMIT_REF_SLUG)"
+
+deploy_job:
+  stage: deploy
+
+  only:
+    - dev
+    - dev-ci
+    - master
+
+  tags:
+    - hetzner
+
+  before_script:
+    - docker rm --force "$(printenv CONTAINER_NAME)_$(printenv CI_COMMIT_REF_SLUG)"
+    - docker login --username "$(printenv GITLAB_USERNAME)" --password "$(printenv GITLAB_PASSWORD)" registry.styleschool.ru
+
+  script:
+    - docker pull "$(printenv GITLAB_REPOSITORY):$(printenv CI_COMMIT_REF_SLUG)"
+    - docker run --detach
+      --env "GITLAB_PROFILE_TOKEN=$(printenv GITLAB_PROFILE_TOKEN)"
+      --env "GITLAB_PROFILE_URL=$(printenv GITLAB_PROFILE_URL)"
+      --env "MAIL_URL=$(printenv MAIL_URL)"
+      --env "MONGO_URL=$(printenv MONGO_URL_$(printenv CI_COMMIT_REF_SLUG))"
+      --env "ROOT_URL=$(printenv ROOT_URL_$(printenv CI_COMMIT_REF_SLUG))"
+      --env "TOKEN=$(printenv TOKEN_KEY)"
+      --name "$(printenv CONTAINER_NAME)_$(printenv CI_COMMIT_REF_SLUG)"
+      --publish $(printenv PORT_$(printenv CI_COMMIT_REF_SLUG)):3000
+      --restart=always
+      --volume "$(printenv LOG)$(printenv CI_COMMIT_REF_SLUG):/var/log/app"
+      "$(printenv GITLAB_REPOSITORY):$(printenv CI_COMMIT_REF_SLUG)"

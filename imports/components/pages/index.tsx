@@ -1,22 +1,44 @@
+import _ from 'lodash';
 import * as React from 'react';
+import { Meteor } from 'meteor/meteor';
+import { Accounts } from 'meteor/accounts-base';
 
-import {Helmet} from "react-helmet";
-import { withStyles, StyleRulesCallback } from '@material-ui/core/styles';
+import classNames from 'classnames';
+import moment from 'moment';
+import gql from "graphql-tag";
 
-const styles = () => ({
-  
-});
+import { withStyles } from '@material-ui/core/styles';
 
-export const Component = (props : any) => {
-  const { classes } = props;
-  return (
-    <div>
-      <Helmet>
-        <title>meteor+ts+react+ssr+mui blueprint</title>
-      </Helmet>
-      meteor+ts+react+ssr+mui blueprint
-    </div>
-  );
-};
+import { Graphql } from '../impl/graphql';
 
-export default withStyles(styles)(Component);
+export default withStyles(
+  theme => ({
+  }),
+)(
+  class Page extends React.Component <any, any, any>{
+    static defaultProps = {
+    };
+
+    state = {
+      open: true
+    };
+
+    render() {
+      const { open } = this.state;
+      return <div>
+        <button onClick={() => this.setState({ open: !open })}>{open ? 'hide' : 'show'}</button>
+        {open && <Graphql query={gql`{ user { id username } }`} render={(state) => <React.Fragment>
+          {_.get(state, 'result.data.user') ? <React.Fragment>
+            <button onClick={() => Accounts.logout()}>logout</button>
+          </React.Fragment> : <React.Fragment>
+            <button onClick={() => Accounts.createUser({ username: 'test', password: 'test' })}>create</button>
+            <button onClick={() => Meteor.loginWithPassword('test', 'test')}>login</button>
+          </React.Fragment>}
+          <div>
+            {JSON.stringify(state)}
+          </div>
+        </React.Fragment>}/>}
+      </div>;
+    }
+  },
+);
