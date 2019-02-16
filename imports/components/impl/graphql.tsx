@@ -48,11 +48,9 @@ export class Graphql extends React.Component
   componentDidMount() {
     const { query } = this.props;
     this._isMounted = true;
-    Meteor.startup(() => { console.log('startup'); this.restream(); });
-    Accounts.onLogin(() => { console.log('onLogin'); this.restream(); });
-    Accounts.onLogout(() => { console.log('onLogout'); setTimeout(() => {
-      this.restream();
-    }, 1000); });
+    Meteor.startup(this.restream);
+    Accounts.onLogin(this.restream);
+    Accounts.onLogout(this.restream);
   }
   componentWillUnmount() {
     this._isMounted = false;
