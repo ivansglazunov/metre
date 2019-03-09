@@ -10,9 +10,7 @@ import { parseUser } from './parsers.graphql';
 
 export const resolvers = {
   Query: {
-    user: () => Users.find({ _id: Meteor.userId() })
+    authorizedUsers: () => Users.find({ _id: Meteor.userId() })
     .pipe(map(users => _.map(users, parseUser)))
-    .pipe(concatAll())
-    .pipe(first())
   }
 };

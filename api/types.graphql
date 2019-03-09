@@ -17,6 +17,5 @@ type User {
 }
 
 type Query {
-  user: User
-  getUser(id: String): User
+  authorizedUsers: User
 }

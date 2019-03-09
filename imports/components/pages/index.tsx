@@ -27,8 +27,8 @@ export default withStyles(
       const { open } = this.state;
       return <div>
         <button onClick={() => this.setState({ open: !open })}>{open ? 'hide' : 'show'}</button>
-        {open && <Graphql query={gql`{ user { id username } }`} render={(state) => <React.Fragment>
-          {_.get(state, 'result.data.user') ? <React.Fragment>
+        {open && <Graphql query={gql`{ authorizedUsers { id username firstname } }`} render={(state) => <React.Fragment>
+          {!_.isEmpty(_.get(state, 'result.data.authorizedUsers')) ? <React.Fragment>
             <button onClick={() => Accounts.logout()}>logout</button>
           </React.Fragment> : <React.Fragment>
             <button onClick={() => Accounts.createUser({ username: 'test', password: 'test' })}>create</button>
