@@ -1,4 +1,4 @@
-# meteor+ts+react+ssr+mui-blueprint
+# metre
 
 Install https://www.meteor.com/install, and then:
 ```
@@ -8,9 +8,9 @@ npm i
 meteor run
 ```
 
-Pulling changes from main [github](https://github.com/styleschool/meteor-ts-react-ssr-mui-blueprint) repo.
+Pulling changes from main [github](https://github.com/ivansglazunov/metre) repo.
 ```
-git remote add base https://github.com/styleschool/meteor-ts-react-ssr-mui-blueprint.git
+git remote add base https://github.com/ivansglazunov/metre.git
 git fetch base
 git merge base/master
 ```
