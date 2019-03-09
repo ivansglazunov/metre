@@ -4,8 +4,8 @@ import * as ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
 
-import { Routes } from '../imports/components/routes';
-import theme from '../imports/theme';
+import { Routes } from '../imports/react/routes';
+import theme from '../imports/react/theme';
 
 Meteor.startup(() => {
   ReactDOM.hydrate(

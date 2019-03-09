@@ -10,6 +10,7 @@ import gql from "graphql-tag";
 import { withStyles } from '@material-ui/core/styles';
 
 import { Graphql } from '../impl/graphql';
+import { Test } from '../components/test';
 
 export default withStyles(
   theme => ({
@@ -27,17 +28,16 @@ export default withStyles(
       const { open } = this.state;
       return <div>
         <button onClick={() => this.setState({ open: !open })}>{open ? 'hide' : 'show'}</button>
-        {open && <Graphql query={gql`{ authorizedUsers { id username firstname } }`} render={(state) => <React.Fragment>
-          {!_.isEmpty(_.get(state, 'result.data.authorizedUsers')) ? <React.Fragment>
-            <button onClick={() => Accounts.logout()}>logout</button>
-          </React.Fragment> : <React.Fragment>
-            <button onClick={() => Accounts.createUser({ username: 'test', password: 'test' })}>create</button>
-            <button onClick={() => Meteor.loginWithPassword('test', 'test')}>login</button>
-          </React.Fragment>}
-          <div>
-            {JSON.stringify(state)}
-          </div>
-        </React.Fragment>}/>}
+        {open && <Graphql query={gql`{ authorizedUsers { id username firstname } }`} render={(state) => {
+          const user = _.get(state, 'result.data.authorizedUsers.0');
+          return <Test
+            user={user}
+            create={() => Accounts.createUser({ username: 'test', password: 'test' })}
+            login={() => Meteor.loginWithPassword('test', 'test')}
+            logout={() => Accounts.logout()}
+            random={() => Meteor.users.update(user.id, { $set: { 'profile.firstname': Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5) } })}
+          />;
+        }}/>}
       </div>;
     }
   },

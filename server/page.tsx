@@ -9,8 +9,8 @@ import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
 import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
 
-import { Routes } from '../imports/components/routes';
-import theme from '../imports/theme';
+import { Routes } from '../imports/react/routes';
+import theme from '../imports/react/theme';
 
 onPageLoad((sink: any) => {
 
