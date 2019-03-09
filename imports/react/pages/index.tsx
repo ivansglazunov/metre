@@ -27,17 +27,30 @@ export default withStyles(
     render() {
       const { open } = this.state;
       return <div>
-        <button onClick={() => this.setState({ open: !open })}>{open ? 'hide' : 'show'}</button>
-        {open && <Graphql query={gql`{ authorizedUsers { id username firstname } }`} render={(state) => {
-          const user = _.get(state, 'result.data.authorizedUsers.0');
-          return <Test
-            user={user}
-            create={() => Accounts.createUser({ username: 'test', password: 'test' })}
-            login={() => Meteor.loginWithPassword('test', 'test')}
-            logout={() => Accounts.logout()}
-            random={() => Meteor.users.update(user.id, { $set: { 'profile.firstname': Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5) } })}
-          />;
-        }}/>}
+        {
+          open
+          ? <Graphql query={gql`{ authorizedUsers { id username firstname } }`} render={(state) => {
+            const user = _.get(state, 'result.data.authorizedUsers.0');
+            return <Test
+              open={open}
+              toggle={() => this.setState({ open: !open })}
+              user={user}
+              create={() => Accounts.createUser({ username: 'test', password: 'test' })}
+              login={() => Meteor.loginWithPassword('test', 'test')}
+              logout={() => Accounts.logout()}
+              random={() => Meteor.users.update(user.id, { $set: { 'profile.firstname': Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5) } })}
+            />;
+          }}/>
+          : <Test
+            open={open}
+            toggle={() => this.setState({ open: !open })}
+            user={null}
+            create={null}
+            login={null}
+            logout={null}
+            random={null}
+          />
+        }
       </div>;
     }
   },
