@@ -6,7 +6,7 @@ export interface IProps {
   user: {
     id: string;
     firstname: string;
-  }
+  };
   posts: {
     id: string;
     content: string;
@@ -22,9 +22,9 @@ export const UserPosts = ({
   createRandom,
 }: IProps) => {
   return <div>
-    <button onClick={createRandom}>createRandom</button> for user {user && user.firstname}
+    <button onClick={createRandom}>createRandom</button> for {user && user.firstname}
     <ul>
-      {posts && posts.map(post => <li>
+      {posts && posts.map(post => <li key={post.id}>
         {post.content}
         <button onClick={() => remove(post.id)}>remove</button>
       </li>)}
