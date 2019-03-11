@@ -12,13 +12,13 @@ import { parseDoc, parseUser } from './parsers.graphql';
 export const resolvers = {
   Query: {
     authorizedUsers: () => {
-      return Users.reactive({ _id: Meteor.userId() }).observable
+      return Users.find({ _id: Meteor.userId() }).result
       .pipe(map(docs => _.map(docs, parseUser)))
     },
   },
   User: {
     posts: (user) => {
-      return Posts.reactive({ userId: Meteor.userId() }).observable
+      return Posts.find({ userId: Meteor.userId() }).result
       .pipe(map(docs => _.map(docs, parseDoc)))
     },
   },
