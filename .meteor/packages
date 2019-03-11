@@ -23,3 +23,6 @@ swydo:graphql
 accounts-base
 accounts-password
 gwendall:auth-client-callbacks
+swydo:ddp-apollo
+peerlibrary:reactive-publish
+react-meteor-data

@@ -1,5 +1,12 @@
 import _ from 'lodash';
 
+export const parseDoc = ({ _id, ...doc }) => {
+  return {
+    id: _id,
+    ...doc,
+  };
+};
+
 export const parseUser = ({
   _id: id = undefined,
   username = undefined,

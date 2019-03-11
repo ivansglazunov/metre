@@ -6,6 +6,7 @@ import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/sty
 
 import { Routes } from '../imports/react/routes';
 import theme from '../imports/react/theme';
+import { client } from '../imports/api/client';
 
 Meteor.startup(() => {
   ReactDOM.hydrate(

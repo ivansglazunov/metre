@@ -1,12 +1,15 @@
-import _ from 'lodash';
-import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { Accounts } from 'meteor/accounts-base';
+import _ from "lodash";
+import React from "react";
+import { Meteor } from "meteor/meteor";
+import { Accounts } from "meteor/accounts-base";
+import { withTracker } from "meteor/react-meteor-data";
+import { Observable } from "rxjs";
 
-import { graphql, schema } from '../../../api/index';
+import { graphql, schema } from "../../api/index";
 
 export interface IProps {
   query: any;
+  stream?: Observable<any>;
   onChange?: (state: IState) => void;
   render?: (state: IState) => any;
 };
@@ -16,41 +19,41 @@ export interface IState {
   result: any;
 }
 
-export class Graphql extends React.Component
-<IProps, IState> {
+export class GraphqlCore extends React.Component<IProps, IState> {
   state = {
     loading: true,
-    result: null,
+    result: null
   };
-  public stream;
   public subscription;
   public subscribe = result => {
     const { onChange } = this.props;
     if (onChange) onChange(this.state);
     this.setState({
       loading: false,
-      result,
+      result
     });
   };
   public _isMounted = false;
   restream = () => {
-    const { query } = this.props;
+    const { query, stream } = this.props;
     if (this.subscription) this.subscription.unsubscribe();
     this.setState({
       loading: true,
-      result: null,
+      result: null
     });
     if (this._isMounted) {
-      this.stream = graphql(schema, query);
-      this.subscription = this.stream.subscribe(this.subscribe);
+      this.subscription = stream.subscribe(this.subscribe);
     }
-  }
+  };
   componentDidMount() {
     const { query } = this.props;
     this._isMounted = true;
     Meteor.startup(this.restream);
     Accounts.onLogin(this.restream);
     Accounts.onLogout(this.restream);
+  }
+  componentDidUpdate(prevProps) {
+    if (prevProps.stream != this.props.stream) this.restream();
   }
   componentWillUnmount() {
     this._isMounted = false;
@@ -67,3 +70,9 @@ export class Graphql extends React.Component
     return render ? render(this.state) : null;
   }
 }
+
+export const Graphql = withTracker<any, any>(({ query }) => {
+  return {
+    stream: graphql(query),
+  };
+})(GraphqlCore);
