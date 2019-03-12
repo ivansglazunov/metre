@@ -11,8 +11,10 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { Graphql } from '../impl/graphql';
 import { graphql } from '../../api/index';
-import { Firstname } from '../components/Firstname';
-import { UserPosts } from '../components/UserPosts';
+
+import { Firstname } from '@bit/ivansglazunov.metre.firstname';
+import { UserPosts } from '@bit/ivansglazunov.metre.userposts';
+
 import Posts from '../../api/collections/posts';
 
 export default withStyles(

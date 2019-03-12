@@ -18,7 +18,7 @@ export const resolvers = {
   },
   User: {
     posts: (user) => {
-      return Posts.find({ userId: Meteor.userId() }).result
+      return Posts.find({ userId: user.id }).result
       .pipe(map(docs => _.map(docs, parseDoc)))
     },
   },
