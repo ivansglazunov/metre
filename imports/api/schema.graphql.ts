@@ -6,13 +6,22 @@ export default gql`
     group: String!
   }
 
-  type User {
-    id: String!
-    email: String
-    username: String
+  type Email {
+    address: String
+    verified: Boolean
+  }
+  
+  type Profile {
     firstname: String
     lastname: String
     secondname: String
+  }
+
+  type User {
+    _id: String!
+    emails: [Email]
+    username: String
+    profile: Profile
     phone: String
     region: String
     roles: [Role]!
@@ -21,7 +30,7 @@ export default gql`
   }
 
   type Post {
-    id: String!
+    _id: String!
     userId: String!
     content: String
   }

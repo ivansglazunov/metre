@@ -13,13 +13,11 @@ export const resolvers = {
   Query: {
     authorizedUsers: () => {
       return Users.find({ _id: Meteor.userId() }).result
-      .pipe(map(docs => _.map(docs, parseUser)))
     },
   },
   User: {
     posts: (user) => {
-      return Posts.find({ userId: user.id }).result
-      .pipe(map(docs => _.map(docs, parseDoc)))
+      return Posts.find({ userId: user._id }).result
     },
   },
   Mutation: {

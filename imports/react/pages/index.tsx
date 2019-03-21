@@ -29,15 +29,11 @@ export default withStyles(
       open: true
     };
 
-    queryUser = gql`{
-      user: authorizedUsers {
-        id username firstname
-      }
-    }`;
-
     queryPosts = gql`{
       user: authorizedUsers {
-        id username firstname posts { id content }
+        _id username
+        profile { firstname }
+        posts { _id content }
       }
     }`;
 
@@ -48,37 +44,39 @@ export default withStyles(
       return <div>
         {
           open
-          ? <Graphql query={this.queryUser} render={(state) => {
+          ? <Graphql query={this.queryPosts} render={(state) => {
             const user = _.get(state, 'result.data.user.0');
-            return <Firstname
-              open={open}
-              toggle={() => this.setState({ open: !open })}
-              user={user}
-              create={() => Accounts.createUser({ username: 'test', password: 'test' })}
-              login={() => Meteor.loginWithPassword('test', 'test')}
-              logout={() => Accounts.logout()}
-              random={() => graphql(this.mutationRandom)}
-            />;
+            return  <div>
+              <Firstname
+                open={open}
+                toggle={() => this.setState({ open: !open })}
+                user={user}
+                create={() => Accounts.createUser({ username: 'test', password: 'test' })}
+                login={() => Meteor.loginWithPassword('test', 'test')}
+                logout={() => Accounts.logout()}
+                random={() => graphql(this.mutationRandom)}
+              />
+              <pre>
+                {JSON.stringify(state)}
+              </pre>
+              <UserPosts
+                name={_.get(state, 'result.data.user.0.profile.firstname', '')}
+                posts={_.get(state, 'result.data.user.0.posts', [])}
+                remove={(id) => Posts.remove(id)}
+                createRandom={() => Posts.insert({ userId: _.get(state, 'result.data.user.0._id'), content: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5) })}
+              />
+            </div>;
           }}/>
           : <Firstname
             open={open}
             toggle={() => this.setState({ open: !open })}
             user={null}
-            create={null}
-            login={null}
-            logout={null}
-            random={null}
+            create={() => {}}
+            login={() => {}}
+            logout={() => {}}
+            random={() => {}}
           />
         }
-        <hr/>
-        <Graphql query={this.queryPosts} render={(state) => {
-          return <UserPosts
-            user={_.get(state, 'result.data.user.0')}
-            posts={_.get(state, 'result.data.user.0.posts')}
-            remove={(id) => Posts.remove(id)}
-            createRandom={() => Posts.insert({ userId: _.get(state, 'result.data.user.0.id'), content: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5) })}
-          />;
-        }}/>
       </div>;
     }
   },
