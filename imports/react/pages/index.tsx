@@ -1,83 +1,89 @@
-import _ from 'lodash';
-import * as React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
+import * as React from 'react';
+import _ from 'lodash';
+import { withTracker } from 'meteor/react-meteor-data';
 
-import classNames from 'classnames';
-import moment from 'moment';
-import gql from "graphql-tag";
-
+// @ts-ignore
 import { withStyles } from '@material-ui/core/styles';
-
-import { Graphql } from '../impl/graphql';
-import { graphql } from '../../api/index';
 
 import { Firstname } from '@bit/ivansglazunov.metre.firstname';
 import { UserPosts } from '@bit/ivansglazunov.metre.userposts';
 
-import Posts from '../../api/collections/posts';
+import { Users, Posts } from '../../api/collections/index';
 
-export default withStyles(
-  theme => ({
-  }),
-)(
-  class Page extends React.Component <any, any, any>{
-    static defaultProps = {
-    };
+class Component extends React.Component <any, any, any>{
+  state = {
+    open: true,
+  };
 
-    state = {
-      open: true
-    };
+  // @ts-ignore
+  createUser = () => Accounts.createUser({ username: 'test', password: 'test' });
 
-    queryPosts = gql`{
-      user: authorizedUsers {
-        _id username
-        profile { firstname }
-        posts { _id content }
-      }
-    }`;
+  // @ts-ignore
+  logout = () => Accounts.logout();
 
-    mutationRandom = gql`mutation { random { id } }`;
+  createRandomPost = () => Posts.insert({ userId: Meteor.userId(), content: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5) });
 
-    render() {
-      const { open } = this.state;
-      return <div>
-        {
-          open
-          ? <Graphql query={this.queryPosts} render={(state) => {
-            const user = _.get(state, 'result.data.user.0');
-            return  <div>
-              <Firstname
-                open={open}
-                toggle={() => this.setState({ open: !open })}
-                user={user}
-                create={() => Accounts.createUser({ username: 'test', password: 'test' })}
-                login={() => Meteor.loginWithPassword('test', 'test')}
-                logout={() => Accounts.logout()}
-                random={() => graphql(this.mutationRandom)}
-              />
-              <pre>
-                {JSON.stringify(state)}
-              </pre>
-              <UserPosts
-                name={_.get(state, 'result.data.user.0.profile.firstname', '')}
-                posts={_.get(state, 'result.data.user.0.posts', [])}
-                remove={(id) => Posts.remove(id)}
-                createRandom={() => Posts.insert({ userId: _.get(state, 'result.data.user.0._id'), content: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5) })}
-              />
-            </div>;
-          }}/>
-          : <Firstname
-            open={open}
-            toggle={() => this.setState({ open: !open })}
-            user={null}
-            create={() => {}}
-            login={() => {}}
-            logout={() => {}}
-            random={() => {}}
-          />
-        }
-      </div>;
-    }
-  },
-);
+  randomUsername = () => Users.update(Meteor.userId(), { $set: { 'profile.username':  Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5) } });
+
+  removePost = (id) => Posts.remove(id);
+
+  render() {
+    const { open } = this.state;
+
+    return <div>
+      <div style={{ fontWeight: 'bold' }}>
+        JSON.stringify(this.props.users)
+      </div>
+      <div>
+        {JSON.stringify(this.props.users)}
+      </div>
+      <div style={{ fontWeight: 'bold' }}>
+        JSON.stringify(this.props.posts)
+      </div>
+      <div>
+        {JSON.stringify(this.props.posts)}
+      </div>
+      <div style={{ fontWeight: 'bold' }}>
+        @bit/ivansglazunov.metre.firstname
+      </div>
+      <div>
+        <Firstname
+          open={open}
+          toggle={() => this.setState({ open: !open })}
+          user={_.get(this, 'props.users.0', '')}
+          create={this.createUser}
+          login={() => Meteor.loginWithPassword('test', 'test')}
+          logout={this.logout}
+          random={this.randomUsername}
+        />
+      </div>
+      <div style={{ fontWeight: 'bold' }}>
+        @bit/ivansglazunov.metre.userposts
+      </div>
+      <div>
+        <UserPosts
+          name={_.get(this, 'props.users.0.profile.firstname', '')}
+          posts={_.get(this, 'props.posts', [])}
+          remove={this.removePost}
+          createRandom={this.createRandomPost}
+        />
+      </div>
+    </div>;
+  }
+}
+
+const tracked = withTracker((props) => {
+  const users = Users.find({});
+  const posts = Posts.find({ userId: { $in: users.map(u => u._id) } });
+  return {
+    users: users.fetch(),
+    posts: posts.fetch(),
+    ...props,
+  };
+})((props: any) => <Component {...props}/>);
+
+const styled = withStyles(theme => ({}))(tracked);
+
+export default styled;

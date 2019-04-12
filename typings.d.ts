@@ -1,12 +1,4 @@
-import { Observable } from 'rxjs';
-
 declare module '*';
-
-declare namespace JSX {
-  interface IntrinsicAttributes {
-    [name: string]: any;
-  }
-}
 
 declare module "meteor/meteor" {
   module Meteor {
@@ -22,9 +14,4 @@ declare module "meteor/accounts-base" {
     var _hooksLogin: any[];
     var _hooksLogout: any[];
   }
-}
-
-declare module "meteor/swydo:ddp-apollo" {
-  var setup: any;
-  var setupHttpEndpoint: any;
 }

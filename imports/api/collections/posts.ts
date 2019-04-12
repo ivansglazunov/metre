@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { MongoObservable, ObservableCursor } from 'meteor-rxjs';
 
-import { Collection } from '../collections';
+import { wrapCollection } from '../collection';
 
 export interface IPost {
   _id?: string;
@@ -10,13 +10,13 @@ export interface IPost {
   content?: string;
 }
 
-export const Posts = new Collection<IPost>('posts');
+export const Posts = wrapCollection(new Mongo.Collection<IPost>('posts'));
 export default Posts;
 
 if (Meteor.isServer) {
   Meteor.publish('posts', function(query, options) {
     this.autorun(function() {
-      return Posts._collection.find(query, options);
+      return Posts.find(query, options);
     });
   });
   Posts.allow({
