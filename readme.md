@@ -5,7 +5,7 @@ Install:
 - https://git-scm.com/
 - https://www.meteor.com
 - https://bit.dev
-- hhttps://nodejs.org
+- https://nodejs.org
 
 Then:
 
