@@ -1,7 +1,7 @@
 import Users from './users';
-import Posts from './posts';
+import Nodes from './nodes';
 
 export {
   Users,
-  Posts,
+  Nodes,
 };

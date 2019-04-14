@@ -7,79 +7,75 @@ import { withTracker } from 'meteor/react-meteor-data';
 // @ts-ignore
 import { withStyles } from '@material-ui/core/styles';
 
-import { Firstname } from '@bit/ivansglazunov.metre.firstname';
-import { UserPosts } from '@bit/ivansglazunov.metre.userposts';
-
-import { Users, Posts } from '../../api/collections/index';
+import { Users, Nodes } from '../../api/collections/index';
 
 class Component extends React.Component <any, any, any>{
   state = {
-    open: true,
+    moving: null,
   };
 
-  // @ts-ignore
-  createUser = () => Accounts.createUser({ username: 'test', password: 'test' });
+  level = (tree, depth, left, right) => {
+    const nodes = Nodes
+    .find({
+      [`in.${tree}.depth`]: depth,
+      [`in.${tree}.left`]: { $gte: left },
+      [`in.${tree}.right`]: { $lte: right },
+    });
 
-  // @ts-ignore
-  logout = () => Accounts.logout();
+    return nodes.map(node => {
+      const nin = _.get(node, 'in.nesting');
 
-  createRandomPost = () => Posts.insert({ userId: Meteor.userId(), content: Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5) });
+      return <div
+        key={node._id}
+        style={{
+          width: `${100 / nodes.count()}%`,
+          float: 'left',
+        }}
+      >
+        <div
+          style={{ padding: 6, border: '1px solid black' }}
+        >
+          <div style={{ fontSize: 8 }}>{node._id}</div>
+          <div>
+            {nin.left}|{nin.right}
+            <span onClick={() => node.put('nesting', Nodes.insert({}))}>+</span>
+            <span onClick={() => node.pull('nesting')}>x</span>
+            <span onClick={() => this.setState({ moving: node._id })}>c</span>
+            <span onClick={() => node.move('nesting', this.state.moving)}>p</span>
+          </div>
+        </div>
+        {this.level(tree, depth + 1, nin.left, nin.right)}
+      </div>;
+    });
+  };
 
-  randomUsername = () => Users.update(Meteor.userId(), { $set: { 'profile.username':  Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5) } });
-
-  removePost = (id) => Posts.remove(id);
+  free = (tree) => {
+    return Nodes.find({ [`in.${tree}`]: { $exists: false } })
+    .map((node) => {
+      return <div
+        key={node._id}
+        style={{ padding: 6, border: '1px solid black', float: 'left' }}
+      >
+        <div style={{ fontSize: 8 }}>{node._id}</div>
+      </div>;
+    });
+  };
 
   render() {
-    const { open } = this.state;
-
     return <div>
-      <div style={{ fontWeight: 'bold' }}>
-        JSON.stringify(this.props.users)
-      </div>
-      <div>
-        {JSON.stringify(this.props.users)}
-      </div>
-      <div style={{ fontWeight: 'bold' }}>
-        JSON.stringify(this.props.posts)
-      </div>
-      <div>
-        {JSON.stringify(this.props.posts)}
-      </div>
-      <div style={{ fontWeight: 'bold' }}>
-        @bit/ivansglazunov.metre.firstname
-      </div>
-      <div>
-        <Firstname
-          open={open}
-          toggle={() => this.setState({ open: !open })}
-          user={_.get(this, 'props.users.0', '')}
-          create={this.createUser}
-          login={() => Meteor.loginWithPassword('test', 'test')}
-          logout={this.logout}
-          random={this.randomUsername}
-        />
-      </div>
-      <div style={{ fontWeight: 'bold' }}>
-        @bit/ivansglazunov.metre.userposts
-      </div>
-      <div>
-        <UserPosts
-          name={_.get(this, 'props.users.0.profile.firstname', '')}
-          posts={_.get(this, 'props.posts', [])}
-          remove={this.removePost}
-          createRandom={this.createRandomPost}
-        />
-      </div>
+      {this.level('nesting', 0, 0, 999999999999999)}
+      <br/><hr/><br/>
+      {this.free('nesting')}
     </div>;
   }
 }
 
 const tracked = withTracker((props) => {
-  const users = Users.find({});
-  const posts = Posts.find({ userId: { $in: users.map(u => u._id) } });
+  const users = Users.find();
+  const nodes = Nodes.find();
   return {
     users: users.fetch(),
-    posts: posts.fetch(),
+    nodes: nodes.fetch(),
     ...props,
   };
 })((props: any) => <Component {...props}/>);

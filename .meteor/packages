@@ -24,3 +24,6 @@ accounts-password
 peerlibrary:reactive-publish
 react-meteor-data
 underscore
+random
+matb33:collection-hooks
+dburles:collection-helpers
