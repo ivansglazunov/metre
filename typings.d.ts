@@ -9,6 +9,15 @@ declare module "meteor/meteor" {
   }
 }
 
+declare module "meteor/mongo" {
+  module Mongo {
+    interface Cursor<T> {
+      sub: any;
+      ready(): boolean;
+    }
+  }
+}
+
 declare module "meteor/accounts-base" {
   module Accounts {
     var _hooksLogin: any[];

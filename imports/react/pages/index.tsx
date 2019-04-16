@@ -76,6 +76,7 @@ const tracked = withTracker((props) => {
   const users = Users.find();
   const nodes = Nodes.find();
   return {
+    ready: users.ready() && nodes.ready(),
     users: users.fetch(),
     nodes: nodes.fetch(),
     ...props,
