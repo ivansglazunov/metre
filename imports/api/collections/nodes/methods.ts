@@ -10,7 +10,6 @@ export function moveRights(
   right,
   done,
 ) {
-  console
   Nodes.update({
     [`in.${tree}.space`]: space,
     [`in.${tree}.left`]: { $gt: right },
