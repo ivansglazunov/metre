@@ -14,11 +14,11 @@ class Component extends React.Component <any, any, any>{
     return <div>
       <h1>users</h1>
       <div>
-        {this.props.users.map(user => <div>{JSON.stringify(user)}</div>)}
+        {this.props.users.map(user => <div key={user._id}>{JSON.stringify(user)}</div>)}
       </div>
       <h1>posts</h1>
       <div>
-        {this.props.nodes.map(node => <div>{JSON.stringify(node)}</div>)}
+        {this.props.nodes.map(node => <div key={node._id}>{JSON.stringify(node)}</div>)}
       </div>
     </div>;
   }

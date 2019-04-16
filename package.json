@@ -38,7 +38,6 @@
     "react-scrollchor": "^6.0.0",
     "react-sticky": "^6.0.3",
     "react-swipeable-views": "^0.13.1",
-    "reactive-graphql": "^3.0.2",
     "simpl-schema": "^1.5.5",
     "tslint-config-evolvator": "0.0.0",
     "uniforms": "^1.31.1",
