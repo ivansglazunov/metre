@@ -10,10 +10,7 @@ export function moveRights(
   right,
   done,
 ) {
-  console.log('moveRights', { 
-    size, tree,
-    space,
-    right,});
+  console
   Nodes.update({
     [`in.${tree}.space`]: space,
     [`in.${tree}.left`]: { $gt: right },
@@ -25,43 +22,35 @@ export function moveRights(
   }, { multi: true }, done);
 };
 
-export function resizeParents(
+export function resize(
   size, tree,
-  space,
-  left, right, depth,
+  selector,
+  direction,
   done,
 ) {
-  console.log('resizeParents', { 
-    size, tree,
-    space,
-    left, right, depth,});
-
-  Nodes.update({
-    [`in.${tree}.space`]: space,
-    [`in.${tree}.left`]: { $lte: left },
-    [`in.${tree}.right`]: { $gte: right },
-    [`in.${tree}.depth`]: { $lte: depth },
-  }, {
+  Nodes.update(selector, {
     $inc: {
-      [`in.${tree}.right`]: size,
+      [`in.${tree}.${direction}`]: size,
     },
-  }, { multi: true }, done);
+  }, { multi: true }, (error, result) => {
+    done(error, result);
+  });
 };
 
-export function moveNodes(
+export function nodesMoveSpace(
   tree,
-  space,
-  left0, right0, depth0,
-  left1, right1, depth1,
+  space0,
+  left0,
+  right0,
+  depth0,
+  space1,
+  left1,
+  right1,
+  depth1,
   done,
 ) {
-  console.log('moveNodes', { 
-    tree,
-    space,
-    left0, right0, depth0,
-    left1, right1, depth1,});
   Nodes.update({
-    [`in.${tree}.space`]: space,
+    [`in.${tree}.space`]: space0,
     [`in.${tree}.left`]: { $gte: left0 },
     [`in.${tree}.right`]: { $lte: right0 },
     [`in.${tree}.depth`]: { $gte: depth0 },
@@ -70,6 +59,9 @@ export function moveNodes(
       [`in.${tree}.left`]: left1,
       [`in.${tree}.right`]: right1,
       [`in.${tree}.depth`]: depth1,
+    },
+    $set: {
+      [`in.${tree}.space`]: space1,
     },
   }, { multi: true }, done);
 };
@@ -81,11 +73,6 @@ export function nodeSet(
   left, right, depth,
   done,
 ) {
-  console.log('nodeSet', { 
-    nodeId, parentId,
-    tree,
-    space,
-    left, right, depth,});
   Nodes.update({
     _id: nodeId,
   }, {
@@ -107,10 +94,6 @@ export function nodesUnset(
   left, right, depth,
   done,
 ) {
-  console.log('nodesUnset', { 
-    tree,
-    space,
-    left, right, depth,});
   Nodes.update({
     [`in.${tree}.space`]: space,
     [`in.${tree}.left`]: { $gte: left },
@@ -139,7 +122,12 @@ export function nodesPut(tree, parentId, nodeId) {
 
   series([
     (done) => moveRights(+size + 1, tree, pin.space, pin.right, done),
-    (done) => resizeParents(+size + 1, tree, pin.space, pin.left, pin.right, pin.depth, done),
+    (done) => resize(+size + 1, tree, {
+      [`in.${tree}.space`]: pin.space,
+      [`in.${tree}.left`]: { $lte: pin.left },
+      [`in.${tree}.right`]: { $gte: pin.right },
+      [`in.${tree}.depth`]: { $lte: pin.depth },
+    }, 'right', done),
     (done) => nodeSet(nodeId, parentId, tree, pin.space, pin.right, pin.right + size, pin.depth + 1, done),
   ], (error, result) => {
     if (error) throw error;
@@ -156,7 +144,12 @@ export function nodesPull(tree, nodeId) {
 
   series([
     (done) => nodesUnset(tree, nin.space, nin.left, nin.right, nin.depth, done),
-    (done) => resizeParents(-(size + 1), tree, nin.space, nin.left, nin.right, nin.depth - 1, done),
+    (done) => resize(-(size + 1), tree, {
+      [`in.${tree}.space`]: nin.space,
+      [`in.${tree}.left`]: { $lte: nin.left },
+      [`in.${tree}.right`]: { $gte: nin.right },
+      [`in.${tree}.depth`]: { $lte: nin.depth - 1 },
+    }, 'right', done),
     (done) => moveRights(-(size + 1), tree, nin.space, nin.right, done),
   ], (error, result) => {
     if (error) throw error;
@@ -164,206 +157,78 @@ export function nodesPull(tree, nodeId) {
 };
 
 export function nodesMove(tree, parentId, nodeId) {
-  const parent = Nodes.findOne({ _id: parentId });
-  if (!parent) throw new Error('parentNotFound');
+  let parent1 = Nodes.findOne({ _id: parentId });
+  if (!parent1) throw new Error('newParentNotFound');
 
-  const pin = _.get(parent, `in.${tree}`);
-  if (!pin) throw new Error('parentNotIntTree');
+  let pin1 = _.get(parent1, `in.${tree}`);
+  if (!pin1) throw new Error('newParentNotIntTree');
 
-  const node = Nodes.findOne({ _id: nodeId });
-  if (!node) throw new Error('nodeNotFound');
+  let parent2, pin2;
 
-  const nin = _.get(node, `in.${tree}`);
-  if (!nin) throw new Error('nodeNotInTree');
-  const size = nin.right - nin.left;
+  const node0 = Nodes.findOne({ _id: nodeId });
+  if (!node0) throw new Error('nodeNotFound');
 
-  if (pin.space !== nin.space) throw new Error('notInSameSpace');
-  if (pin.left >= nin.left && pin.right <= nin.right) throw new Error('cantMoveInSelf');
+  const nin0 = _.get(node0, `in.${tree}`);
+  if (!nin0) throw new Error('nodeNotInTree');
+  const size = nin0.right - nin0.left;
+
+  if (pin1.space === nin0.space && pin1.left >= nin0.left && pin1.right <= nin0.right) {
+    throw new Error('cantMoveInSelf');
+  }
+
+  const tempSpace = Random.id();
 
   series([
-    (done) => resizeParents(size + 1, tree, pin.space, pin.left, pin.right, pin.depth, done),
-    (done) => moveRights(size + 1, tree, pin.space, pin.right, done),
-    (done) => moveNodes(
-      tree, nin.space,
-      nin.left, nin.right, nin.depth,
-      pin.right, pin.right + size, pin.depth,
+    (done) => nodesMoveSpace(
+      tree,
+      nin0.space,
+      nin0.left,
+      nin0.right,
+      nin0.depth,
+      tempSpace,
+      -nin0.left,
+      -nin0.left,
+      -nin0.depth,
       done,
     ),
-    (done) => resizeParents(size + 1, tree, nin.space, nin.left, nin.right, nin.depth - 1, done),
-    (done) => moveRights(size + 1, tree, nin.space, nin.right, done),
+    (done) => resize(-(size + 1), tree, {
+      [`in.${tree}.space`]: nin0.space,
+      [`in.${tree}.left`]: { $lte: nin0.left },
+      [`in.${tree}.right`]: { $gte: nin0.right },
+      [`in.${tree}.depth`]: { $lte: nin0.depth - 1 },
+    }, 'right', done),
+    (done) => moveRights(-(size + 1), tree, nin0.space, nin0.right, done),
+    (done) => {
+      parent2 = Nodes.findOne({ _id: parentId });
+      if (!parent2) throw new Error('newParentNotFound');
+    
+      pin2 = _.get(parent2, `in.${tree}`);
+      if (!pin2) throw new Error('newParentNotIntTree');
+      done();
+    },
+    (done) => moveRights(+size + 1, tree, pin2.space, pin2.right, done),
+    (done) => resize(+size + 1, tree, {
+      [`in.${tree}.space`]: pin2.space,
+      [`in.${tree}.left`]: { $lte: pin2.left },
+      [`in.${tree}.right`]: { $gte: pin2.right },
+      [`in.${tree}.depth`]: { $lte: pin2.depth },
+    }, 'right', done),
+    (done) => nodesMoveSpace(
+      tree,
+      tempSpace,
+      nin0.left - nin0.left,
+      nin0.right - nin0.left,
+      nin0.depth - nin0.depth,
+      pin2.space,
+      (pin2.right),
+      (pin2.right),
+      pin2.depth + 1,
+      done,
+    ),
+    (done) => Nodes.update(node0._id, { $set: {
+      [`in.${tree}.parentId`]: parent1._id,
+    } }, done),
   ], (error, result) => {
     if (error) throw error;
   });
-};
-
-export function _nodesPut(
-  tree: string,
-  parentId: string,
-  childId: string,
-) {
-  const child0 = Nodes.findOne({ _id: childId });
-  if (!child0) throw new Error('childNotFound');
-
-  const cin0 = _.get(child0, `in.${tree}`);
-  const size = cin0 ? (cin0.right - cin0.left) : 1;
-
-  const parent0 = Nodes.findOne({ _id: parentId });
-  if (!parent0) throw new Error('parentNotFound');
-
-  const pin0 = _.get(parent0, `in.${tree}`);
-  if (!pin0) throw new Error('parentNotInTree');
-
-  const hashN = Random.id();
-  const hashP = Random.id();
-
-  const nin = {
-    parentId,
-    left: pin0.right,
-    right: pin0.right + size,
-    depth: pin0.depth + 1,
-    hash: hashN,
-  };
-
-  const list = [];
-
-  // current
-  list.push((next) => {
-    Nodes.update(child0._id, {
-      $set: {
-        [`in.${tree}`]: nin,
-      },
-    }, { multi: true }, next);
-  });
-
-  if (cin0) {
-    // unparents
-    list.push((next) => {
-      Nodes.update({
-        _id: { $ne: child0._id },
-        [`in.${tree}.left`]: { $lte: cin0.left },
-        [`in.${tree}.right`]: { $gte: cin0.right },
-        [`in.${tree}.depth`]: { $lt: cin0.depth },
-      }, {
-        $inc: {
-          [`in.${tree}.right`]: -(size + 1),
-        },
-      }, { multi: true }, next);
-    });
-
-    // unrights
-    list.push((next) => {
-      Nodes.update({
-        _id: { $ne: child0._id },
-        [`in.${tree}.left`]: { $gt: cin0.right },
-      }, {
-        $inc: {
-          [`in.${tree}.left`]: -(size + 1),
-          [`in.${tree}.right`]: -(size + 1),
-        },
-      }, { multi: true }, next);
-    });
-
-    // children
-    list.push((next) => {
-      Nodes.update({
-        _id: { $ne: child0._id },
-        ['in.${tree}.depth']: { $gt: cin0.depth },
-        [`in.${tree}.left`]: { $gt: cin0.left },
-        [`in.${tree}.right`]: { $lt: cin0.right },
-      }, {
-        $inc: {
-          [`in.${tree}.left`]: nin.left - cin0.left,
-          [`in.${tree}.right`]: nin.left - cin0.left,
-          [`in.${tree}.depth`]: nin.depth - cin0.depth,
-        },
-        $set: {
-          [`in.${tree}.hash`]: hashN,
-        },
-      }, { multi: true }, next);
-    });
-  }
-
-  // reparents
-  list.push((next) => {
-    Nodes.update({
-      _id: { $ne: child0._id },
-      [`in.${tree}.left`]: { $lte: pin0.left },
-      [`in.${tree}.right`]: { $gte: pin0.right },
-    }, {
-      $inc: {
-        [`in.${tree}.right`]: (size + 1),
-      },
-    }, { multi: true }, next);
-  });
-
-  // rerights
-  list.push((next) => {
-    Nodes.update({
-      _id: { $ne: child0._id },
-      [`in.${tree}.left`]: { $gt: nin.right },
-      [`in.${tree}.hash`]: { $ne: hashN },
-    }, {
-      $inc: {
-        [`in.${tree}.left`]: (size + 1),
-        [`in.${tree}.right`]: (size + 1),
-      },
-    }, { multi: true }, next);
-  });
-};
-
-export function _nodesPull(
-  tree: string,
-  nodeId: string,
-) {
-  const node = Nodes.findOne({ _id: nodeId });
-  if (!node) throw new Error('nodeNotFound');
-
-  const nin = _.get(node, `in.${tree}`);
-  if (!nin) throw new Error('nodeNotInTree');
-
-  const size = (nin.right - nin.left);
-
-  const list = [];
-
-  // children
-  list.push((next) => {
-    Nodes.update({
-      [`in.${tree}.left`]: { $gte: nin.left },
-      [`in.${tree}.right`]: { $lte: nin.right },
-      [`in.${tree}.depth`]: { $gte: nin.depth },
-    }, {
-      $unset: {
-        [`in.${tree}`]: true,
-      },
-    }, { multi: true }, next);
-  });
-
-  // devide parents
-  list.push((next) => {
-    Nodes.update({
-      _id: { $ne: node._id },
-      [`in.${tree}.left`]: { $lt: nin.left },
-      [`in.${tree}.right`]: { $gt: nin.right },
-      [`in.${tree}.depth`]: { $lt: nin.depth },
-    }, {
-      $inc: {
-        [`in.${tree}.right`]: -(size + 1),
-      },
-    }, { multi: true }, next);
-  });
-
-  // devide rights
-  list.push((next) => {
-    Nodes.update({
-      _id: { $ne: node._id },
-      [`in.${tree}.left`]: { $gt: nin.right },
-    }, {
-      $inc: {
-        [`in.${tree}.left`]: -(size + 1),
-        [`in.${tree}.right`]: -(size + 1),
-      },
-    }, { multi: true }, next);
-  });
-
-  series(list);
 };

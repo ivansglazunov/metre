@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "meteor run"
+    "start": "meteor run",
+    "dev-debug": "meteor debug --inspect-brk=5959"
   },
   "dependencies": {
     "@babel/runtime": "^7.4.3",

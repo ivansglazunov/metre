@@ -14,12 +14,13 @@ class Component extends React.Component <any, any, any>{
     moving: null,
   };
 
-  level = (tree, depth, left, right) => {
+  level = (tree, depth, left, right, space?) => {
     const nodes = Nodes
     .find({
       [`in.${tree}.depth`]: depth,
       [`in.${tree}.left`]: { $gte: left },
       [`in.${tree}.right`]: { $lte: right },
+      [`in.${tree}.space`]: space ? space : { $exists: true },
     });
 
     return nodes.map(node => {
@@ -36,6 +37,7 @@ class Component extends React.Component <any, any, any>{
           style={{ padding: 6, border: '1px solid black' }}
         >
           <div style={{ fontSize: 8 }}>{node._id}</div>
+          <div style={{ fontSize: 8 }}>({nin.space})</div>
           <div>
             {nin.left}|{nin.right}
             <span onClick={() => node.put('nesting', Nodes.insert({}))}>+</span>
@@ -44,7 +46,7 @@ class Component extends React.Component <any, any, any>{
             <span onClick={() => node.move('nesting', this.state.moving)}>p</span>
           </div>
         </div>
-        {this.level(tree, depth + 1, nin.left, nin.right)}
+        {this.level(tree, depth + 1, nin.left, nin.right, nin.space)}
       </div>;
     });
   };

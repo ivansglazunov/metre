@@ -15,11 +15,18 @@
         "type": "node",
         "request": "launch",
         "name": "Meteor: Node",
-        "runtimeExecutable": "npm",
-        "runtimeArgs": ["run", "debug"],
-        "port": 9229,
-        "timeout": 999999,
-        "console": "integratedTerminal",
+        "cwd": "${workspaceRoot}/",
+        "runtimeExecutable": "${workspaceRoot}/.meteor/local/dev_bundle/bin/npm",
+        "restart": true,
+        "timeout": 9999999999,
+        "stopOnEntry":false,
+        "runtimeArgs": [
+            "run",
+            "dev-debug"
+        ],
+        "sourceMaps": true,
+        "protocol": "inspector",
+        "port": 5959
     }
   ]
 }

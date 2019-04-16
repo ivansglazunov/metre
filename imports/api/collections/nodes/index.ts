@@ -38,6 +38,8 @@ export interface INode {
 
 export const Nodes = wrapCollection(new Mongo.Collection<INode>('nodes'));
 export default Nodes;
+// @ts-ignore
+Meteor.nodes = Nodes;
 
 if (Meteor.isServer) {
   Meteor.publish('nodes', function(query, options) {
@@ -61,6 +63,7 @@ if (Meteor.isServer) {
   Meteor.methods({
     [`nodes.put`]: nodesPut,
     [`nodes.pull`]: nodesPull,
+    [`nodes.move`]: nodesMove,
   });
 }
 
@@ -72,6 +75,6 @@ Nodes.helpers({
     Meteor.call('nodes.pull', tree, this._id);
   },
   move(tree: string, parentId: string) {
-    Meteor.call('nodes.pull', tree, this._id, parentId);
+    Meteor.call('nodes.move', tree, this._id, parentId);
   },
 });
