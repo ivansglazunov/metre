@@ -10,64 +10,16 @@ import { withStyles } from '@material-ui/core/styles';
 import { Users, Nodes } from '../../api/collections/index';
 
 class Component extends React.Component <any, any, any>{
-  state = {
-    moving: null,
-  };
-
-  level = (tree, depth, left, right, space?) => {
-    const nodes = Nodes
-    .find({
-      [`in.${tree}.depth`]: depth,
-      [`in.${tree}.left`]: { $gte: left },
-      [`in.${tree}.right`]: { $lte: right },
-      [`in.${tree}.space`]: space ? space : { $exists: true },
-    });
-
-    return nodes.map(node => {
-      const nin = _.get(node, 'in.nesting');
-
-      return <div
-        key={node._id}
-        style={{
-          width: `${100 / nodes.count()}%`,
-          float: 'left',
-        }}
-      >
-        <div
-          style={{ padding: 6, border: '1px solid black' }}
-        >
-          <div style={{ fontSize: 8 }}>{node._id}</div>
-          <div style={{ fontSize: 8 }}>({nin.space})</div>
-          <div>
-            {nin.left}|{nin.right}
-            <span onClick={() => node.put('nesting', Nodes.insert({}))}>+</span>
-            <span onClick={() => node.pull('nesting')}>x</span>
-            <span onClick={() => this.setState({ moving: node._id })}>c</span>
-            <span onClick={() => node.move('nesting', this.state.moving)}>p</span>
-          </div>
-        </div>
-        {this.level(tree, depth + 1, nin.left, nin.right, nin.space)}
-      </div>;
-    });
-  };
-
-  free = (tree) => {
-    return Nodes.find({ [`in.${tree}`]: { $exists: false } })
-    .map((node) => {
-      return <div
-        key={node._id}
-        style={{ padding: 6, border: '1px solid black', float: 'left' }}
-      >
-        <div style={{ fontSize: 8 }}>{node._id}</div>
-      </div>;
-    });
-  };
-
   render() {
     return <div>
-      {this.level('nesting', 0, 0, 999999999999999)}
-      <br/><hr/><br/>
-      {this.free('nesting')}
+      <h1>users</h1>
+      <div>
+        {this.props.users.map(user => <div>{JSON.stringify(user)}</div>)}
+      </div>
+      <h1>posts</h1>
+      <div>
+        {this.props.nodes.map(node => <div>{JSON.stringify(node)}</div>)}
+      </div>
     </div>;
   }
 }
