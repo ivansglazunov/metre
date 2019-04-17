@@ -31,9 +31,7 @@ export function resize(
     $inc: {
       [`in.${tree}.${direction}`]: size,
     },
-  }, { multi: true }, (error, result) => {
-    done(error, result);
-  });
+  }, { multi: true }, done);
 };
 
 export function nodesMoveSpace(
@@ -200,10 +198,11 @@ export function nodesMove(tree, parentId, nodeId) {
     (done) => {
       parent2 = Nodes.findOne({ _id: parentId });
       if (!parent2) throw new Error('newParentNotFound');
-    
+      
       pin2 = _.get(parent2, `in.${tree}`);
       if (!pin2) throw new Error('newParentNotIntTree');
-      done();
+
+      if (done) done();
     },
     (done) => moveRights(+size + 1, tree, pin2.space, pin2.right, done),
     (done) => resize(+size + 1, tree, {
