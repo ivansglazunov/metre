@@ -137,6 +137,7 @@ class Index extends React.Component<any, any, any>{
         {!!dp && <Button disabled style={{ fontWeight: 'bold' }}>({dp.left} | {dp.right}) </Button>}
         {!dp && <Button onClick={() => Meteor.call('nodes.put', { tree, docId: d._id, parentId: null })}>+space</Button>}
         <Button disabled={!selected.length} onClick={() => Meteor.call('nodes.put', { tree, docId: selected[0], parentId: d._id })}>+</Button>
+        {!!dp && <Button onClick={() => Meteor.call('nodes.pull', { positionId: dp._id })}>-</Button>}
       </Container>
       {!!dp && <Container>
         {this.level(dp.tree, dp.depth + 1, dp.left, dp.right, dp.space)}

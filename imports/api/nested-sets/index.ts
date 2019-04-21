@@ -27,6 +27,12 @@ export interface IPutOptions {
   space?: string;
 }
 
+export interface IPullOptions {
+  positionId?: string;
+  docId?: string;
+  parentId?: string;
+}
+
 export interface IDocPositions extends IDoc {
   positions: IPosition[];
 }
@@ -81,6 +87,26 @@ export class NestedSets<Doc extends IDocPositions> {
       for (let d = 0; d < doc[this.field].length; d++) {
         const ps = doc[this.field][d];
         if (ps.tree === tree && ps.space === space && ps.left >= left && ps.right <= right) pss.push(ps);
+      }
+    }
+    return pss;
+  }
+
+  getPositionByPositionId(doc: Doc, id: string) {
+    if (doc && doc[this.field]) {
+      for (let d = 0; d < doc[this.field].length; d++) {
+        const ps = doc[this.field][d];
+        if (ps._id === id) return ps;
+      }
+    }
+  }
+
+  getPositionsByParentId(doc: Doc, parentId: string) {
+    const pss = [];
+    if (doc && doc[this.field]) {
+      for (let d = 0; d < doc[this.field].length; d++) {
+        const ps = doc[this.field][d];
+        if (ps.parentId === parentId) pss.push(ps);
       }
     }
     return pss;
@@ -246,12 +272,12 @@ export class NestedSets<Doc extends IDocPositions> {
     try {
       // ====================
       // INPUT VARS
+      chai.assert.isObject(options);
       const { c, rc, field, session } = this;
       const {
         tree, docId, parentId,
         space: maybeSpace,
       } = options;
-
       chai.assert.isString(docId, 'Option docId must be a string.');
 
       // ====================
@@ -361,78 +387,71 @@ export class NestedSets<Doc extends IDocPositions> {
       throw error;
     }
   }
+
+  async _pull(tree, space, gteLeft, lteRight, gteDepth) {
+    const { rc, session, field } = this;
+
+    await rc.update(
+      {
+        [field]: {
+          $elemMatch: {
+            tree, space,
+            left: { $gte: gteLeft },
+            right: { $lte: lteRight },
+            depth: { $gte: gteDepth },
+          },
+        }
+      },
+      {
+        $pull: {
+          [field]: {
+            tree, space,
+            left: { $gte: gteLeft },
+            right: { $lte: lteRight },
+            depth: { $gte: gteDepth },
+          },
+        },
+      },
+      { multi: true, session },
+    );
+  }
+
+  async pull(options: IPullOptions) {
+    const {
+      c, field,
+    } = this;
+
+    chai.assert.isObject(options);
+
+    const { positionId, docId, parentId } = options;
+    chai.assert.isString(positionId);
+
+    let d, dPs;
+    if (positionId) {
+      d = c.findOne({
+        [field]: { $elemMatch: { _id: positionId } },
+      });
+      chai.assert.exists(d, `Doc is not founded.`);
+      const tdP = this.getPositionByPositionId(d, positionId);
+      chai.assert.exists(tdP, `Doc position is not founded.`);
+      dPs = this.getPositionsByParentId(d, tdP.parentId);
+      chai.assert.isNotEmpty(dPs, `Positions in parentId ${tdP.parentId} of doc not founded`);
+    } else if (docId && parentId) {
+      d = c.findOne(docId);
+      chai.assert.exists(d, `Doc is not founded.`);
+      dPs = this.getPositionsByParentId(d, parentId);
+      chai.assert.isNotEmpty(dPs, `Positions in parentId ${parentId} of doc not founded`);
+    }
+    
+    for (let dPi = 0; dPi < dPs.length; dPi++) {
+      await this.session.startTransaction();
+      
+      const dP = this.regetPos(d._id, dPs[dPi]._id);
+      await this._pull(dP.tree, dP.space, dP.left, dP.right, dP.depth);
+      await this.move(dP.tree, dP.space, dP.left, -((dP.right - dP.left) + 1));
+      if (dP.parentId) await this.resize(dP.tree, dP.space, dP.left, dP.right, -((dP.right - dP.left) + 1));
+      
+      await this.session.commitTransaction();
+    }
+  }
 }
-
-
-
-// export const Client = async (collection) => {
-//   const client = Meteor.users._driver.mongo.client;
-// };
-
-// export const getLastDoc = ({
-//   collection,
-//   field,
-//   tree,
-// }) => {
-//   return collection.findOne(
-//     { [`${field}.${tree}`]: { $exists: true }, },
-//     { sort: { [`${field}.${tree}.right`]: -1, }, },
-//   );
-// };
-
-// export const getPss = (doc, field, tree) => {
-//   const pss = _.get(doc, `${field}.${tree}`, []);
-// };
-
-// export const getLastPs = (pss) => {
-//   if (pss) {
-//     let max = null;
-//     for (let p = 0; p < pss.length; p++) {
-//       const ps = pss[p];
-//       if (ps.right > max.right) max = ps;
-//     }
-//     return max;
-//   } else {
-//     return null;
-//   }
-// };
-
-// export const getSize = (pss) => {
-//   if (pss[0]) return pss[0].right - pss[0].left;
-//   return 1;
-// };
-
-// export const put = async ({
-//   col,
-//   field,
-//   tree,
-//   targetSpace = null,
-// }) => {
-//   const rCol = col.rawCollection();
-
-//   const space = targetSpace;
-
-//   const doc = col.findOne(docId);
-//   if (!doc) throw new Error(`doc ${docId} not founded`);
-//   const pss = getPss(doc, field, tree);
-//   const size = getSize(pss);
-
-//   const last = getLastDoc({ collection: col, field, tree });
-//   const lastPss = getPss(last, field, tree);
-//   const lastPs = getLastPs(lastPss);
-
-//   const left = lastPs ? lastPs.right + 1 : 0;
-  
-//   rCol.updateOne(
-//     { _id: docId },
-//     {
-//       $push: {
-//         [`${field}.${tree}`]: {
-//           left: left,
-//           right: left + size,
-//           depth: 0,
-//         },
-//       },
-//     },
-//   );
-// };

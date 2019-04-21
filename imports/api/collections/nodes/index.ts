@@ -35,6 +35,20 @@ Schema.NestedSets = {
       optional: true,
     },
   }),
+  Pull: new SimpleSchema({
+    positionId: {
+      type: String,
+      optional: true,
+    },
+    docId: {
+      type: String,
+      optional: true,
+    },
+    parentId: {
+      type: String,
+      optional: true,
+    },
+  }),
 };
 
 Schema.Node = new SimpleSchema({
@@ -89,6 +103,10 @@ if (Meteor.isServer) {
     'nodes.put'(options) {
       Schema.NestedSets.Put.validate(options);
       ns.put(options);
+    },
+    'nodes.pull'(options) {
+      Schema.NestedSets.Pull.validate(options);
+      ns.pull(options);
     },
   });
 }
