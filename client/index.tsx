@@ -8,6 +8,8 @@ import { Routes } from '../imports/react/routes';
 import theme from '../imports/react/theme';
 import { client } from '../imports/api/client';
 
+import 'normalize.css';
+
 Meteor.startup(() => {
   ReactDOM.hydrate(
     <BrowserRouter>

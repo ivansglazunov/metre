@@ -4,85 +4,227 @@ import * as React from 'react';
 import _ from 'lodash';
 import { withTracker } from 'meteor/react-meteor-data';
 
-// @ts-ignore
+import { HotKeys } from "react-hotkeys";
+
 import { withStyles } from '@material-ui/core/styles';
 
 import { Users, Nodes } from '../../api/collections/index';
 
-class Component extends React.Component <any, any, any>{
+const field = 'positions';
+const tree = 'nesting';
+
+const Container = (props) => <div {...props} style={{ position: 'relative', overflow: 'hidden', ...props.style }}></div>;
+
+class Button extends React.Component<any, any, any> {
+  state = { hover: false };
+  onMouseOver = (e) => {
+    if (this.props.onMouseOver) this.props.onMouseOver(e);
+    if (!this.props.disabled) this.setState({ hover: true });
+  }
+  onMouseLeave = (e) => {
+    if (this.props.onMouseLeave) this.props.onMouseLeave(e);
+    if (!this.props.disabled) this.setState({ hover: false });
+  }
+  render() {
+    const { hover } = this.state;
+    const { disabled, active, children, style, ...props } = this.props;
+
+    return <div style={{
+      userSelect: 'none',
+      boxShadow: disabled ? 'none' : `inset 0 0 0 1px gray`,
+      margin: 1,
+      padding: 1,
+      float: 'left',
+      background: hover ? 'grey' : active ? 'black' : 'transparent',
+      color: active ? 'white' : 'black',
+      ...style,
+    }}
+      {...props}
+      onMouseOver={this.onMouseOver}
+      onMouseLeave={this.onMouseLeave}
+    >
+      {children}
+    </div >;
+  }
+}
+
+class Index extends React.Component<any, any, any>{
   state = {
-    moving: null,
+    selected: [],
+    activeHistory: 0,
+    history: [
+      this.props,
+    ],
   };
 
-  level = (tree, depth, left, right, space?) => {
-    const nodes = Nodes
-    .find({
-      [`in.${tree}.depth`]: depth,
-      [`in.${tree}.left`]: { $gte: left },
-      [`in.${tree}.right`]: { $lte: right },
-      [`in.${tree}.space`]: space ? space : { $exists: true },
-    });
+  componentDidUpdate(prevProps) {
+    if (!_.isEqual(this.props, prevProps)) {
+      this.setState({
+        history: [...this.state.history, this.props],
+        activeHistory: this.state.history.length,
+      });
+    }
+  }
 
-    return nodes.map(node => {
-      const nin = _.get(node, 'in.nesting');
+  makeReset = () => Meteor.call('nodes.reset');
+  makeAdd = () => Nodes.insert({});
 
-      return <div
-        key={node._id}
-        style={{
-          width: `${100 / nodes.count()}%`,
-          float: 'left',
-        }}
-      >
-        <div
-          style={{ padding: 6, border: '1px solid black' }}
+  findByPos = (tree, depth, left, right, space) => {
+    const { history, activeHistory } = this.state;
+    const docs = history[activeHistory].nodes;
+    const results = [];
+    for (let n = 0; n < docs.length; n++) {
+      const doc = docs[n];
+      if (doc.positions) {
+        for (let p = 0; p < doc.positions.length; p++) {
+          const position = doc.positions[p];
+          if (position.tree === tree && position.depth === depth && position.left >= left && position.right <= right && position.space === space) {
+            results.push({ position, doc });
+          }
+        }
+      }
+    }
+    return results;
+  };
+
+  findWithoutPos = () => {
+    const { history, activeHistory } = this.state;
+    const docs = history[activeHistory].nodes;
+    const results = [];
+    for (let n = 0; n < docs.length; n++) {
+      const doc = docs[n];
+      if (!doc.positions) {
+        results.push({ doc });
+      }
+    }
+    return results;
+  };
+
+  level = (tree, depth, left, right, space) => {
+    const docs = this.findByPos(tree, depth, left, right, space);
+    return <div>
+      {_.sortBy(docs, ['position.left']).map(({ position: p, doc }) => <this.Node
+        key={doc._id+`${p.tree}.${p.space}.${p.left}.${p.right}.${p.depth}`}
+        doc={doc}
+        position={p}
+        selected={this.state.selected}
+      />)}
+    </div>;
+  }
+
+  Node = ({
+    doc: d,
+    position: dp,
+    style,
+    children,
+    selected,
+  }: any) => {
+    return <Button
+      disabled
+      style={{
+        boxShadow: ~selected.indexOf(d._id) ? `inset 0 0 0 2px black` : `inset 0 0 0 1px gray`,
+        textAlign: 'center',
+        ...style,
+      }}
+    >
+      <Container>
+        <Button
+          disabled
+          onClick={() => this.setState({ selected: [d._id] })}
         >
-          <div style={{ fontSize: 8 }}>{node._id}</div>
-          <div style={{ fontSize: 8 }}>({nin.space})</div>
-          <div>
-            {nin.left}|{nin.right}
-            <button onClick={() => node.put('nesting', Nodes.insert({}))}>+</button>
-            <button onClick={() => node.pull('nesting')}>x</button>
-            <button onClick={() => this.setState({ moving: node._id })}>c</button>
-            <button onClick={() => node.move('nesting', this.state.moving)}>p</button>
-          </div>
-        </div>
-        {this.level(tree, depth + 1, nin.left, nin.right, nin.space)}
-      </div>;
-    });
+          {d._id}
+        </Button>
+        {!!dp && <Button disabled style={{ fontWeight: 'bold' }}>({dp.left} | {dp.right}) </Button>}
+        {!dp && <Button onClick={() => Meteor.call('nodes.put', { tree, docId: d._id, parentId: null })}>+space</Button>}
+        <Button disabled={!selected.length} onClick={() => Meteor.call('nodes.put', { tree, docId: selected[0], parentId: d._id })}>+</Button>
+      </Container>
+      {!!dp && <Container>
+        {this.level(dp.tree, dp.depth + 1, dp.left, dp.right, dp.space)}
+      </Container>}
+      <Container>{children}</Container>
+    </Button>
   };
 
-  free = (tree) => {
-    return Nodes.find({ [`in.${tree}`]: { $exists: false } })
-    .map((node) => {
-      return <div
-        key={node._id}
-        style={{ padding: 6, border: '1px solid black', float: 'left' }}
-      >
-        <div style={{ fontSize: 8 }}>{node._id}</div>
-      </div>;
-    });
+  keyMap = {
+    left: 'left',
+    right: 'right',
+  };
+
+  _acCalc = (num) => {
+    if (this.state.history[this.state.activeHistory + num]) {
+      this.setState({ activeHistory: this.state.activeHistory + num });
+    }
+  };
+
+  keyHandlers = {
+    left: () => this._acCalc(-1),
+    right: () => this._acCalc(1),
   };
 
   render() {
-    return <div>
-      <button onClick={() => Meteor.call('nodes.reset')}>reset</button>
-      {this.level('nesting', 0, 0, 999999999999999)}
-      <br/><hr/><br/>
-      {this.free('nesting')}
+    const { spaces } = this.props;
+    const { history, activeHistory } = this.state;
+
+    return <div style={{ overflow: 'hidden', fontSize: 12, }}>
+      <HotKeys keyMap={this.keyMap} handlers={this.keyHandlers}>
+        <Container>
+          <Button onClick={this.makeReset}>reset</Button>
+          <Button onClick={this.makeAdd}>add</Button>
+        </Container>
+        history
+        <Container>
+          {history.map((h, i) => (
+            <Button
+              key={i}
+              active={activeHistory === i}
+              onClick={() => this.setState({ activeHistory: i })}
+            >{i}</Button>
+          ))}
+        </Container>
+        in spaces
+        <Container>
+          {spaces.map(s => (
+            <div key={s}>
+              {s}
+              <Container>
+                {this.level(tree, 0, 0, 99999999999999, s)}
+              </Container>
+            </div>
+          ))}
+        </Container>
+        not in space
+        <Container>
+          {this.findWithoutPos().map(({ doc }) => (
+            <this.Node key={doc._id} doc={doc} style={{ float: 'left' }} selected={this.state.selected} />
+          ))}
+        </Container>
+      </HotKeys>
     </div>;
   }
 }
 
 const tracked = withTracker((props) => {
   const users = Users.find();
-  const nodes = Nodes.find();
+  const nc = Nodes.find();
+  const nodes = nc.fetch();
+  const spaces = {};
+  for (let n = 0; n < nodes.length; n++) {
+    const node = nodes[n];
+    if (node.positions) {
+      for (let p = 0; p < node.positions.length; p++) {
+        const position = node.positions[p];
+        spaces[position.space] = true;
+      }
+    }
+  }
   return {
-    ready: users.ready() && nodes.ready(),
+    ready: users.ready() && nc.ready(),
     users: users.fetch(),
-    nodes: nodes.fetch(),
+    nodes,
+    spaces: Object.keys(spaces),
     ...props,
   };
-})((props: any) => <Component {...props}/>);
+})((props: any) => <Index {...props} />);
 
 const styled = withStyles(theme => ({}))(tracked);
 

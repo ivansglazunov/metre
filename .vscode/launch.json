@@ -14,7 +14,7 @@
     {
         "type": "node",
         "request": "launch",
-        "name": "Meteor: Node",
+        "name": "Meteor: Run",
         "cwd": "${workspaceRoot}/",
         "runtimeExecutable": "${workspaceRoot}/.meteor/local/dev_bundle/bin/npm",
         "restart": true,
@@ -22,7 +22,24 @@
         "stopOnEntry":false,
         "runtimeArgs": [
             "run",
-            "dev-debug"
+            "start-debug"
+        ],
+        "sourceMaps": true,
+        "protocol": "inspector",
+        "port": 5959
+    },
+    {
+        "type": "node",
+        "request": "launch",
+        "name": "Meteor: Test",
+        "cwd": "${workspaceRoot}/",
+        "runtimeExecutable": "${workspaceRoot}/.meteor/local/dev_bundle/bin/npm",
+        "restart": true,
+        "timeout": 9999999999,
+        "stopOnEntry":false,
+        "runtimeArgs": [
+            "run",
+            "test-debug"
         ],
         "sourceMaps": true,
         "protocol": "inspector",
