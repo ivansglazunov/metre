@@ -427,22 +427,25 @@ export class NestedSets<Doc extends IDocPositions> {
     chai.assert.isString(positionId);
 
     let d, dPs;
-    if (positionId) {
+    if (positionId && !docId && !parentId) {
       d = c.findOne({
         [field]: { $elemMatch: { _id: positionId } },
       });
       chai.assert.exists(d, `Doc is not founded.`);
       const tdP = this.getPositionByPositionId(d, positionId);
       chai.assert.exists(tdP, `Doc position is not founded.`);
-      dPs = this.getPositionsByParentId(d, tdP.parentId);
-      chai.assert.isNotEmpty(dPs, `Positions in parentId ${tdP.parentId} of doc not founded`);
-    } else if (docId && parentId) {
+      dPs = [tdP];
+      // dPs = this.getPositionsByParentId(d, tdP.parentId);
+      // chai.assert.isNotEmpty(dPs, `Positions in parentId ${tdP.parentId} of doc not founded`);
+    } else if (!positionId && docId && parentId) {
       d = c.findOne(docId);
       chai.assert.exists(d, `Doc is not founded.`);
       dPs = this.getPositionsByParentId(d, parentId);
       chai.assert.isNotEmpty(dPs, `Positions in parentId ${parentId} of doc not founded`);
+    } else {
+      throw new Error(`Must be (positionId) or (docId and parentId), not both.`);
     }
-    
+
     for (let dPi = 0; dPi < dPs.length; dPi++) {
       await this.session.startTransaction();
       
