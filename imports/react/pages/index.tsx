@@ -93,7 +93,7 @@ class Index extends React.Component<any, any, any>{
     const results = [];
     for (let n = 0; n < docs.length; n++) {
       const doc = docs[n];
-      if (!doc.positions) {
+      if (!doc.positions || !doc.positions.length) {
         results.push({ doc });
       }
     }

@@ -50,7 +50,6 @@ export class NestedSets<Doc extends IDocPositions> {
   public rc;
   public field: string;
   public client;
-  public session;
 
   init({
     collection,
@@ -65,7 +64,6 @@ export class NestedSets<Doc extends IDocPositions> {
       this.rc = this.c.rawCollection();
       // @ts-ignore
       this.client = this.c._driver.mongo.client;
-      this.session = this.client.startSession();
     }
   }
 
@@ -119,8 +117,8 @@ export class NestedSets<Doc extends IDocPositions> {
     return 1;
   }
   
-  async move(tree, space, from, size) {
-    const { field, rc, session } = this;
+  async _move(session, tree, space, from, size) {
+    const { field, rc } = this;
     await rc.update(
       {
         [field]: {
@@ -149,8 +147,8 @@ export class NestedSets<Doc extends IDocPositions> {
     );
   }
   
-  async resize(tree, space, left, right, size) {
-    const { field, rc, session } = this;
+  async _resize(session, tree, space, left, right, size) {
+    const { field, rc } = this;
     await rc.update(
       {
         [field]: {
@@ -180,8 +178,8 @@ export class NestedSets<Doc extends IDocPositions> {
     );
   }
 
-  async unlast(tree, space) {
-    const { field, rc, c, session } = this;
+  async _unlast(session, tree, space) {
+    const { field, rc, c } = this;
     await rc.update(
       {
         [field]: {
@@ -254,8 +252,8 @@ export class NestedSets<Doc extends IDocPositions> {
     }).fetch();
   }
 
-  async _push(chId, chP) {
-    const { rc, session, field } = this;
+  async _push(session, chId, chP) {
+    const { rc, field } = this;
 
     await rc.update(
       { _id: chId },
@@ -268,12 +266,54 @@ export class NestedSets<Doc extends IDocPositions> {
     );
   }
 
+  async _pull(session, tree, space, gteLeft, lteRight, gteDepth) {
+    const { rc, field } = this;
+
+    await rc.update(
+      {
+        [field]: {
+          $elemMatch: {
+            tree, space,
+            left: { $gte: gteLeft },
+            right: { $lte: lteRight },
+            depth: { $gte: gteDepth },
+          },
+        }
+      },
+      {
+        $pull: {
+          [field]: {
+            tree, space,
+            left: { $gte: gteLeft },
+            right: { $lte: lteRight },
+            depth: { $gte: gteDepth },
+          },
+        },
+      },
+      { multi: true, session },
+    );
+  }
+
+  isIncludes(tree, pPs, dPs) {
+    for (let di = 0; di < dPs.length; di++) {
+      for (let pi = 0; pi < pPs.length; pi++) {
+        const dP = dPs[di];
+        const pP = pPs[pi];
+        if (dP.tree === pP.tree && dP.space === pP.space && dP.left >= pP.left && dP.right <= pP.right && dP.depth <= pP.depth) {
+          return true;
+        }
+      } 
+    }
+    return false;
+  }
+
   async put(options: IPutOptions) {
+    const session = this.client.startSession();
     try {
       // ====================
       // INPUT VARS
       chai.assert.isObject(options);
-      const { c, rc, field, session } = this;
+      const { c, rc, field } = this;
       const {
         tree, docId, parentId,
         space: maybeSpace,
@@ -309,7 +349,7 @@ export class NestedSets<Doc extends IDocPositions> {
       for (let pPi = 0; ((_pPs && pPi < pPs.length) || (!_pPs && !pPi)); pPi++) {
         const pP = pPs && pPs.length ? this.regetPos(p._id, pPs[pPi]._id) : undefined;
 
-        await this.session.startTransaction();
+        await session.startTransaction();
 
         // ====================
         // RESULT D POS
@@ -328,8 +368,8 @@ export class NestedSets<Doc extends IDocPositions> {
             // +dPs+chPs
             // for (let dPi = 0; dPi < dPs.length; dPi++) {
             const dP = dPs[0];
-            await this.move(tree, space, left, +dS+1);
-            if (parentId) await this.resize(tree, space, pP.left, pP.right, +dS+1);
+            await this._move(session, tree, space, left, +dS+1);
+            if (parentId) await this._resize(session, tree, space, pP.left, pP.right, +dS+1);
             const chs = this.getChs(tree, dP);
             for (let c = 0; c < chs.length; c++) {
               const ch = chs[c];
@@ -343,7 +383,7 @@ export class NestedSets<Doc extends IDocPositions> {
                 const chS = chP.right - chP.left;
                 const chD = chP.depth - dP.depth;
 
-                await this._push(ch._id, {
+                await this._push(session, ch._id, {
                   _id: Random.id(),
                   parentId: chP.parentId,
                   tree, space,
@@ -353,108 +393,91 @@ export class NestedSets<Doc extends IDocPositions> {
                 });
               }
             }
-            if (!parentId) await this.unlast(tree, space);
+            if (!parentId) await this._unlast(session, tree, space);
 
-            await this._push(d._id, {
+            await this._push(session, d._id, {
               _id: Random.id(),
               parentId, tree, space, left, right, depth, last,
             });
             // }
           } else {
             // +dPs-chPs
-            await this.move(tree, space, left, +dS+1);
-            if (parentId) await this.resize(tree, space, pP.left, pP.right, +dS+1);
-            if (!parentId) await this.unlast(tree, space);
-            await this._push(docId, {
+            await this._move(session, tree, space, left, +dS+1);
+            if (parentId) await this._resize(session, tree, space, pP.left, pP.right, +dS+1);
+            if (!parentId) await this._unlast(session, tree, space);
+            await this._push(session, docId, {
               _id: Random.id(),
               parentId, tree, space, left, right, depth, last,
             });
           }
         } else {
           // -dPs-chPs
-          await this.move(tree, space, left, +dS+1);
-          if (parentId) await this.resize(tree, space, pP.left, pP.right, +dS+1);
-          if (!parentId) await this.unlast(tree, space);
-          await this._push(docId, {
+          await this._move(session, tree, space, left, +dS+1);
+          if (parentId) await this._resize(session, tree, space, pP.left, pP.right, +dS+1);
+          if (!parentId) await this._unlast(session, tree, space);
+          await this._push(session, docId, {
             _id: Random.id(),
             parentId, tree, space, left, right, depth, last,
           });
         }
-        await this.session.commitTransaction();
+        await session.commitTransaction();
       }
+      await session.endSession();
     } catch(error) {
-      await this.session.abortTransaction();
+      if (session.transaction.state != 'NO_TRANSACTION') await session.abortTransaction();
+      await session.endSession();
       throw error;
     }
   }
 
-  async _pull(tree, space, gteLeft, lteRight, gteDepth) {
-    const { rc, session, field } = this;
-
-    await rc.update(
-      {
-        [field]: {
-          $elemMatch: {
-            tree, space,
-            left: { $gte: gteLeft },
-            right: { $lte: lteRight },
-            depth: { $gte: gteDepth },
-          },
-        }
-      },
-      {
-        $pull: {
-          [field]: {
-            tree, space,
-            left: { $gte: gteLeft },
-            right: { $lte: lteRight },
-            depth: { $gte: gteDepth },
-          },
-        },
-      },
-      { multi: true, session },
-    );
-  }
-
   async pull(options: IPullOptions) {
-    const {
-      c, field,
-    } = this;
+    const session = this.client.startSession();
 
-    chai.assert.isObject(options);
+    try {
+      const {
+        c, field,
+      } = this;
 
-    const { positionId, docId, parentId } = options;
+      chai.assert.isObject(options);
 
-    let d, dPs;
-    if (positionId && !docId && !parentId) {
-      chai.assert.isString(positionId);
-      d = c.findOne({
-        [field]: { $elemMatch: { _id: positionId } },
-      });
-      chai.assert.exists(d, `Doc is not founded.`);
-      const tdP = this.getPositionByPositionId(d, positionId);
-      chai.assert.exists(tdP, `Doc position is not founded.`);
-      dPs = [tdP];
-    } else if (!positionId && docId && parentId) {
-      chai.assert.isString(docId);
-      chai.assert.isString(parentId);
-      d = c.findOne(docId);
-      chai.assert.exists(d, `Doc is not founded.`);
-      dPs = this.getPositionsByParentId(d, parentId);
-      chai.assert.isNotEmpty(dPs, `Positions in parentId ${parentId} of doc not founded`);
-    } else {
-      throw new Error(`Must be (positionId) or (docId and parentId), not both.`);
-    }
+      const { positionId, docId, parentId } = options;
 
-    for (let dPi = 0; dPi < dPs.length; dPi++) {
-      await this.session.startTransaction();
-      
-      const dP = this.regetPos(d._id, dPs[dPi]._id);
-      await this._pull(dP.tree, dP.space, dP.left, dP.right, dP.depth);
-      await this.move(dP.tree, dP.space, dP.left, -((dP.right - dP.left) + 1));
-      if (dP.parentId) await this.resize(dP.tree, dP.space, dP.left, dP.right, -((dP.right - dP.left) + 1));
-      
-      await this.session.commitTransaction();
+      let d, dPs;
+      if (positionId && !docId && !parentId) {
+        chai.assert.isString(positionId);
+        d = c.findOne({
+          [field]: { $elemMatch: { _id: positionId } },
+        });
+        chai.assert.exists(d, `Doc is not founded.`);
+        const tdP = this.getPositionByPositionId(d, positionId);
+        chai.assert.exists(tdP, `Doc position is not founded.`);
+        dPs = [tdP];
+      } else if (!positionId && docId && parentId) {
+        chai.assert.isString(docId);
+        chai.assert.isString(parentId);
+        d = c.findOne(docId);
+        chai.assert.exists(d, `Doc is not founded.`);
+        dPs = this.getPositionsByParentId(d, parentId);
+        chai.assert.isNotEmpty(dPs, `Positions in parentId ${parentId} of doc not founded`);
+      } else {
+        throw new Error(`Must be (positionId) or (docId and parentId), not both.`);
+      }
+
+      for (let dPi = 0; dPi < dPs.length; dPi++) {
+        await session.startTransaction();
+        
+        const dP = this.regetPos(d._id, dPs[dPi]._id);
+        await this._pull(session, dP.tree, dP.space, dP.left, dP.right, dP.depth);
+        if (dP.parentId) await this._resize(session, dP.tree, dP.space, dP.left, dP.right, -((dP.right - dP.left) + 1));
+        await this._move(session, dP.tree, dP.space, dP.left, -((dP.right - dP.left) + 1));
+        
+        await session.commitTransaction();
+      }
+      await session.endSession();
+    } catch(error) {
+      if (session.transaction.state != 'NO_TRANSACTION') await session.abortTransaction();
+      await session.endSession();
+      throw error;
     }
   }
 }
