@@ -1,7 +1,16 @@
 declare module '*';
 
+declare var global: any;
+
+declare module NodeJS {
+  interface Global {
+    metreServerSubs: any;
+  }
+}
+
 declare module "meteor/meteor" {
   module Meteor {
+    var connection: any;
     var users: Mongo.Collection<User>;
   }
   interface Subscription {

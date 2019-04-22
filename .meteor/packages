@@ -32,3 +32,4 @@ meteortesting:mocha
 xolvio:cleaner
 dburles:factory
 jquery
+staringatlights:inject-data
