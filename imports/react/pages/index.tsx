@@ -139,6 +139,7 @@ class Index extends React.Component<any, any, any>{
         <Button disabled={!selected.length} onClick={() => Meteor.call('nodes.put', { tree, docId: selected[0], parentId: d._id })}>+</Button>
         {!!dp && <Button onClick={() => Meteor.call('nodes.pull', { positionId: dp._id })}>-</Button>}
         {!!dp && <Button onClick={() => Meteor.call('nodes.pull', { docId: d._id, parentId: dp.parentId })}>x</Button>}
+        {!!dp && !!dp.last && <span>last</span>}
       </Container>
       {!!dp && <Container>
         {this.level(dp.tree, dp.depth + 1, dp.left, dp.right, dp.space)}
@@ -165,7 +166,7 @@ class Index extends React.Component<any, any, any>{
 
   render() {
     const { spaces } = this.props;
-    const { history, activeHistory } = this.state;
+    const { selected, history, activeHistory } = this.state;
 
     return <div style={{ overflow: 'hidden', fontSize: 12, }}>
       <HotKeys keyMap={this.keyMap} handlers={this.keyHandlers}>
@@ -187,7 +188,9 @@ class Index extends React.Component<any, any, any>{
         <Container>
           {spaces.map(s => (
             <div key={s}>
-              {s}
+              <Container>
+                <Button disabled>{s}</Button> <Button disabled={!selected.length} onClick={() => Meteor.call('nodes.put', { tree, docId: selected[0], space: s, parentId: null })}>+</Button>
+              </Container>
               <Container>
                 {this.level(tree, 0, 0, 99999999999999, s)}
               </Container>

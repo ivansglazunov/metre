@@ -207,6 +207,34 @@ export class NestedSets<Doc extends IDocPositions> {
     );
   }
 
+  async _last(session, tree, space, dPr) {
+    const { field, rc, c } = this;
+    await rc.update(
+      {
+        [field]: {
+          $elemMatch: {
+            tree,
+            space,
+            right: dPr,
+          },
+        },
+      },
+      {
+        $set: {
+          [`${field}.$[pos].last`]: true,
+        },
+      },
+      {
+        arrayFilters: [{
+          'pos.tree': tree,
+          'pos.space': space,
+          'pos.right': dPr,
+        }],
+        session,
+      }
+    );
+  }
+
   getLastInSpace(tree, space) {
     const { c, field } = this;
 
@@ -467,6 +495,7 @@ export class NestedSets<Doc extends IDocPositions> {
         await session.startTransaction();
         
         const dP = this.regetPos(d._id, dPs[dPi]._id);
+        if (dP.last) await this._last(session, dP.tree, dP.space, dP.left - 1);
         await this._pull(session, dP.tree, dP.space, dP.left, dP.right, dP.depth);
         if (dP.parentId) await this._resize(session, dP.tree, dP.space, dP.left, dP.right, -((dP.right - dP.left) + 1));
         await this._move(session, dP.tree, dP.space, dP.left, -((dP.right - dP.left) + 1));
