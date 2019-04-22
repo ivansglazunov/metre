@@ -13,8 +13,6 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-import 'normalize.css';
-
 Meteor.startup(() => {
   var originalSend = Meteor.connection._send;
   Meteor.connection._send = () => {};
