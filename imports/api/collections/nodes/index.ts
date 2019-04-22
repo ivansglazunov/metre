@@ -51,6 +51,11 @@ Schema.NestedSets = {
   }),
 };
 
+Schema.NestedSets.Move = new SimpleSchema({
+  put: Schema.NestedSets.Put,
+  pull: Schema.NestedSets.Pull,
+}),
+
 Schema.Node = new SimpleSchema({
   'positions': {
     type: Array,
@@ -100,13 +105,18 @@ if (Meteor.isServer) {
     'nodes.reset'(){
       Nodes.remove({});
     },
-    'nodes.put'(options) {
+    async 'nodes.put'(options) {
       Schema.NestedSets.Put.validate(options);
-      ns.put(options);
+      await ns.put(options);
     },
-    'nodes.pull'(options) {
+    async 'nodes.pull'(options) {
       Schema.NestedSets.Pull.validate(options);
-      ns.pull(options);
+      await ns.pull(options);
+    },
+    async 'nodes.move'(options) {
+      Schema.NestedSets.Move.validate(options);
+      await ns.put(options.put);
+      await ns.pull(options.pull);
     },
   });
 }

@@ -50,7 +50,8 @@ class Button extends React.Component<any, any, any> {
 
 class Index extends React.Component<any, any, any>{
   state = {
-    selected: [],
+    selectedDocument: null,
+    selectedPosition: null,
     activeHistory: 0,
     history: [
       this.props,
@@ -62,6 +63,8 @@ class Index extends React.Component<any, any, any>{
       this.setState({
         history: [...this.state.history, this.props],
         activeHistory: this.state.history.length,
+        selectedDocument: null,
+        selectedPosition: null,
       });
     }
   }
@@ -107,7 +110,8 @@ class Index extends React.Component<any, any, any>{
         key={doc._id+`${p.tree}.${p.space}.${p.left}.${p.right}.${p.depth}`}
         doc={doc}
         position={p}
-        selected={this.state.selected}
+        selectedDocument={this.state.selectedDocument}
+        selectedPosition={this.state.selectedPosition}
       />)}
     </div>;
   }
@@ -117,12 +121,13 @@ class Index extends React.Component<any, any, any>{
     position: dp,
     style,
     children,
-    selected,
+    selectedDocument,
+    selectedPosition,
   }: any) => {
     return <Button
       disabled
       style={{
-        boxShadow: ~selected.indexOf(d._id) ? `inset 0 0 0 2px black` : `inset 0 0 0 1px gray`,
+        boxShadow: selectedDocument == d._id ? `inset 0 0 0 2px black` : `inset 0 0 0 1px gray`,
         textAlign: 'center',
         ...style,
       }}
@@ -130,13 +135,14 @@ class Index extends React.Component<any, any, any>{
       <Container>
         <Button
           disabled
-          onClick={() => this.setState({ selected: [d._id] })}
+          onClick={() => this.setState({ selectedPosition: dp && dp._id, selectedDocument: d._id })}
         >
           {d._id}
         </Button>
         {!!dp && <Button disabled style={{ fontWeight: 'bold' }}>({dp.left} | {dp.right}) </Button>}
         {!dp && <Button onClick={() => Meteor.call('nodes.put', { tree, docId: d._id, parentId: null })}>+space</Button>}
-        <Button disabled={!selected.length} onClick={() => Meteor.call('nodes.put', { tree, docId: selected[0], parentId: d._id })}>+</Button>
+        <Button disabled={!selectedDocument} onClick={() => Meteor.call('nodes.put', { tree, docId: selectedDocument, parentId: d._id })}>+</Button>
+        {!!dp && <Button disabled={!selectedPosition} onClick={() => Meteor.call('nodes.move', { pull: { positionId: selectedPosition }, put: { tree, docId: selectedDocument, parentId: d._id } })}>m</Button>}
         {!!dp && <Button onClick={() => Meteor.call('nodes.pull', { positionId: dp._id })}>-</Button>}
         {!!dp && <Button onClick={() => Meteor.call('nodes.pull', { docId: d._id, parentId: dp.parentId })}>x</Button>}
         {!!dp && !!dp.last && <span>last</span>}
@@ -166,7 +172,7 @@ class Index extends React.Component<any, any, any>{
 
   render() {
     const { spaces } = this.props;
-    const { selected, history, activeHistory } = this.state;
+    const { selectedDocument, selectedPosition, history, activeHistory } = this.state;
 
     return <div style={{ overflow: 'hidden', fontSize: 12, }}>
       <HotKeys keyMap={this.keyMap} handlers={this.keyHandlers}>
@@ -189,7 +195,7 @@ class Index extends React.Component<any, any, any>{
           {spaces.map(s => (
             <div key={s}>
               <Container>
-                <Button disabled>{s}</Button> <Button disabled={!selected.length} onClick={() => Meteor.call('nodes.put', { tree, docId: selected[0], space: s, parentId: null })}>+</Button>
+                <Button disabled>{s}</Button> <Button disabled={!selectedDocument} onClick={() => Meteor.call('nodes.put', { tree, docId: selectedDocument, space: s, parentId: null })}>+</Button>
               </Container>
               <Container>
                 {this.level(tree, 0, 0, 99999999999999, s)}
@@ -200,7 +206,7 @@ class Index extends React.Component<any, any, any>{
         not in space
         <Container>
           {this.findWithoutPos().map(({ doc }) => (
-            <this.Node key={doc._id} doc={doc} style={{ float: 'left' }} selected={this.state.selected} />
+            <this.Node key={doc._id} doc={doc} style={{ float: 'left' }} selectedDocument={this.state.selectedDocument} selectedPosition={this.state.selectedPosition} />
           ))}
         </Container>
       </HotKeys>
