@@ -1,4 +1,6 @@
 import { Meteor } from 'meteor/meteor';
+import { Mongo } from 'meteor/mongo';
+import _ from 'lodash';
 
 export const defaultCursorReady = () => true;
 
@@ -39,17 +41,60 @@ export const wrapCollection = (collection) => {
   const { find, findOne, update } = collection;
   collection.find = function(query: any = {}, options: any = {}) {
     const cursor = find.call(collection, query, options);
-    if ((!options || !options.subscribe) && this._name) {
+    if (Meteor.subscribe && (!options || !options.subscribe) && this._name) {
       cursor.sub = Meteor.subscribe(this._name, query, options);
     }
     return wrapCursor(cursor);
   }
   collection.findOne = function(query: any = {}, options: any = {}) {
     const result = findOne.call(collection, query, options);
-    if ((!options || !options.subscribe) && this._name) {
+    if (Meteor.subscribe && (!options || !options.subscribe) && this._name) {
       Meteor.subscribe(this._name, query, { ...options, limit: 1 });
     }
     return result;
   }
+  collection.publish = (method) => {
+    Meteor.publish(collection._name, function(query, options) {
+      this.autorun(function() {
+        return method.call(this, query, options);
+      });
+    });
+    Meteor.methods({
+      [`${collection._name}.count`](query, options) {
+        const result = method.call(this, query, options);
+        if (_.isArray(result)) return result.length;
+        else if (_.isObject(result)) {
+          if (result instanceof Mongo.Cursor) {
+            return result.count();
+          } else {
+            return 1;
+          }
+        }
+      },
+      [`${collection._name}.fetch`](query, options) {
+        const result = method.call(this, query, options);
+        if (_.isArray(result)) return result;
+        else if (_.isObject(result)) {
+          if (result instanceof Mongo.Cursor) {
+            return result.fetch();
+          } else {
+            return [result];
+          }
+        }
+      },
+      [`${collection._name}.ids`](query, options) {
+        const result: any = method.call(this, query, options);
+        if (_.isArray(result)) return _.map(result, d => d._id);
+        else if (_.isObject(result)) {
+          if (result instanceof Mongo.Cursor) {
+            return result.map(d => d._id);
+          } else {
+            // @ts-ignore
+            return [result._id];
+          }
+        }
+      },
+    });
+  };
   return collection;
 };

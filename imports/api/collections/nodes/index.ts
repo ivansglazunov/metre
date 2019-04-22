@@ -77,10 +77,8 @@ Schema.Node = new SimpleSchema({
 Nodes.attachSchema(Schema.Node);
 
 if (Meteor.isServer) {
-  Meteor.publish('nodes', function(query, options) {
-    this.autorun(function() {
-      return Nodes.find(query, options);
-    });
+  Nodes.publish(function(query, options) {
+    return Nodes.find(query, options);
   });
 
   Nodes.allow({

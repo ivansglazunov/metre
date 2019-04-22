@@ -85,10 +85,8 @@ Schema.User = new SimpleSchema({
 Users.attachSchema(Schema.User);
 
 if (Meteor.isServer) {
-  Meteor.publish('users', function(query, options) {
-    this.autorun(function() {
-      return Users.find(query, options);
-    });
+  Users.publish(function(query, options) {
+    return Users.find(query, options);
   });
   Users.allow({
     insert(userId, doc) {
