@@ -48,7 +48,7 @@ class Button extends React.Component<any, any, any> {
   }
 }
 
-class Index extends React.Component<any, any, any>{
+class NS extends React.Component<any, any, any>{
   state = {
     selectedDocument: null,
     selectedPosition: null,
@@ -69,7 +69,6 @@ class Index extends React.Component<any, any, any>{
     }
   }
 
-  makeReset = () => Meteor.call('nodes.reset');
   makeAdd = () => Nodes.insert({});
 
   findByPos = (tree, depth, left, right, space) => {
@@ -177,7 +176,6 @@ class Index extends React.Component<any, any, any>{
     return <div style={{ overflow: 'hidden', fontSize: 12, }}>
       <HotKeys keyMap={this.keyMap} handlers={this.keyHandlers}>
         <Container>
-          <Button onClick={this.makeReset}>reset</Button>
           <Button onClick={this.makeAdd}>add</Button>
         </Container>
         history
@@ -235,7 +233,7 @@ const tracked = withTracker((props) => {
     spaces: Object.keys(spaces),
     ...props,
   };
-})((props: any) => <Index {...props} />);
+})((props: any) => <NS {...props} />);
 
 const styled = withStyles(theme => ({}))(tracked);
 

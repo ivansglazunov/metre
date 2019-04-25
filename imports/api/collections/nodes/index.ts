@@ -102,6 +102,9 @@ if (Meteor.isServer) {
   Meteor.methods({
     'nodes.reset'(){
       Nodes.remove({});
+      for (let i = 0; i < 100; i++) {
+        Nodes.insert({});
+      }
     },
     async 'nodes.put'(options) {
       Schema.NestedSets.Put.validate(options);

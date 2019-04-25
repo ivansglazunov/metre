@@ -15,6 +15,11 @@ import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/sty
 import { Routes } from '../imports/react/routes';
 import theme from '../imports/react/theme';
 
+import { Users, Nodes } from '../imports/api/collections';
+import { wrapCollection } from '../imports/api/collection';
+
+Nodes; Users; wrapCollection;
+
 global.metreServerSubs = undefined;
 
 const subscribePlaceholderStop = () => {};

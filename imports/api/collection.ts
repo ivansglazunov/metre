@@ -37,6 +37,8 @@ export const wrapCursor = (cursor) => {
   return cursor;
 };
 
+export const isCursor = ({ fetch, forEach, map, count }: any) => !!(fetch && forEach && map && count);
+
 export const wrapCollection = (collection) => {
   const { find, findOne, update } = collection;
   collection.find = function(query: any = {}, options: any = {}) {
@@ -64,7 +66,8 @@ export const wrapCollection = (collection) => {
         const result = method.call(this, query, options);
         if (_.isArray(result)) return result.length;
         else if (_.isObject(result)) {
-          if (result instanceof Mongo.Cursor) {
+          if (isCursor(result)) {
+            // @ts-ignore
             return result.count();
           } else {
             return 1;
@@ -75,22 +78,11 @@ export const wrapCollection = (collection) => {
         const result = method.call(this, query, options);
         if (_.isArray(result)) return result;
         else if (_.isObject(result)) {
-          if (result instanceof Mongo.Cursor) {
+          if (isCursor(result)) {
+            // @ts-ignore
             return result.fetch();
           } else {
             return [result];
-          }
-        }
-      },
-      [`${collection._name}.ids`](query, options) {
-        const result: any = method.call(this, query, options);
-        if (_.isArray(result)) return _.map(result, d => d._id);
-        else if (_.isObject(result)) {
-          if (result instanceof Mongo.Cursor) {
-            return result.map(d => d._id);
-          } else {
-            // @ts-ignore
-            return [result._id];
           }
         }
       },
