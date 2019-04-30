@@ -86,6 +86,19 @@ export const wrapCollection = (collection) => {
           }
         }
       },
+      [`${collection._name}.ids`](query, options) {
+        const result = method.call(this, query, { ...options, fields: { _id: 1 } });
+        if (_.isArray(result)) return result.map(d => d._id);
+        else if (_.isObject(result)) {
+          if (isCursor(result)) {
+            // @ts-ignore
+            return result.map(d => d._id);
+          } else {
+            // @ts-ignore
+            return [result._id];
+          }
+        }
+      },
     });
   };
   return collection;

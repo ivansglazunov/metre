@@ -8,79 +8,61 @@ import SimpleSchema from 'simpl-schema';
 import _ from 'lodash';
 
 import { wrapCollection } from '../../collection';
-import { IPosition, NestedSets } from '../../nested-sets';
+import { TPositions, NestedSets } from '../../nested-sets';
 
+// Interface
 export interface INode {
   _id?: string;
-  positions?: IPosition[];
+  positions?: TPositions;
+  nums?: INum[];
 }
 
+export interface INum {
+  _id?: string;
+  value: number;
+  type: string;
+  format: string;
+}
+
+// Collection
 export const Nodes = wrapCollection(new Mongo.Collection<INode>('nodes'));
 export default Nodes;
 // @ts-ignore
 Meteor.nodes = Nodes;
 
+// NestedSets
+const ns = new NestedSets();
+ns.init({
+  collection: Nodes,
+  field: 'positions',
+});
+
+// Schema
 export const Schema: any = {};
 
-Schema.NestedSets = {
-  Put: new SimpleSchema({
-    tree: String,
-    docId: String,
-    parentId: {
-      type: String,
-      optional: true,
-    },
-    space: {
-      type: String,
-      optional: true,
-    },
-  }),
-  Pull: new SimpleSchema({
-    positionId: {
-      type: String,
-      optional: true,
-    },
-    docId: {
-      type: String,
-      optional: true,
-    },
-    parentId: {
-      type: String,
-      optional: true,
-    },
-  }),
-};
-
-Schema.NestedSets.Move = new SimpleSchema({
-  put: Schema.NestedSets.Put,
-  pull: Schema.NestedSets.Pull,
-}),
-
 Schema.Node = new SimpleSchema({
-  'positions': {
+  ...ns.SimpleSchemaRules(),
+  'nums': {
     type: Array,
-    optional: true
-  },
-  'positions.$': Object,
-  'positions.$._id': String,
-  'positions.$.parentId': {
-    type: String,
     optional: true,
   },
-  'positions.$.tree': String,
-  'positions.$.space': String,
-  'positions.$.left': String,
-  'positions.$.right': String,
-  'positions.$.depth': String,
+  'nums.$': Object,
+  'nums.$._id': String,
+  'nums.$.value': Number,
+  'nums.$.type': String,
+  'nums.$.format': String,
 });
 
 Nodes.attachSchema(Schema.Node);
 
+// Server
 if (Meteor.isServer) {
+  // Publish
   Nodes.publish(function(query, options) {
     return Nodes.find(query, options);
   });
 
+  // Access
   Nodes.allow({
     insert(userId, doc) {
       return true;
@@ -93,17 +75,58 @@ if (Meteor.isServer) {
     },
   });
 
-  const ns = new NestedSets();
-  ns.init({
-    collection: Nodes,
-    field: 'positions',
+  // Methods
+  Schema.NestedSets = {};
+  
+  Schema.NestedSets.Put = new SimpleSchema({
+    tree: String,
+    docId: String,
+    parentId: {
+      type: String,
+      optional: true,
+    },
+    space: {
+      type: String,
+      optional: true,
+    },
+  });
+
+  Schema.NestedSets.Pull = new SimpleSchema({
+    positionId: {
+      type: String,
+      optional: true,
+    },
+    docId: {
+      type: String,
+      optional: true,
+    },
+    parentId: {
+      type: String,
+      optional: true,
+    },
+  });
+  
+  Schema.NestedSets.Move = new SimpleSchema({
+    put: Schema.NestedSets.Put,
+    pull: Schema.NestedSets.Pull,
   });
 
   Meteor.methods({
     'nodes.reset'(){
       Nodes.remove({});
       for (let i = 0; i < 100; i++) {
-        Nodes.insert({});
+        const nums = [];
+        for (let n = 0; n < _.random(0, 4); n++) {
+          nums.push({
+            _id: Random.id(),
+            value: _.random(0, 99999),
+            type: _.random(0,1) ? 'width' : 'height',
+            format: 'mm',
+          });
+        }
+        Nodes.insert({
+          nums,
+        });
       }
     },
     async 'nodes.put'(options) {

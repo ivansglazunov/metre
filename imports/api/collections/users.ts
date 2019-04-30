@@ -5,11 +5,14 @@ import SimpleSchema from 'simpl-schema';
 
 import { wrapCollection } from '../collection';
 
+// Interface
 export interface IUser extends Meteor.User {}
 
+// Collection
 export const Users = wrapCollection(Meteor.users);
 export default Users;
 
+// Schema
 export const Schema: any = {};
 
 Schema.UserProfile = new SimpleSchema({
@@ -84,10 +87,14 @@ Schema.User = new SimpleSchema({
 
 Users.attachSchema(Schema.User);
 
+// Server
 if (Meteor.isServer) {
+  // Publish
   Users.publish(function(query, options) {
     return Users.find(query, options);
   });
+
+  // Access
   Users.allow({
     insert(userId, doc) {
       return true;

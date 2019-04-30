@@ -3,6 +3,7 @@ import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
 import chai from 'chai';
 import _ from 'lodash';
+import SimpleSchema from 'simpl-schema';
 
 export interface IDoc {
   _id: string;
@@ -19,6 +20,8 @@ export interface IPosition {
   depth: number;
   last?: boolean;
 }
+
+export type TPositions = IPosition[];
 
 export interface IPutOptions {
   tree: string;
@@ -65,6 +68,26 @@ export class NestedSets<Doc extends IDocPositions> {
       // @ts-ignore
       this.client = this.c._driver.mongo.client;
     }
+  }
+
+  SimpleSchemaRules() {
+    return {
+      [`${this.field}`]: {
+        type: Array,
+        optional: true
+      },
+      [`${this.field}.$`]: Object,
+      [`${this.field}.$._id`]: String,
+      [`${this.field}.$.parentId`]: {
+        type: String,
+        optional: true,
+      },
+      [`${this.field}.$.tree`]: String,
+      [`${this.field}.$.space`]: String,
+      [`${this.field}.$.left`]: String,
+      [`${this.field}.$.right`]: String,
+      [`${this.field}.$.depth`]: String,
+    };
   }
 
   getAnyPositionsByTree(doc: Doc, tree: string) {

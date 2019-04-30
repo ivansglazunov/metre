@@ -1,0 +1,27 @@
+import { Meteor } from 'meteor/meteor';
+import { Random } from 'meteor/random';
+import * as React from 'react';
+import * as _ from 'lodash';
+
+import { Users, Nodes } from '../../api/collections/index';
+import { Context, Provider } from '../components/pagination';
+
+import options from '../../api/collections/nodes/options/index';
+
+import ReactTable from 'react-table';
+import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment } from '@material-ui/core';
+import { Add, Clear } from '@material-ui/icons';
+
+export class Env extends React.Component<any, any, any> {
+  state = 
+  render() {}
+}
+
+export default () => <Provider
+  methods={this.methods}
+  tracker={this.tracker}
+
+  _query={$and.length ? { $and } : {}}
+  _sort={{ _id: 1 }}
+>
+</Provider>;

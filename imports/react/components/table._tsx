@@ -13,6 +13,7 @@ class DrawTable extends React.Component<any, any, any>{
       <ReactTable
         {...props}
         manual
+        filterable={true}
       />
     </div>;
   }
@@ -39,3 +40,28 @@ export default class Table extends React.Component<any, any, any> {
     />;
   }
 }
+
+export const classState = (self) => ({
+  page: 0,
+  pages: 0,
+  pageSize: 5,
+  columns: [],
+  sorted: [],
+  filtered: [],
+});
+
+export const classHandlers = (self) => ({
+  onPageChange: (page) => self.setState({ page }),
+  onPageSizeChange: (pageSize, page) => self.setState({ pageSize, page }),
+  onSortedChange: (sorted, column, shiftKey) => self.setState({ sorted }),
+  onFilteredChange: (filtered, column) => self.setState({ filtered }),
+  setColumnById: (id, column) => self.setState(({ columns }) => {
+    const result = [];
+    for (let c = 0; c < columns.length; c++) {
+      const co = columns[c];
+      if (co.id === id) result.push({ ...co, column });
+      else result.push(co);
+    }
+    return result;
+  }),
+});

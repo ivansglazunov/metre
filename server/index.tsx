@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
+import _ from 'lodash';
 
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
@@ -21,6 +22,7 @@ import { wrapCollection } from '../imports/api/collection';
 Nodes; Users; wrapCollection;
 
 global.metreServerSubs = undefined;
+global.metreServerCalls = undefined;
 
 const subscribePlaceholderStop = () => {};
 const subscribePlaceholderReady = () => true;
@@ -33,7 +35,7 @@ Meteor.subscribe = (name?, query?, options?, callback?) => {
   };
 };
 
-onPageLoad((sink: any) => {
+if (_.get(Meteor, 'settings.public.server', true) !== false) onPageLoad((sink: any) => {
 
   const sheetsRegistry = new SheetsRegistry();
 
@@ -44,6 +46,7 @@ onPageLoad((sink: any) => {
   sink.appendToHead(helmet.title.toString());
 
   global.metreServerSubs = [];
+  global.metreServerCalls = {};
 
   sink.renderIntoElementById('app', renderToString(
     <StaticRouter location={sink.request.url} context={{}}>
@@ -56,8 +59,9 @@ onPageLoad((sink: any) => {
   ));
   
   // @ts-ignore
-  InjectData.pushData(sink.request, 'metreServerSubs', global.metreServerSubs);
+  InjectData.pushData(sink.request, 'metreServerSubs', { subs: global.metreServerSubs, calls: global.metreServerCalls });
   global.metreServerSubs = undefined;
+  global.metreServerCalls = undefined;
 
   sink.appendToHead(`<style>${sheetsRegistry.toString()}</style>`);
 });

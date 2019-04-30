@@ -1,0 +1,152 @@
+import { Meteor } from 'meteor/meteor';
+import * as React from 'react';
+import _ from 'lodash';
+
+import { Users, Nodes } from '../../api/collections/index';
+import Table, { classState, classHandlers } from '../components/table';
+
+import options from '../../api/collections/nodes/options/index';
+
+import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton } from '@material-ui/core';
+import { Add } from '@material-ui/icons';
+
+export class TableColumns extends React.Component<any, any, any> {
+  render() {
+    return null;
+  }
+}
+
+const _columns = [
+  {
+    Header: 'Id',
+    accessor: '_id',
+    Filter: ({ filter, onChange }) => (
+      <TextField
+        style={{ margin: 0 }}
+        margin="normal"
+        variant="outlined"
+        fullWidth
+        value={filter ? filter.value.value : ''}
+        onChange={event => onChange({ value: event.target.value })}
+      />
+    ),
+  },
+  {
+    Header: 'Nums',
+    accessor: 'nums',
+    Filter: ({ filter, onChange }) => (<Grid container>
+      <Grid item xs={4}>
+        <TextField
+          label={'value'}
+          style={{ margin: 0 }}
+          InputLabelProps={{
+            shrink: true,
+          }}
+          margin="normal"
+          variant="outlined"
+          fullWidth
+          value={filter ? filter.value.value : ''}
+          onChange={event => onChange({ value: event.target.value })}
+        />
+      </Grid>
+      <Grid item xs={4}>
+        <TextField
+          label={'type'}
+          style={{ margin: 0 }}
+          InputLabelProps={{
+            shrink: true,
+          }}
+          margin="normal"
+          variant="outlined"
+          fullWidth
+          value={filter ? filter.value.type : ''}
+          onChange={event => onChange({ type: event.target.value })}
+        />
+      </Grid>
+      <Grid item xs={4}>
+        <TextField
+          label={'format'}
+          style={{ margin: 0 }}
+          InputLabelProps={{
+            shrink: true,
+          }}
+          margin="normal"
+          variant="outlined"
+          fullWidth
+          value={filter ? filter.value.format : ''}
+          onChange={event => onChange({ format: event.target.value })}
+        />
+      </Grid>
+    </Grid>),
+  },
+];
+
+export default class TablePage extends React.Component<any, any, any> {
+  state = classState(this);
+  handlers = classHandlers(this);
+
+  query = () => {
+    const result: any = {};
+    const $and = this.state.filtered.map(f => ({
+      [f.id]: { $regex : `.*${f.value.value}.*` },
+    }));
+    if ($and.length) result.$and = $and;
+    return result;
+  };
+  sort = () => {
+    const result: any = {};
+    for (let s = 0; s < this.state.sorted.length; s++) {
+      const so = this.state.sorted[s];
+      result[so.id] = so.desc ? 1 : -1;
+    }
+    return result;
+  };
+
+  methods = async ({ query, sort, page, pageSize }, prevResults, call) => ({
+    pages: Math.ceil(await call('nodes.count', query, { sort }) / pageSize),
+    _data: await call('nodes.fetch', query, {
+      fields: { _id: 1 },
+      skip: pageSize * page,
+      limit: pageSize,
+      ...sort,
+    }),
+  });
+  tracker = ({ sort, _data }) => ({
+    data: _data && Nodes.find({ _id: { $in: _data.map(d => d._id) } }, { sort }).fetch(),
+  });
+
+  onAddColumn = (column) => this.setState(({ columns }) => ({ columns: [...columns, column] }));
+
+  render() {
+    console.log(this.state.columns);
+    return <Grid container>
+      <Grid item sm={4}>
+        <div>
+          exists columns
+          <List dense>
+            {this.state.columns.map(c => (
+              <c.ExistsColumn key={c.id} column={c}/>
+            ))}
+          </List>
+          possible columns
+          <List dense>
+            <options.string.PossibleColumn onAdd={this.onAddColumn}/>
+          </List>
+        </div>
+      </Grid>
+      <Grid item sm={8}>
+        <Table
+          {...this.state}
+          {...this.handlers}
+          columns={this.state.columns.filter(c => !!c.accessor)}
+
+          methods={this.methods}
+          tracker={this.tracker}
+
+          query={this.query()}
+          sort={this.sort()}
+        />
+      </Grid>
+    </Grid>;
+  }
+}
