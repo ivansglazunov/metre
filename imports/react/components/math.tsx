@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import * as math from 'mathjs';
 
-export const MathEval = ({ formula, scope, children }: { formula: string, scope: any, children: any }) => {
+export const mathEval = (formula, scope) => {
   let result;
   try {
     result = math.eval(formula, scope);
@@ -13,7 +13,7 @@ export const MathEval = ({ formula, scope, children }: { formula: string, scope:
   }
   if (!result) result = NaN;
 
-  if (typeof(children) === 'function') return children({
+  return {
     value: String(result),
     number: typeof(result) === 'number'
     ? result
@@ -21,7 +21,13 @@ export const MathEval = ({ formula, scope, children }: { formula: string, scope:
     ? result.value
     : 0,
     result,
-  })
+  };
+};
+
+export const MathEval = ({ formula, scope, children }: { formula: string, scope: any, children: any }) => {
+  const result = mathEval(formula, scope);
+
+  if (typeof(children) === 'function') return children(result);
 
   return children;
 };

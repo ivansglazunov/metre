@@ -49,7 +49,8 @@ export default class MathPage extends React.Component<any, any, any> {
         j: _.random(1, 9999),
         k: _.random(1, 9999),
       },
-      x: {  }
+      get x() { return 543; },
+      get z() { return { get y() { return 777; } } },
     },
     formula: '',
   };
