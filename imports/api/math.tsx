@@ -4,14 +4,14 @@ import _ from 'lodash';
 
 import * as math from 'mathjs';
 
-export const mathEval = (formula, scope) => {
+export const mathEval = (formula: string, scope = {}) => {
   let result;
   try {
     result = math.eval(formula, scope);
   } catch(error) {
     result = NaN;
   }
-  if (!result) result = NaN;
+  if (_.isUndefined(result)) result = NaN;
 
   return {
     value: String(result),
@@ -22,12 +22,4 @@ export const mathEval = (formula, scope) => {
     : 0,
     result,
   };
-};
-
-export const MathEval = ({ formula, scope, children }: { formula: string, scope: any, children: any }) => {
-  const result = mathEval(formula, scope);
-
-  if (typeof(children) === 'function') return children(result);
-
-  return children;
 };

@@ -3,6 +3,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
+import { check } from 'meteor/check';
 
 import SimpleSchema from 'simpl-schema';
 import _ from 'lodash';
@@ -10,18 +11,23 @@ import _ from 'lodash';
 import { wrapCollection } from '../../collection';
 import { TPositions, NestedSets } from '../../nested-sets';
 
+/**
+ * Numeric options in formula format.
+ * Can't be used as native numbers! Only used math.js evaluations.
+ */
+
 // Interface
 export interface INode {
   _id?: string;
   positions?: TPositions;
   nums?: INum[];
+  abc?: String;
 }
 
 export interface INum {
   _id?: string;
-  value: number;
-  type: string;
-  format: string;
+  value: string;
+  name: string;
 }
 
 // Collection
@@ -37,23 +43,35 @@ ns.init({
   field: 'positions',
 });
 
-// Schema
-export const Schema: any = {};
+// SchemaRules
+export const SchemaRules: any = {};
 
-Schema.Node = new SimpleSchema({
-  ...ns.SimpleSchemaRules(),
+SchemaRules.Nums = {
   'nums': {
     type: Array,
     optional: true,
   },
   'nums.$': Object,
   'nums.$._id': String,
-  'nums.$.value': Number,
-  'nums.$.type': String,
-  'nums.$.format': String,
+  'nums.$.value': String,
+  'nums.$.name': String,
+};
+
+// Schema
+export const Schema: any = {};
+
+Schema.Nums = new SimpleSchema(SchemaRules.Nums);
+
+Schema.Node = new SimpleSchema({
+  ...ns.SimpleSchemaRules(),
+  ...SchemaRules.Nums,
+  abc: {
+    type: String,
+    optional: true,
+  },
 });
 
-Nodes.attachSchema(Schema.Node);
+// Nodes.attachSchema(Schema.Node);
 
 // Server
 if (Meteor.isServer) {
@@ -119,9 +137,8 @@ if (Meteor.isServer) {
         for (let n = 0; n < _.random(0, 4); n++) {
           nums.push({
             _id: Random.id(),
-            value: _.random(0, 99999),
-            type: _.random(0,1) ? 'width' : 'height',
-            format: 'mm',
+            value: `${_.random(0, 99999)}`,
+            name: _.random(0,1) ? 'width' : 'height',
           });
         }
         Nodes.insert({

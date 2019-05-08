@@ -21,8 +21,8 @@ import { wrapCollection } from '../imports/api/collection';
 
 Nodes; Users; wrapCollection;
 
-global.metreServerSubs = undefined;
-global.metreServerCalls = undefined;
+global.metreServerSubs = [];
+global.metreServerCalls = {};
 
 const subscribePlaceholderStop = () => {};
 const subscribePlaceholderReady = () => true;

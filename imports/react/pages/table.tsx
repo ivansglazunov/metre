@@ -24,22 +24,25 @@ const methods = ({config: {page, pageSize, query, sort}}, prevResults, call) => 
   }) || [],
 });
 
-const tracker = ({config: {sort}, methodsResults: {ids}}) => ({
-  data: ids && Nodes.find({_id: {$in: ids}}, {sort}).fetch(),
-});
+const tracker = ({config: {sort}, methodsResults: {ids}}) => {
+  const _data = Nodes.find({_id: {$in: ids}}, {sort}).fetch();
+  const data = (ids && ids.map(id => Nodes.findOne(id))) || [];
+  return { data };
+};
 
 export default () => <Provider
   methods={methods}
   tracker={tracker}
   value={{pageSize: 10}}
   filters={[
-    { query: {'nums.type': 'height'} },
+    // { query: {'nums.type': 'height'} },
   ]}
   sorts={[
-    { path: 'nums.value', desc: 1 },
+    { path: 'nums.value', desc: -1 },
   ]}
   columns={[
     { getter: 'path', value: '_id', type: 'string' },
+    { getter: 'path', value: 'nums', type: 'nums' },
   ]}
   Views={Views}
 >

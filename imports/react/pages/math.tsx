@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import { Users, Nodes } from '../../api/collections/index';
 import { Context, Provider } from '../components/pagination';
 import { Table } from '../components/table';
-import { MathEval } from '../components/math';
+import { mathEval } from '../../api/math';
 
 import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton } from '@material-ui/core';
 
@@ -58,6 +58,8 @@ export default class MathPage extends React.Component<any, any, any> {
   render() {
     const { nums, formula } = this.state;
 
+    const { value } = mathEval(formula, nums);
+
     return <Grid container>
       <Grid item sm={6}>
         <pre><code>{JSON.stringify(nums, null, 1)}</code></pre>
@@ -67,9 +69,9 @@ export default class MathPage extends React.Component<any, any, any> {
           value={formula}
           onChange={this.onChangeFormula}
         />
-        <div><MathEval formula={formula} scope={nums}>
-          {({ value }) => <h4>{value}</h4>}
-        </MathEval></div>
+        <div>
+          <h4>{value}</h4>
+        </div>
       </Grid>
     </Grid>;
   }

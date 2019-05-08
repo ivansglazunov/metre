@@ -1,19 +1,19 @@
-import {Meteor} from 'meteor/meteor';
-import {Random} from 'meteor/random';
+import { Meteor } from 'meteor/meteor';
+import { Random } from 'meteor/random';
 import * as React from 'react';
 import * as _ from 'lodash';
 
-import {Users, Nodes} from '../../api/collections/index';
-import {Context, Provider} from '../components/pagination';
-import {Table, Filtrator} from '../components/table';
+import { Users, Nodes } from '../../api/collections/index';
+import { Context, Provider } from '../components/pagination';
+import { Table, Filtrator } from '../components/table';
 import { Field } from '../components/field';
-import { mathEval } from './math';
+import { mathEval } from '../../api/math';
 
 import options from '../../api/collections/nodes/options/index';
 
 import ReactTable from 'react-table';
-import {TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment, FormControl, InputLabel, Select, OutlinedInput, MenuItem} from '@material-ui/core';
-import {Add, Clear, ArrowDropDown} from '@material-ui/icons';
+import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment, FormControl, InputLabel, Select, OutlinedInput, MenuItem } from '@material-ui/core';
+import { Add, Clear, ArrowDropDown } from '@material-ui/icons';
 
 export const getters = [
   'path',
@@ -28,10 +28,22 @@ export const types = [
 
 export const Views: any = {};
 
-Views.Value = ({data}, column: any) => {
+class A extends React.Component {
+  state = {
+    value: '',
+  };
+  render() {
+    return <TextField
+      value={this.state.value}
+      onChange={e => this.setState({ value: e.target.value })}
+    />;
+  }
+}
+
+Views.Value = ({ data }, column: any) => {
   let value;
   if (column.getter === 'path') value = _.get(data, column.value);
-  else if (column.getter === 'formula') value = mathEval(column.value, data).value;
+  else if (column.getter === 'formula') value = mathEval(column.value, data).result;
   else return null;
 
   if (column.type === 'string' || !column.type) {
@@ -39,8 +51,27 @@ Views.Value = ({data}, column: any) => {
     else return String(value);
   }
   if (column.type === 'nums') {
-    // TODO nums value
-    return 'nums';
+    return <List>
+      {_.isArray(value) && value.map((num, n) => {
+        const result = mathEval(num.value);
+        return <ListItem key={num._id}>
+          <Grid container>
+            <Grid item xs={6}>
+              {num.name}
+            </Grid>
+            <Grid item xs={6}>
+              {result.value}
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                value={num.value}
+                onChange={e => Nodes.update(data._id, { $set: { [`nums.${n}.value`]: e.target.value } })}
+              />
+            </Grid>
+          </Grid>
+        </ListItem>;
+      })}
+    </List>;
   }
   if (column.type === 'formula') {
     // TODO formula value
@@ -94,7 +125,7 @@ Views.Column = (context, column: any) => <Grid
       style={{ padding: 0 }}
       onClick={() => context.storage.delColumn(column)}
     >
-      <Clear/>
+      <Clear />
     </IconButton>
   </Grid>
 </Grid>;
