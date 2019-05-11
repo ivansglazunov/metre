@@ -4,7 +4,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 
 import { Users, Nodes } from '../../api/collections/index';
-import { Context, Provider } from '../components/pagination';
+import { Context, Provider } from '../components/pagination/index';
 import { Table } from '../components/table';
 import { mathEval } from '../../api/math';
 

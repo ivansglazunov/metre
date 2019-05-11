@@ -3,7 +3,6 @@ import _ from "lodash";
 import TextField from "@material-ui/core/TextField";
 import {FormControl, InputLabel, OutlinedInput, MenuItem} from "@material-ui/core";
 
-// TODO check billing for edit pointer reset bug
 export class Field extends React.Component<any, any, any> {
   state = {
     isFocused: false,

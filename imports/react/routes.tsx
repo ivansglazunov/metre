@@ -6,27 +6,27 @@ import { getBundles } from 'react-loadable/webpack';
 
 import Nav from './components/nav';
 
-// import NotFound from './pages/not-found';
-// import NS from './pages/ns';
-// import Table from './pages/table';
-// import Math from './pages/math';
+import NotFound from './pages/not-found';
+import NS from './pages/ns';
+import Table from './pages/table';
+import Math from './pages/math';
 
-const NotFound = Loadable({
-  loader: () => import('./pages/not-found'),
-  loading: () => <div></div>,
-});
-const NS = Loadable({
-  loader: () => import('./pages/ns'),
-  loading: () => <div></div>,
-});
-const Table = Loadable({
-  loader: () => import('./pages/table'),
-  loading: () => <div></div>,
-});
-const Math = Loadable({
-  loader: () => import('./pages/math'),
-  loading: () => <div></div>,
-});
+// const NotFound = Loadable({
+//   loader: () => import('./pages/not-found'),
+//   loading: () => <div></div>,
+// });
+// const NS = Loadable({
+//   loader: () => import('./pages/ns'),
+//   loading: () => <div></div>,
+// });
+// const Table = Loadable({
+//   loader: () => import('./pages/table'),
+//   loading: () => <div></div>,
+// });
+// const Math = Loadable({
+//   loader: () => import('./pages/math'),
+//   loading: () => <div></div>,
+// });
 
 export class Routes extends React.Component {
   render() {

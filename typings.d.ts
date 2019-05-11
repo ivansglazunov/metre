@@ -1,6 +1,7 @@
 declare module '*';
 
 declare var global: any;
+declare var require: any;
 
 declare module NodeJS {
   interface Global {
@@ -16,6 +17,10 @@ declare module "meteor/meteor" {
   interface Subscription {
     autorun: any;
   }
+}
+
+declare module "mingo" {
+  export var find: any;
 }
 
 declare module "meteor/mongo" {
