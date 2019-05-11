@@ -45,17 +45,20 @@ export class Load extends React.Component<IProps, any, any> {
     const newCallArgs = {name, args};
     if (!_.isEqual(this.callsArgs[id], newCallArgs)) {
       this.callsArgs[id] = {name, args};
+      this.callsResults[id] = { loading: true, result: null };
       const result = Meteor.call(name, ...args, Meteor.isClient ? (error, result) => {
-        this.callsResults[id] = result;
+        this.callsResults[id] = { loading: false, result };
         this.rerender = true;
         this.setState(this.state);
       } : null);
       const hash = stringHash(JSON.stringify(newCallArgs));
       if (Meteor.isServer) {
         global.metreServerCalls[hash] = result;
-        this.callsResults[id] = result;
+        this.callsResults[id] = { loading: false, result };
+      } else if (global.metreClientCalls[hash]) {
+        this.callsResults[id] = { loading: false, result: global.metreClientCalls[hash] };
       } else {
-        this.callsResults[id] = global.metreClientCalls[hash];
+        this.callsResults[id] = { loading: true, result: null };
       }
     }
     return this.callsResults[id];

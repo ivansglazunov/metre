@@ -12,7 +12,7 @@ import { Views } from '../components/pagination/views';
 import options from '../../api/collections/index/options/index';
 
 import ReactTable from 'react-table';
-import {TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment, FormControl, InputLabel, Select, OutlinedInput, MenuItem, Tabs, Tab} from '@material-ui/core';
+import {TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment, FormControl, InputLabel, Select, OutlinedInput, MenuItem, Tabs, Tab, LinearProgress} from '@material-ui/core';
 import {Add, Clear, ArrowDropDown} from '@material-ui/icons';
 
 export class LeftMenu extends React.Component<any, any, any> {
@@ -34,19 +34,25 @@ export class LeftMenu extends React.Component<any, any, any> {
   }
 }
 
-const methods = ({config: {page, pageSize, query, sort}}, prevResults, call) => ({
-  pages: Math.ceil((call('pages', 'nodes.count', query, {sort}) || 0) / pageSize),
-  ids: call('data', 'nodes.ids', query, {
+const methods = ({config: {page, pageSize, query, sort}}, prevResults, call) => {
+  const _pages = call('pages', 'nodes.count', query, {sort});
+  const pages = Math.ceil((_pages.result || 0) / pageSize);
+  const _ids = call('data', 'nodes.ids', query, {
     skip: pageSize * page,
     limit: pageSize,
     sort,
-  }) || [],
-});
+  });
+  const ids = _ids.result || [];
+  console.log('methods', _pages.loading || _ids.loading);
+  return { pages, ids, loading: _pages.loading || _ids.loading };
+};
 
-const tracker = ({config: {sort}, methodsResults: {ids}}) => {
-  const _data = Nodes.find({_id: {$in: ids}}).fetch();
+const tracker = ({config: {sort}, methodsResults: {loading, ids}}) => {
+  const c = Nodes.find({_id: {$in: ids}});
+  const d = c.fetch();
   const data = (ids && ids.map(id => Nodes.findOne(id, { subscribe: false }))) || [];
-  return { data };
+  console.log('tracker', loading || !c.ready());
+  return { data, loading: loading || !c.ready() };
 };
 
 export default () => <Provider
@@ -70,7 +76,9 @@ export default () => <Provider
     <Grid item sm={8}><Table /></Grid>
     <Context.Consumer>
       {({storage, config, methodsResults, trackerResults}: any) => (
-        <Grid container>
+        trackerResults.loading
+        ? <LinearProgress/>
+        : <Grid container>
           <Grid item sm={4}>
             <pre><code>{JSON.stringify(config, null, 1)}</code></pre>
           </Grid>

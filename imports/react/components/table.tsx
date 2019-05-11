@@ -16,11 +16,13 @@ import { SortIconButton } from './pagination/sort-icon-button';
 
 export class Table extends React.Component<any, any, any> {
   consumerRender = (context: any) => {
+    console.log('table', context.trackerResults.loading);
     return <ReactTable
       data={this.data(context)}
       columns={this.columns(context)}
       manual
       filterable
+      loading={!!context.trackerResults.loading}
     />;
   };
   columns = (_context) => _context.config.columns.map(c => ({
