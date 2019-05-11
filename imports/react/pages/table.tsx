@@ -43,7 +43,6 @@ const methods = ({config: {page, pageSize, query, sort}}, prevResults, call) => 
     sort,
   });
   const ids = _ids.result || [];
-  console.log('methods', _pages.loading || _ids.loading);
   return { pages, ids, loading: _pages.loading || _ids.loading };
 };
 
@@ -51,7 +50,6 @@ const tracker = ({config: {sort}, methodsResults: {loading, ids}}) => {
   const c = Nodes.find({_id: {$in: ids}});
   const d = c.fetch();
   const data = (ids && ids.map(id => Nodes.findOne(id, { subscribe: false }))) || [];
-  console.log('tracker', loading || !c.ready());
   return { data, loading: loading || !c.ready() };
 };
 
