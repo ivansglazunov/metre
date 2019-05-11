@@ -10,7 +10,7 @@ class NotFound extends React.Component<any, any, any> {
     return <div>
       <div>404</div>
       <pre><code>{JSON.stringify(node)}</code></pre>
-      <input value={node && node.nums[0].value} onChange={(e) => Nodes.update(node._id, { $set: { 'nums.0.value': e.target.value } })}/>
+      <input value={node && node.values[0].value} onChange={(e) => Nodes.update(node._id, { $set: { 'values.0.value': e.target.value } })}/>
     </div>;
   }
 }

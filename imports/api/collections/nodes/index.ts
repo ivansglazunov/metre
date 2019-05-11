@@ -20,7 +20,7 @@ import { TPositions, NestedSets } from '../../nested-sets';
 export interface INode {
   _id?: string;
   positions?: TPositions;
-  nums?: INum[];
+  values?: INum[];
   abc?: String;
 }
 
@@ -46,25 +46,25 @@ ns.init({
 // SchemaRules
 export const SchemaRules: any = {};
 
-SchemaRules.Nums = {
-  'nums': {
+SchemaRules.Values = {
+  'values': {
     type: Array,
     optional: true,
   },
-  'nums.$': Object,
-  'nums.$._id': String,
-  'nums.$.value': String,
-  'nums.$.name': String,
+  'values.$': Object,
+  'values.$._id': String,
+  'values.$.value': String,
+  'values.$.name': String,
 };
 
 // Schema
 export const Schema: any = {};
 
-Schema.Nums = new SimpleSchema(SchemaRules.Nums);
+Schema.Values = new SimpleSchema(SchemaRules.Values);
 
 Schema.Node = new SimpleSchema({
   ...ns.SimpleSchemaRules(),
-  ...SchemaRules.Nums,
+  ...SchemaRules.Values,
   abc: {
     type: String,
     optional: true,
@@ -133,16 +133,16 @@ if (Meteor.isServer) {
     'nodes.reset'(){
       Nodes.remove({});
       for (let i = 0; i < 100; i++) {
-        const nums = [];
+        const values = [];
         for (let n = 0; n < _.random(0, 4); n++) {
-          nums.push({
+          values.push({
             _id: Random.id(),
             value: `${_.random(0, 99999)}`,
             name: _.random(0,1) ? 'width' : 'height',
           });
         }
         Nodes.insert({
-          nums,
+          values,
         });
       }
     },

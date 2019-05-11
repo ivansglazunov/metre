@@ -27,7 +27,7 @@ export const getters = [
 
 export const types = [
   'string',
-  'nums',
+  'values',
   'formula',
 ];
 
@@ -44,7 +44,7 @@ Views.Value = ({ storage, data }, column: any) => {
     else return String(value);
   }
 
-  if (column.type === 'nums') {
+  if (column.type === 'values') {
     const filters = storage.getFilters(column._id);
     const numValue = find(_.isArray(value) ? _.map(value, value => ({ value })) : [], toQuery('value', filters)).all();
 
@@ -62,7 +62,7 @@ Views.Value = ({ storage, data }, column: any) => {
             <Grid item xs={12}>
               <Field
                 value={num.value}
-                onChange={e => Nodes.update(data._id, { $set: { [`nums.${n}.value`]: e.target.value } })}
+                onChange={e => Nodes.update(data._id, { $set: { [`values.${n}.value`]: e.target.value } })}
               />
             </Grid>
           </Grid>

@@ -36,7 +36,7 @@ export const Field = (props) => <TextField
 
 export default class MathPage extends React.Component<any, any, any> {
   state = {
-    nums: {
+    values: {
       a: _.random(1, 9999),
       b: _.random(1, 9999),
       c: _.random(1, 9999),
@@ -56,13 +56,13 @@ export default class MathPage extends React.Component<any, any, any> {
   };
   onChangeFormula = e => this.setState({ formula: e.target.value });
   render() {
-    const { nums, formula } = this.state;
+    const { values, formula } = this.state;
 
-    const { value } = mathEval(formula, nums);
+    const { value } = mathEval(formula, values);
 
     return <Grid container>
       <Grid item sm={6}>
-        <pre><code>{JSON.stringify(nums, null, 1)}</code></pre>
+        <pre><code>{JSON.stringify(values, null, 1)}</code></pre>
       </Grid>
       <Grid item sm={6}>
         <Field

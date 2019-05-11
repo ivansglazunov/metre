@@ -57,11 +57,11 @@ export default () => <Provider
 
   filters={[]}
   sorts={[
-    { path: 'nums.value', desc: -1 },
+    { path: 'values.value', desc: -1 },
   ]}
   columns={[
     { getter: 'path', value: '_id', type: 'string' },
-    { getter: 'path', value: 'nums', type: 'nums' },
+    { getter: 'path', value: 'values', type: 'values' },
   ]}
   Views={Views}
 >
