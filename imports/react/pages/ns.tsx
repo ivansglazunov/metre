@@ -158,9 +158,9 @@ class NS extends React.Component<any, any, any>{
     right: 'right',
   };
 
-  _acCalc = (num) => {
-    if (this.state.history[this.state.activeHistory + num]) {
-      this.setState({ activeHistory: this.state.activeHistory + num });
+  _acCalc = (value) => {
+    if (this.state.history[this.state.activeHistory + value]) {
+      this.setState({ activeHistory: this.state.activeHistory + value });
     }
   };
 

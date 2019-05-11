@@ -9,12 +9,12 @@ import { Table, Columns } from '../../components/table';
 import { Field } from '../field';
 import { mathEval } from '../../../api/math';
 
-import options from '../../../api/collections/nodes/options/index';
+import options from '../../../api/collections/index/options/index';
 import { types as filterTypes } from './filters';
 
 import ReactTable from 'react-table';
 import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment, FormControl, InputLabel, Select, OutlinedInput, MenuItem } from '@material-ui/core';
-import { Add, Clear, ExpandLess, ExpandMore, UnfoldMore } from '@material-ui/icons';
+import { Add, Clear, ExpandLess, ExpandMore, UnfoldMore, Visibility, VisibilityOff } from '@material-ui/icons';
 
 import { find } from 'mingo';
 import { toQuery } from './to-query';
@@ -33,6 +33,43 @@ export const types = [
 
 export const Views: any = {};
 
+export class ViewValue extends React.Component<any, any, any> {
+  state = {};
+  render() {
+    const { value, v, data } = this.props;
+    const result = mathEval(value.value);
+
+    return <Grid container justify="space-between" spacing={8}>
+      <Grid item xs={3}>
+        <Field
+          value={value.name}
+          onChange={e => Nodes.update(data._id, { $set: { [`values.${v}.name`]: e.target.value } })}
+        />
+      </Grid>
+      <Grid item xs={5}>
+        <Field
+          value={value.value}
+          onChange={e => Nodes.update(data._id, { $set: { [`values.${v}.value`]: e.target.value } })}
+        />
+      </Grid>
+      <Grid item xs={3}>
+        <Field
+          value={result.value}
+          disabled
+        />
+      </Grid>
+      <Grid item xs={1} style={{ textAlign: 'center' }}>
+        <IconButton
+          style={{ padding: 0 }}
+          onClick={e => Nodes.update(data._id, { $pull: { values: { _id: value._id } } })}
+        >
+          <Clear />
+        </IconButton>
+      </Grid>
+    </Grid>
+  }
+}
+
 Views.Value = ({ storage, data }, column: any) => {
   let value;
   if (column.getter === 'path') value = _.get(data, column.value);
@@ -49,25 +86,19 @@ Views.Value = ({ storage, data }, column: any) => {
     const numValue = find(_.isArray(value) ? _.map(value, value => ({ value })) : [], toQuery('value', filters)).all();
 
     return <div>
-      {numValue.map(({ value: num }, n) => {
-        const result = mathEval(num.value);
-        return <div key={num._id}>
-          <Grid container>
-            <Grid item xs={6}>
-              {num.name}
-            </Grid>
-            <Grid item xs={6}>
-              {result.value}
-            </Grid>
-            <Grid item xs={12}>
-              <Field
-                value={num.value}
-                onChange={e => Nodes.update(data._id, { $set: { [`values.${n}.value`]: e.target.value } })}
-              />
-            </Grid>
-          </Grid>
+      {numValue.map(({ value: value }, n) => {
+        return <div key={value._id}>
+          <ViewValue data={data} value={value} v={n}/>
         </div>;
       })}
+      <Grid item xs={12} style={{ textAlign: 'center' }}>
+        <IconButton
+          style={{ padding: 0 }}
+          onClick={e => Nodes.update(data._id, { $push: { values: { _id: Random.id(), value: '', name: '' } } })}
+        >
+          <Add />
+        </IconButton>
+      </Grid>
     </div>;
   }
   if (column.type === 'formula') {

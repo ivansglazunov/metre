@@ -9,11 +9,11 @@ import { Table, Filtrator } from '../components/table';
 import { Field } from '../field';
 import { mathEval } from '../../api/math';
 
-import options from '../../api/collections/nodes/options/index';
+import options from '../../api/collections/index/options/index';
 
 import ReactTable from 'react-table';
 import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment, FormControl, InputLabel, Select, OutlinedInput, MenuItem } from '@material-ui/core';
-import { Add, Clear, ArrowDropDown, ArrowDropUp } from '@material-ui/icons';
+import { Add, Clear, ArrowDropDown, ArrowDropUp, CloudQueue, CloudOff } from '@material-ui/icons';
 import { ColumnSortIconButton, PathSortIconButton } from './sort-icon-button';
 
 export const types = {
@@ -45,6 +45,14 @@ export const types = {
       justify="space-between"
       key={filter._id}
     >
+      <Grid item xs={1} style={{ textAlign: 'center' }}>
+        <IconButton
+          style={{ padding: 0 }}
+          onClick={e => context.storage.setFilter({ ...filter, onlyValues: !filter.onlyValues })}
+        >
+          {filter.onlyValues ? <CloudOff /> : <CloudQueue/>}
+        </IconButton>
+      </Grid>
       <Grid item xs={1} style={{ textAlign: 'center' }}>
         <PathSortIconButton path="values.name" sorts={context.config.sorts} storage={context.storage} style={{ padding: 0 }}/>
       </Grid>

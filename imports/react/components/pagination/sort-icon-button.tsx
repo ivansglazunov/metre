@@ -9,7 +9,7 @@ import { Table, Columns } from '../table';
 import { Field } from '../field';
 import { mathEval } from '../../../api/math';
 
-import options from '../../../api/collections/nodes/options/index';
+import options from '../../../api/collections/index/options/index';
 import { types as filterTypes } from './filters';
 
 import ReactTable from 'react-table';

@@ -1,7 +1,0 @@
-import * as string from './string';
-import * as num from './num';
-
-export default {
-  string,
-  num,
-};

@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import { Users, Nodes } from '../../api/collections/index';
 import { Context, Provider } from '../components/pagination/index';
 
-import options from '../../api/collections/nodes/options/index';
+import options from '../../api/collections/index/options/index';
 
 import ReactTable from 'react-table';
 import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment } from '@material-ui/core';

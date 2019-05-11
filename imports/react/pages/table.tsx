@@ -9,7 +9,7 @@ import {Table, Columns, Sorts} from '../components/table';
 import { Field } from '../components/field';
 import { Views } from '../components/pagination/views';
 
-import options from '../../api/collections/nodes/options/index';
+import options from '../../api/collections/index/options/index';
 
 import ReactTable from 'react-table';
 import {TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment, FormControl, InputLabel, Select, OutlinedInput, MenuItem, Tabs, Tab} from '@material-ui/core';
