@@ -65,16 +65,19 @@ export interface IStorage {
   setPageSize(page: number, pageSize: number);
 
   addFilter(filter: IFilter): string;
+  setFilters(filters: IFilter[]);
   setFilter(filter: IFilter);
   delFilter(filter: IFilter);
   getFilters(columnId: string): IFilter[];
 
   addSort(sort: ISort): string;
+  setSorts(sorts: ISort[]);
   setSort(sort: ISort);
   delSort(sort: ISort);
   getSorts(columnId: string): ISort[];
 
   addColumn(column: IColumn): string;
+  setColumns(columns: IColumn[]);
   setColumn(column: IColumn);
   delColumn(column: IColumn);
   getColumn(columnId: string): IColumn;

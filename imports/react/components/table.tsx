@@ -10,10 +10,16 @@ import options from '../../api/collections/index/options/index';
 
 import ReactTable from 'react-table';
 import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment } from '@material-ui/core';
-import { Add, Clear } from '@material-ui/icons';
+import { Add, Clear, DragIndicator } from '@material-ui/icons';
 import { Field } from './field';
 import { SortIconButton } from './pagination/sort-icon-button';
 import treeTableHOC from "react-table/lib/hoc/treeTable";
+import arrayMove from 'array-move';
+import {
+  SortableContainer,
+  SortableElement,
+  SortableHandle,
+} from 'react-sortable-hoc';
 
 const ReactTreeTreeHOC = treeTableHOC(ReactTable);
 
@@ -59,22 +65,39 @@ export class Table extends React.Component<any, any, any> {
 }
 
 export class Columns extends React.Component<any, any, any> {
+  onSortEnd = (context) => ({ oldIndex, newIndex }) => {
+    context.storage.setColumns(arrayMove(context.config.columns, oldIndex, newIndex));
+  };
+  SortableList = SortableContainer(({ children }) => {
+    return <List dense>{children}</List>;
+  });
+  SortableItem = SortableElement(({ value, context }) => (
+    <ListItem key={value._id} divider>
+      <Grid container justify="space-between" spacing={8}>
+        <Grid item xs={1}>
+          <this.DragHandle/>
+        </Grid>
+        <Grid item xs={11}>
+          <Grid container justify="space-between" spacing={8}>
+            <Grid item xs={12}>{context.Views.Column(context, value)}</Grid>
+            <Grid item xs={12}>{context.Views.Filters(context, value)}</Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </ListItem>
+  ));
+  DragHandle = SortableHandle(() => <DragIndicator style={{ cursor: 'move' }}/>);
   consumerRender = (context: any) => {
     const {storage, config, methodsResults, trackerResults, Views} = context;
 
-    return <List dense>
-      {config.columns.map(c => <ListItem key={c._id} divider>
-        <Grid container justify="space-between" spacing={8}>
-          <Grid item xs={12}>{Views.Column(context, c)}</Grid>
-          <Grid item xs={12}>{Views.Filters(context, c)}</Grid>
-        </Grid>
-      </ListItem>)}
+    return <this.SortableList onSortEnd={this.onSortEnd(context)} useDragHandle>
+      {config.columns.map((c,i) => <this.SortableItem key={c._id} index={i} value={c} context={context}/>)}
       <ListItem button onClick={() => storage.addColumn({ 
         getter: 'path', value: '_id', type: 'string',
       })}>
         <Add/>
       </ListItem>
-    </List>;
+    </this.SortableList>;
   };
   render() {
     return <Context.Consumer>
@@ -84,38 +107,51 @@ export class Columns extends React.Component<any, any, any> {
 }
 
 export class Sorts extends React.Component<any, any, any> {
+  onSortEnd = (context) => ({ oldIndex, newIndex }) => {
+    context.storage.setSorts(arrayMove(context.config.sorts, oldIndex, newIndex));
+  };
+  SortableList = SortableContainer(({ children }) => {
+    return <List dense>{children}</List>;
+  });
+  SortableItem = SortableElement(({ value, context }) => (
+    <ListItem key={value._id} divider>
+      <Grid container justify="space-between" spacing={8}>
+        <Grid item xs={1}>
+          <this.DragHandle/>
+        </Grid>
+        <Grid item xs={1}>
+          <SortIconButton sort={value} storage={context.storage} style={{ padding: 0 }}/>
+        </Grid>
+        <Grid item xs={9}>
+          <Field
+            value={value.path}
+            onChange={
+              e => context.storage.setSort({ ...value, path: e.target.value })
+            }
+          />
+        </Grid>
+        <Grid item xs={1}>
+          <IconButton style={{ padding: 0 }} onClick={
+            e => context.storage.delSort(value)
+          }>
+            <Clear/>
+          </IconButton>
+        </Grid>
+      </Grid>
+    </ListItem>
+  ));
+  DragHandle = SortableHandle(() => <DragIndicator style={{ cursor: 'move' }}/>);
   consumerRender = (context: any) => {
     const {storage, config, methodsResults, trackerResults, Views} = context;
 
-    return <List dense>
-      {config.sorts.map(sort => <ListItem key={sort._id} divider>
-        <Grid container justify="space-between" spacing={8}>
-          <Grid item xs={1}>
-            <SortIconButton sort={sort} storage={storage} style={{ padding: 0 }}/>
-          </Grid>
-          <Grid item xs={10}>
-            <Field
-              value={sort.path}
-              onChange={
-                e => context.storage.setSort({ ...sort, path: e.target.value })
-              }
-            />
-          </Grid>
-          <Grid item xs={1}>
-            <IconButton style={{ padding: 0 }} onClick={
-              e => context.storage.delSort(sort)
-            }>
-              <Clear/>
-            </IconButton>
-          </Grid>
-        </Grid>
-      </ListItem>)}
+    return <this.SortableList onSortEnd={this.onSortEnd(context)} useDragHandle>
+      {config.sorts.map((sort, i) => <this.SortableItem key={sort._id} index={i} value={sort} context={context}/>)}
       <ListItem button onClick={() => storage.addSort({ 
         path: '_id', desc: -1
       })}>
         <Add/>
       </ListItem>
-    </List>;
+    </this.SortableList>;
   };
   render() {
     return <Context.Consumer>

@@ -24,7 +24,8 @@ Meteor.startup(() => {
   // @ts-ignore
   InjectData.getData('metreServerSubs', function(metreArgs) {
     if (metreArgs) {
-      const { calls, subs } = metreArgs;
+      const calls = metreArgs.calls || [];
+      const subs = metreArgs.subs || [];
 
       global.metreClientCalls = calls;
       

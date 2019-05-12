@@ -51,6 +51,9 @@ export const Storage = (provider) => {
       });
       return filter._id;
     },
+    setFilters(filters) {
+      this.set({ filters });
+    },
     setFilter(filter) {
       this.set({
         filters: _.map(this.get().filters || [], f => f._id === filter._id ? filter : f),
@@ -72,6 +75,9 @@ export const Storage = (provider) => {
       });
       return sort._id;
     },
+    setSorts(sorts) {
+      this.set({ sorts });
+    },
     setSort(sort) {
       this.set({
         sorts: _.map(this.get().sorts || [], s => s._id === sort._id ? sort : s),
@@ -92,6 +98,9 @@ export const Storage = (provider) => {
         columns: [...this.get().columns || [], column],
       });
       return column._id;
+    },
+    setColumns(columns) {
+      this.set({ columns });
     },
     setColumn(column) {
       this.set({
