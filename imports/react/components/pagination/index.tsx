@@ -56,6 +56,9 @@ export interface IConfig {
 }
 
 export interface IStorage {
+  get?(): any;
+  set?(merge: any): any;
+
   value(): IConfig;
 
   setPage(page: number);
@@ -82,6 +85,11 @@ export interface IStorage {
   [key: string]: any;
 }
 
+export interface IStorageAdapter {
+  set: (merge: any) => any;
+  get: () => any;
+}
+
 export interface IViews {
   Value: any;
   Column: any;
@@ -90,13 +98,11 @@ export interface IViews {
 
 export interface IProps extends ILProps {
   Storage?: (provider) => IStorage;
+  StorageAdapter?: IStorageAdapter;
+
   Views?: IViews;
 
-  query?: any;
-  sort?: any;
-  filters?: IFilter[];
-  sorts?: ISort[];
-  columns?: IColumn[];
+  defaultStore?: Partial<IConfig>;
 
   value?: any;
 }

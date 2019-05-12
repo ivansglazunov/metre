@@ -18,7 +18,12 @@ import { ColumnSortIconButton, PathSortIconButton } from './sort-icon-button';
 
 export const types = {
   string: (context, column, filter) => {
-    return <Grid container key={filter._id}>
+    return <Grid
+      container
+      spacing={8}
+      justify="space-between"
+      key={filter._id}
+    >
       <Grid item xs={11}>
         <Field
           label={'regex'}

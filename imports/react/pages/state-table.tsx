@@ -57,16 +57,16 @@ export default () => <Provider
   methods={methods}
   tracker={tracker}
 
-  value={{ pageSize: 10 }}
-
-  filters={[]}
-  sorts={[
-    { path: 'values.value', desc: -1 },
-  ]}
-  columns={[
-    { getter: 'path', value: '_id', type: 'string' },
-    { getter: 'path', value: 'values', type: 'values' },
-  ]}
+  defaultStore={{
+    filters: [],
+    sorts: [
+      { path: 'values.value', desc: -1 },
+    ],
+    columns: [
+      { getter: 'path', value: '_id', type: 'string' },
+      { getter: 'path', value: 'values', type: 'values' },
+    ],
+  }}
   Views={Views}
 >
   <Grid container>
