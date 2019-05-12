@@ -1,20 +1,22 @@
-import {Meteor} from 'meteor/meteor';
-import {Random} from 'meteor/random';
+import { Meteor } from 'meteor/meteor';
+import { Random } from 'meteor/random';
 import * as React from 'react';
 import * as _ from 'lodash';
 
-import {Users, Nodes} from '../../api/collections/index';
+import { Users, Nodes } from '../../api/collections/index';
 import { Context as PaginationContext, Provider as PaginationProvider } from '../components/pagination/index';
 import { Context as StoreContext, Provider as StoreProvider } from '../components/store/params';
-import {Table, Columns, Sorts} from '../components/table';
+import { Table } from '../components/table';
+import { Columns } from '../components/columns';
+import { Sorts } from '../components/sorts';
 import { Field } from '../components/field';
 import { Views } from '../components/pagination/views';
 
 import options from '../../api/collections/index/options/index';
 
 import ReactTable from 'react-table';
-import {TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment, FormControl, InputLabel, Select, OutlinedInput, MenuItem, Tabs, Tab, LinearProgress} from '@material-ui/core';
-import {Add, Clear, ArrowDropDown} from '@material-ui/icons';
+import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment, FormControl, InputLabel, Select, OutlinedInput, MenuItem, Tabs, Tab, LinearProgress } from '@material-ui/core';
+import { Add, Clear, ArrowDropDown } from '@material-ui/icons';
 
 export class LeftMenu extends React.Component<any, any, any> {
   state = {

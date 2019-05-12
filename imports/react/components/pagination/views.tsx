@@ -5,7 +5,6 @@ import * as _ from 'lodash';
 
 import { Users, Nodes } from '../../../api/collections/index';
 import { Context, Provider } from '../../components/pagination/index';
-import { Table, Columns } from '../../components/table';
 import { Field } from '../field';
 import { mathEval } from '../../../api/math';
 

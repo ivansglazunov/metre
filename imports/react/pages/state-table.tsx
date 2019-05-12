@@ -6,7 +6,9 @@ import * as _ from 'lodash';
 import { Users, Nodes } from '../../api/collections/index';
 import { Context as PaginationContext, Provider as PaginationProvider } from '../components/pagination/index';
 import { Context as StoreContext, Provider as StoreProvider } from '../components/store/state';
-import { Table, Columns, Sorts } from '../components/table';
+import { Table } from '../components/table';
+import { Columns } from '../components/columns';
+import { Sorts } from '../components/sorts';
 import { Field } from '../components/field';
 import { Views } from '../components/pagination/views';
 
