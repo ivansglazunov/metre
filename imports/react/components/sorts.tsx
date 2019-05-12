@@ -4,7 +4,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 
 import { Users, Nodes } from '../../api/collections/index';
-import { Context, Provider } from '../components/pagination/index';
+import { Context, Provider, ISort, IContext } from './pagination/index';
 
 import options from '../../api/collections/index/options/index';
 
@@ -28,7 +28,7 @@ export class Sorts extends React.Component<any, any, any> {
   SortableList = SortableContainer(({ children }) => {
     return <List dense>{children}</List>;
   });
-  SortableItem = SortableElement(({ value, context }) => (
+  SortableItem = SortableElement(({ value, context }: { value: ISort, context: IContext }) => (
     <ListItem key={value._id} divider>
       <Grid container justify="space-between" spacing={8}>
         <Grid item xs={1}>

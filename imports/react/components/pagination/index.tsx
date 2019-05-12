@@ -111,6 +111,13 @@ export interface IProps extends ILProps {
   value?: any;
 }
 
+export interface IContext {
+  config: IConfig;
+  storage: IStorage;
+
+  [key: string]: any;
+}
+
 export class Provider extends React.Component<IProps, any, any> {
   static propTypes = {
     Storage: PropTypes.func,

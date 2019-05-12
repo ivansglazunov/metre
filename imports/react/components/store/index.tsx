@@ -10,3 +10,5 @@ export interface IValue {
   value: any;
   set: (merge: any) => void;
 }
+
+// TODO add posibility to pass custom Context into Store
