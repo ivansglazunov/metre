@@ -41,8 +41,10 @@ export const Storage = (provider) => {
     }),
 
     setPage: (page) => provider.setState({page: page >= 0 ? page : 0}),
-    setPageSize: (pageSize) => provider.setState({pageSize: pageSize >= 1 ? pageSize : 1}),
-
+    setPageSize: (page, pageSize) => {
+      console.log('setPageSize', page, pageSize);
+      provider.setState({page: page >= 0 ? page : 0, pageSize: pageSize >= 1 ? pageSize : 1});
+    },
 
     addFilter: (filter) => {
       filter._id = Random.id();

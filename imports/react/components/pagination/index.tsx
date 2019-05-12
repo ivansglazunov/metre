@@ -59,7 +59,7 @@ export interface IStorage {
   value(): IConfig;
 
   setPage(page: number);
-  setPageSize(pageSize: number);
+  setPageSize(page: number, pageSize: number);
 
   addFilter(filter: IFilter): string;
   setFilter(filter: IFilter);

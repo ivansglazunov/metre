@@ -46,11 +46,11 @@ const methods = ({config: {page, pageSize, query, sort}}, prevResults, call) => 
   return { pages, ids, loading: _pages.loading || _ids.loading };
 };
 
-const tracker = ({config: {sort}, methodsResults: {loading, ids}}) => {
+const tracker = ({config: {sort}, methodsResults: {loading, ids, pages}}) => {
   const c = Nodes.find({_id: {$in: ids}});
   const d = c.fetch();
   const data = (ids && ids.map(id => Nodes.findOne(id, { subscribe: false }))) || [];
-  return { data, loading: loading || !c.ready() };
+  return { data, pages, loading: loading || !c.ready() };
 };
 
 export default () => <Provider

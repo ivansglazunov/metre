@@ -17,13 +17,21 @@ import { SortIconButton } from './pagination/sort-icon-button';
 export class Table extends React.Component<any, any, any> {
   consumerRender = (context: any) => {
     return <ReactTable
+      {...this.props}
+      pages={context.trackerResults.pages}
       data={this.data(context)}
+      page={context.config.page}
+      onPageChange={this.onPageChange(context)}
+      pageSize={context.config.pageSize}
+      onPageSizeChange={this.onPageSizeChange(context)}
       columns={this.columns(context)}
       manual
       filterable
       loading={!!context.trackerResults.loading}
     />;
   };
+  onPageChange = (context) => (pageIndex) => context.storage.setPage(pageIndex);
+  onPageSizeChange = (context) => (pageSize, pageIndex) => context.storage.setPageSize(pageIndex, pageSize);
   columns = (_context) => _context.config.columns.map(c => ({
     accessor: c._id,
     sortable: false,
