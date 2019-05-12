@@ -2,6 +2,8 @@
 import process from 'process';
 import { app, dialog } from 'electron';
 
+// TODO review electron config
+
 /**
  * Entry point to your native desktop code.
  *
