@@ -13,10 +13,13 @@ import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Butto
 import { Add, Clear } from '@material-ui/icons';
 import { Field } from './field';
 import { SortIconButton } from './pagination/sort-icon-button';
+import treeTableHOC from "react-table/lib/hoc/treeTable";
+
+const ReactTreeTreeHOC = treeTableHOC(ReactTable);
 
 export class Table extends React.Component<any, any, any> {
   consumerRender = (context: any) => {
-    return <ReactTable
+    return <ReactTreeTreeHOC
       {...this.props}
       pages={context.trackerResults.pages}
       data={this.data(context)}

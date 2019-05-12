@@ -8,7 +8,7 @@ import ReactTable from 'react-table';
 import {Load, IProps as ILProps} from '../../load';
 
 import { toQuery } from './to-query';
-import { Storage } from './storage';
+import { Storage } from './state-storage';
 
 export const Context = React.createContext({});
 
@@ -78,6 +78,8 @@ export interface IStorage {
 
   query(): any;
   sort(): any;
+
+  [key: string]: any;
 }
 
 export interface IViews {
@@ -87,7 +89,7 @@ export interface IViews {
 }
 
 export interface IProps extends ILProps {
-  Storage?: IStorage;
+  Storage?: (provider) => IStorage;
   Views?: IViews;
 
   query?: any;

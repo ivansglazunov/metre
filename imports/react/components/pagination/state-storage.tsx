@@ -10,6 +10,10 @@ import {Load, IProps as ILProps} from '../../load';
 import { toQuery } from './to-query';
 import { IStorage } from './';
 
+/**
+ * @description
+ * Props parsed only once, store config in states.
+ */
 export const Storage = (provider) => {
   const parsePromProps = items => items.map(i => ({ _id: Random.id(), ...i,  }));
 
@@ -42,7 +46,6 @@ export const Storage = (provider) => {
 
     setPage: (page) => provider.setState({page: page >= 0 ? page : 0}),
     setPageSize: (page, pageSize) => {
-      console.log('setPageSize', page, pageSize);
       provider.setState({page: page >= 0 ? page : 0, pageSize: pageSize >= 1 ? pageSize : 1});
     },
 

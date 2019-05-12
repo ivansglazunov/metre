@@ -8,7 +8,8 @@ import Nav from './components/nav';
 
 import NotFound from './pages/not-found';
 import NS from './pages/ns';
-import Table from './pages/table';
+import StateTable from './pages/state-table';
+import ParamsTable from './pages/params-table';
 import Math from './pages/math';
 
 // const NotFound = Loadable({
@@ -19,8 +20,12 @@ import Math from './pages/math';
 //   loader: () => import('./pages/ns'),
 //   loading: () => <div></div>,
 // });
-// const Table = Loadable({
-//   loader: () => import('./pages/table'),
+// const StateTable = Loadable({
+//   loader: () => import('./pages/state-table'),
+//   loading: () => <div></div>,
+// });
+// const ParamsTable = Loadable({
+//   loader: () => import('./pages/params-table'),
 //   loading: () => <div></div>,
 // });
 // const Math = Loadable({
@@ -34,7 +39,8 @@ export class Routes extends React.Component {
       <Nav/>
       <Switch>
         <Route path='/ns' component={NS} />
-        <Route path='/table' component={Table} />
+        <Route path='/state-table' component={StateTable} />
+        <Route path='/params-table' component={ParamsTable} />
         <Route path='/math' component={Math} />
         <Route component={NotFound} />
       </Switch>
