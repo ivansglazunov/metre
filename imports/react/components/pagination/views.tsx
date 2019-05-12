@@ -164,14 +164,17 @@ Views.Column = (context, column: any) => {
   </Grid>;
 };
 
+Views.Filter = (context, filter: any) => {
+  return filterTypes[filter.type]
+  ? filterTypes[filter.type](context, filter)
+  : <Grid key={filter._id} item xs={12}>unexpected filter type {filter.type}</Grid>
+};
+
 Views.Filters = (context, column: any) => {
   const filters = context.storage.getFilters(column._id);
   
   return <Grid container>
-    {filters.map(filter => filterTypes[filter.type]
-      ? filterTypes[filter.type](context, column, filter)
-      : <Grid key={filter._id} item xs={12}>unexpected filter type {filter.type}</Grid>
-    )}
+    {filters.map(filter => Views.Filter(context, filter))}
     <Grid item xs={12} style={{ textAlign: 'center' }}>
       <IconButton style={{ padding: 0 }} onClick={
         e => context.storage.addFilter({ _id: Random.id(), columnId: column._id, type: column.type })

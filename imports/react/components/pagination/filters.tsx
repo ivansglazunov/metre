@@ -17,7 +17,7 @@ import { Add, Clear, ArrowDropDown, ArrowDropUp, CloudQueue, CloudOff } from '@m
 import { ColumnSortIconButton, PathSortIconButton } from './sort-icon-button';
 
 export const types = {
-  string: (context, column, filter) => {
+  string: (context, filter) => {
     return <Grid
       container
       spacing={8}
@@ -43,7 +43,7 @@ export const types = {
       </Grid>
     </Grid>;
   },
-  values: (context, column, filter) => {
+  values: (context, filter) => {
     return <Grid
       container
       spacing={8}

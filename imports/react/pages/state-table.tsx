@@ -9,6 +9,7 @@ import { Context as StoreContext, Provider as StoreProvider } from '../component
 import { Table } from '../components/table';
 import { Columns } from '../components/columns';
 import { Sorts } from '../components/sorts';
+import { Filters } from '../components/filters';
 import { Field } from '../components/field';
 import { Views } from '../components/pagination/views';
 
@@ -29,9 +30,11 @@ export class LeftMenu extends React.Component<any, any, any> {
     return <React.Fragment>
       <Tabs value={tab} onChange={this.onChange}>
         <Tab value='columns' label='columns' style={{ minWidth: 0 }} />
+        <Tab value='filters' label='filters' style={{ minWidth: 0 }} />
         <Tab value='sorts' label='sorts' style={{ minWidth: 0 }} />
       </Tabs>
       {tab === 'columns' && <Columns />}
+      {tab === 'filters' && <Filters />}
       {tab === 'sorts' && <Sorts />}
     </React.Fragment>
   }

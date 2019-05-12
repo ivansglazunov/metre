@@ -21,9 +21,9 @@ import {
   SortableHandle,
 } from 'react-sortable-hoc';
 
-export class Columns extends React.Component<any, any, any> {
+export class Filters extends React.Component<any, any, any> {
   onSortEnd = (context) => ({ oldIndex, newIndex }) => {
-    context.storage.setColumns(arrayMove(context.config.columns, oldIndex, newIndex));
+    context.storage.setFilters(arrayMove(context.config.filters, oldIndex, newIndex));
   };
   SortableList = SortableContainer(({ children }) => {
     return <List dense>{children}</List>;
@@ -34,12 +34,7 @@ export class Columns extends React.Component<any, any, any> {
         <Grid item xs={1}>
           <this.DragHandle/>
         </Grid>
-        <Grid item xs={11}>
-          <Grid container justify="space-between" spacing={8}>
-            <Grid item xs={12}>{context.Views.Column(context, value)}</Grid>
-            <Grid item xs={12}>{context.Views.Filters(context, value)}</Grid>
-          </Grid>
-        </Grid>
+        <Grid item xs={11}>{context.Views.Filter(context, value)}</Grid>
       </Grid>
     </ListItem>
   ));
@@ -48,12 +43,7 @@ export class Columns extends React.Component<any, any, any> {
     const {storage, config, methodsResults, trackerResults, Views} = context;
 
     return <this.SortableList onSortEnd={this.onSortEnd(context)} useDragHandle>
-      {config.columns.map((c,i) => <this.SortableItem key={c._id} index={i} value={c} context={context}/>)}
-      <ListItem button onClick={() => storage.addColumn({ 
-        getter: 'path', value: '_id', type: 'string',
-      })}>
-        <Add/>
-      </ListItem>
+      {config.filters.map((filter,i) => <this.SortableItem key={filter._id} index={i} value={filter} context={context}/>)}
     </this.SortableList>;
   };
   render() {

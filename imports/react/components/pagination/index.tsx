@@ -96,6 +96,7 @@ export interface IStorageAdapter {
 export interface IViews {
   Value: any;
   Column: any;
+  Filter: any;
   Filters: any;
 }
 
