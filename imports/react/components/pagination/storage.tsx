@@ -14,20 +14,28 @@ import { IStorage } from './';
 
 export const Storage = (provider) => {
   const storage: IStorage = {
-
+    get() {
+      return provider.props.value || {};
+    },
+    set(merge) {
+      provider.props.set(merge);
+    },
     value() {
+      const value = this.get();
       return {
         // others...
-        ...this.get(),
+        ...value,
+        page: value.page || 0,
+        pageSize: value.pageSize >= 0 ? value.pageSize : 5,
 
         // builded query and sort
-        query: this.query(),
-        sort: this.sort(),
+        query: this.query() || {},
+        sort: this.sort() || {},
 
         // just once provided data
-        filters: this.get().filters,
-        sorts: this.get().sorts,
-        columns: this.get().columns,
+        filters: value.filters || [],
+        sorts: value.sorts || [],
+        columns: value.columns || [],
       };
     },
 
@@ -39,86 +47,90 @@ export const Storage = (provider) => {
     addFilter(filter) {
       filter._id = Random.id();
       this.set({
-        filters: [...this.get().filters, filter],
+        filters: [...this.get().filters || [], filter],
       });
       return filter._id;
     },
     setFilter(filter) {
       this.set({
-        filters: _.map(this.get().filters, f => f._id === filter._id ? filter : f),
+        filters: _.map(this.get().filters || [], f => f._id === filter._id ? filter : f),
       });
     },
     delFilter(filter) {
       this.set({
-        filters: _.filter(this.get().filters, f => f._id !== filter._id),
+        filters: _.filter(this.get().filters || [], f => f._id !== filter._id),
       });
     },
     getFilters(columnId) {
-      return _.filter(this.get().filters, f => f.columnId === columnId);
+      return _.filter(this.get().filters || [], f => f.columnId === columnId);
     },
 
     addSort(sort) {
       sort._id = Random.id();
       this.set({
-        sorts: [...this.get().sorts, sort],
+        sorts: [...this.get().sorts || [], sort],
       });
       return sort._id;
     },
     setSort(sort) {
       this.set({
-        sorts: _.map(this.get().sorts, s => s._id === sort._id ? sort : s),
+        sorts: _.map(this.get().sorts || [], s => s._id === sort._id ? sort : s),
       });
     },
     delSort(sort) {
       this.set({
-        sorts: _.filter(this.get().sorts, s => s._id !== sort._id),
+        sorts: _.filter(this.get().sorts || [], s => s._id !== sort._id),
       });
     },
     getSorts(columnId) {
-      return _.filter(this.get().sorts, s => s.columnId === columnId);
+      return _.filter(this.get().sorts || [], s => s.columnId === columnId);
     },
 
     addColumn(column) {
       column._id = Random.id();
       this.set({
-        columns: [...this.get().columns, column],
+        columns: [...this.get().columns || [], column],
       });
       return column._id;
     },
     setColumn(column) {
       this.set({
-        columns: _.map(this.get().columns, c => c._id === column._id ? column : c),
+        columns: _.map(this.get().columns || [], c => c._id === column._id ? column : c),
       });
     },
     delColumn(column) {
       this.set({
-        columns: _.filter(this.get().columns, c => c._id !== column._id),
+        columns: _.filter(this.get().columns || [], c => c._id !== column._id),
       });
     },
     getColumn(columnId) {
-      return _.find(this.get().columns, c => c._id === columnId);
+      return _.find(this.get().columns || [], c => c._id === columnId);
     },
 
     query() {
       const $and = [];
       if (!_.isEmpty(this.get().query)) $and.push(this.get().query);
-      const filters = this.get().filters;
-      for (let f = 0; f < filters.length; f++) {
-        const filter = filters[f];
-        const column = this.getColumn(filter.columnId);
-        if (!column) continue;
-        const query = !filter.onlyValues ? toQuery(column.value, [filter]) : null;
-        if (_.isEmpty(query)) continue;
-        $and.push(query);
+      const filters = this.get().filters || [];
+      if (filters) {
+        for (let f = 0; f < filters.length; f++) {
+          const filter = filters[f];
+          const column = this.getColumn(filter.columnId);
+          if (!column) continue;
+          const query = !filter.onlyValues ? toQuery(column.value, [filter]) : null;
+          if (_.isEmpty(query)) continue;
+          $and.push(query);
+        }
       }
       return $and.length ? {$and} : {};
     },  
 
     sort() {
-      const sort = { ...this.get().sort };
-      const sorts = this.get().sorts;
-      for (let s = 0; s < sorts.length; s++) {
-        sort[sorts[s].path] = sorts[s].desc;
+      const sort = { ...this.get().sort || {} };
+      const sorts = this.get().sorts || [];
+      if (sorts) {
+        for (let s = 0; s < sorts.length; s++) {
+          sort[sorts[s].path] = sorts[s].desc;
+        }
       }
       return sort;
     },

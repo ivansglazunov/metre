@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 
 import { Users, Nodes } from '../../api/collections/index';
 import { Context as PaginationContext, Provider as PaginationProvider } from '../components/pagination/index';
-import { Context as StoreContext, Provider as StoreProvider } from '../components/store/state';
+import { Context as StoreContext, Provider as StoreProvider } from '../components/store/props';
 import { Table, Columns, Sorts } from '../components/table';
 import { Field } from '../components/field';
 import { Views } from '../components/pagination/views';
@@ -54,53 +54,60 @@ const tracker = ({ config: { sort }, methodsResults: { loading, ids, pages } }) 
   return { data, pages, loading: loading || !c.ready() };
 };
 
-export default () => (
-  <StoreProvider
-    default={{
-      filters: [],
-      sorts: [
-        { _id: 'a', path: 'values.value', desc: -1 },
-      ],
-      columns: [
-        { _id: 'a', getter: 'path', value: '_id', type: 'string' },
-        { _id: 'b', getter: 'path', value: 'values', type: 'values' },
-      ],
-    }}
-  >
-    <StoreContext.Consumer>
-      {({ value, set }) => (
-        <PaginationProvider
-          methods={methods}
-          tracker={tracker}
+export default class extends React.Component {
+  state = {
+    filters: [],
+    sorts: [
+      { _id: 'a', path: 'values.value', desc: -1 },
+    ],
+    columns: [
+      { _id: 'a', getter: 'path', value: '_id', type: 'string' },
+      { _id: 'b', getter: 'path', value: 'values', type: 'values' },
+    ],
+  };
+  
+  set = (merge) => this.setState(merge);
 
-          Views={Views}
+  render() {
+    return <StoreProvider
+      set={this.set}
+      value={this.state}
+    >
+      <StoreContext.Consumer>
+        {({ value, set }) => (
+          <PaginationProvider
+            methods={methods}
+            tracker={tracker}
 
-          value={value}
-          set={set}
-        >
-          <Grid container>
-            <Grid item sm={4}><LeftMenu /></Grid>
-            <Grid item sm={8}><Table /></Grid>
-            <PaginationContext.Consumer>
-              {({ storage, config, methodsResults, trackerResults }: any) => (
-                trackerResults.loading
-                  ? <LinearProgress />
-                  : <Grid container>
-                    <Grid item sm={4}>
-                      <pre><code>{JSON.stringify(config, null, 1)}</code></pre>
+            Views={Views}
+
+            value={value}
+            set={set}
+          >
+            <Grid container>
+              <Grid item sm={4}><LeftMenu /></Grid>
+              <Grid item sm={8}><Table /></Grid>
+              <PaginationContext.Consumer>
+                {({ storage, config, methodsResults, trackerResults }: any) => (
+                  trackerResults.loading
+                    ? <LinearProgress />
+                    : <Grid container>
+                      <Grid item sm={4}>
+                        <pre><code>{JSON.stringify(config, null, 1)}</code></pre>
+                      </Grid>
+                      <Grid item sm={4}>
+                        <pre><code>{JSON.stringify(methodsResults, null, 1)}</code></pre>
+                      </Grid>
+                      <Grid item sm={4}>
+                        <pre><code>{JSON.stringify(trackerResults, null, 1)}</code></pre>
+                      </Grid>
                     </Grid>
-                    <Grid item sm={4}>
-                      <pre><code>{JSON.stringify(methodsResults, null, 1)}</code></pre>
-                    </Grid>
-                    <Grid item sm={4}>
-                      <pre><code>{JSON.stringify(trackerResults, null, 1)}</code></pre>
-                    </Grid>
-                  </Grid>
-              )}
-            </PaginationContext.Consumer>
-          </Grid>
-        </PaginationProvider>
-      )}
-    </StoreContext.Consumer>
-  </StoreProvider>
-);
+                )}
+              </PaginationContext.Consumer>
+            </Grid>
+          </PaginationProvider>
+        )}
+      </StoreContext.Consumer>
+    </StoreProvider>;
+  };
+}

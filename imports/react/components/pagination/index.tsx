@@ -8,7 +8,7 @@ import ReactTable from 'react-table';
 import {Load, IProps as ILProps} from '../../load';
 
 import { toQuery } from './to-query';
-import { Storage } from './state-storage';
+import { Storage } from './storage';
 
 export const Context = React.createContext({});
 

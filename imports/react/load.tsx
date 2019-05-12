@@ -53,7 +53,7 @@ export class Load extends React.Component<IProps, any, any> {
       } : null);
       const hash = stringHash(JSON.stringify(newCallArgs));
       if (Meteor.isServer) {
-        global.metreServerCalls[hash] = result;
+        if (global.metreServerCalls) global.metreServerCalls[hash] = result;
         this.callsResults[id] = { loading: false, result };
       } else if (global.metreClientCalls[hash]) {
         this.callsResults[id] = { loading: false, result: global.metreClientCalls[hash] };
