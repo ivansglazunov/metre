@@ -43,11 +43,12 @@ export class LeftMenu extends React.Component<any, any, any> {
 export const defaultStore = {
   filters: [],
   sorts: [
-    { _id: 'a', path: 'values.value', desc: -1 },
+    { _id: 'a', path: 'values.width.values.value', desc: -1 },
   ],
   columns: [
     { _id: 'a', getter: 'path', value: '_id', type: 'string' },
-    { _id: 'b', getter: 'path', value: 'values', type: 'values' },
+    { _id: 'b', getter: 'path', value: 'values.width', type: 'values' },
+    { _id: 'c', getter: 'path', value: 'values.height', type: 'values' },
   ],
 };
 

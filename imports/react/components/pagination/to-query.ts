@@ -11,8 +11,7 @@ export const toQuery = (field: string, filters: IFilter) => {
     }
     if (filter.type === 'values') {
       if (filter.value) {
-        if (filter.value.name) query[`${field}.name`] = { $regex: filter.value.name };
-        if (filter.value.value) query[`${field}.value`] = { $regex: filter.value.value };
+        query[`${field}.values.value`] = { $regex: filter.value };
       }
     }
   }

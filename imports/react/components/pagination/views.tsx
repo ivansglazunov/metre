@@ -35,20 +35,14 @@ export const Views: any = {};
 export class ViewValue extends React.Component<any, any, any> {
   state = {};
   render() {
-    const { value, v, data } = this.props;
+    const { value, v, data, column } = this.props;
     const result = mathEval(value.value);
 
     return <Grid container justify="space-between" spacing={8}>
-      <Grid item xs={3}>
-        <Field
-          value={value.name}
-          onChange={e => Nodes.update(data._id, { $set: { [`values.${v}.name`]: e.target.value } })}
-        />
-      </Grid>
-      <Grid item xs={5}>
+      <Grid item xs={8}>
         <Field
           value={value.value}
-          onChange={e => Nodes.update(data._id, { $set: { [`values.${v}.value`]: e.target.value } })}
+          onChange={e => Meteor.call('nodes.values.set', data._id, column.value.split('.')[1], { _id: value._id, value: e.target.value })}
         />
       </Grid>
       <Grid item xs={3}>
@@ -60,7 +54,7 @@ export class ViewValue extends React.Component<any, any, any> {
       <Grid item xs={1} style={{ textAlign: 'center' }}>
         <IconButton
           style={{ padding: 0 }}
-          onClick={e => Nodes.update(data._id, { $pull: { values: { _id: value._id } } })}
+          onClick={e => Meteor.call('nodes.values.pull', data._id, column.value.split('.')[1], value._id)}
         >
           <Clear />
         </IconButton>
@@ -82,18 +76,19 @@ Views.Value = ({ storage, data }, column: any) => {
 
   if (column.type === 'values') {
     const filters = storage.getFilters(column._id);
-    const numValue = find(_.isArray(value) ? _.map(value, value => ({ value })) : [], toQuery('value', filters)).all();
+    const collection = value && _.isArray(value.values) ? value.values : [];
+    const values = find(collection, toQuery(`${column.value}.values.value`, filters)).all();
 
     return <div>
-      {numValue.map(({ value: value }, n) => {
+      {values.map((value, n) => {
         return <div key={value._id}>
-          <ViewValue data={data} value={value} v={n}/>
+          <ViewValue data={data} value={value} v={n} column={column}/>
         </div>;
       })}
       <Grid item xs={12} style={{ textAlign: 'center' }}>
         <IconButton
           style={{ padding: 0 }}
-          onClick={e => Nodes.update(data._id, { $push: { values: { _id: Random.id(), value: '', name: '' } } })}
+          onClick={e => Meteor.call('nodes.values.push', data._id, column.value.split('.')[1], { value: '' })}
         >
           <Add />
         </IconButton>

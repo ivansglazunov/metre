@@ -44,6 +44,8 @@ export const types = {
     </Grid>;
   },
   values: (context, filter) => {
+    const column = context.storage.getColumn(filter.columnId);
+
     return <Grid
       container
       spacing={8}
@@ -59,7 +61,7 @@ export const types = {
         </IconButton>
       </Grid>
       <Grid item xs={1} style={{ textAlign: 'center' }}>
-        <PathSortIconButton path="values.name" sorts={context.config.sorts} storage={context.storage} style={{ padding: 0 }}/>
+        {column && <PathSortIconButton path={`${column.value}.name`} sorts={context.config.sorts} storage={context.storage} style={{ padding: 0 }}/>}
       </Grid>
       <Grid item xs={4}>
         <Field
@@ -71,7 +73,7 @@ export const types = {
         />
       </Grid>
       <Grid item xs={1} style={{ textAlign: 'center' }}>
-        <PathSortIconButton path="values.value" sorts={context.config.sorts} storage={context.storage} style={{ padding: 0 }}/>
+        {column && <PathSortIconButton path={`${column.value}.values.value`} sorts={context.config.sorts} storage={context.storage} style={{ padding: 0 }}/>}
       </Grid>
       <Grid item xs={4}>
         <Field
