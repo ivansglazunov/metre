@@ -5,7 +5,7 @@
   "scripts": {
     "start": "meteor run --settings settings.json",
     "start-debug": "meteor debug --inspect-brk=5959",
-    "test": "spacejam test --driver-package meteortesting:mocha --raw-logs",
+    "test": "meteor test --driver-package meteortesting:mocha --raw-logs",
     "test-debug": "meteor test --driver-package meteortesting:mocha --raw-logs --inspect-brk=5959",
     "desktop": "meteor-desktop"
   },
