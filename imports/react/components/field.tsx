@@ -4,14 +4,27 @@ import TextField from "@material-ui/core/TextField";
 import {FormControl, InputLabel, OutlinedInput, MenuItem} from "@material-ui/core";
 
 export class Field extends React.Component<any, any, any> {
+  static defaultProps = {
+    delay: 300,
+  };
+
   state = {
     isFocused: false,
     value: this.props.value,
   };
 
+  public timeout;
   handleChange = (e) => {
     this.setState({ value: e.target.value });
-    if (this.props.onChange) this.props.onChange(e);
+    if (typeof(this.props.delay) === 'number' && this.props.delay > 0) {
+      clearTimeout(this.timeout);
+      e.persist();
+      this.timeout = setTimeout(() => {
+        if (this.props.onChange) this.props.onChange(e);
+      }, this.props.delay);
+    } else {
+      if (this.props.onChange) this.props.onChange(e);
+    }
   }
 
   handleFocus = (e) => {
