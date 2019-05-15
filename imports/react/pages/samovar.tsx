@@ -12,10 +12,11 @@ export class Samovar extends React.Component<any, any, any> {
     url: '/project/abc/getTry',
     tryResponse: null,
     tryResult: '',
+    doneResponse: '',
   };
   render() {
     const { projects, tries } = this.props;
-    const { url, tryResponse, tryResult } = this.state;
+    const { url, tryResponse, tryResult, doneResponse } = this.state;
 
     return <Grid container>
       <Grid item xs={6}>
@@ -59,9 +60,12 @@ export class Samovar extends React.Component<any, any, any> {
             onChange={e => this.setState({ tryResult: e.target.value })}
           />
           <Button disabled={!url} variant="outlined" onClick={async () => {
-            const doneResponse = await axios.post(`/try/${tryResponse.tryId}/done`, JSON.parse(tryResult));
-            console.log(doneResponse);
+            const { data: doneResponse } = await axios.post(`/try/${tryResponse.tryId}/done`, JSON.parse(tryResult));
+            this.setState({ doneResponse });
           }}>done</Button>
+        </div>
+        <div>
+          <pre><code>{JSON.stringify(doneResponse, null, 1)}</code></pre>
         </div>
       </Grid>
     </Grid>;

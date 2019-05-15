@@ -41,7 +41,6 @@ Picker.route('/try/:_id/done', function({ _id: tryId }, req, res, next) {
   let errors;
   let schemaError;
   try {
-    console.log(req.body, project.schema);
     const results = validate(req.body, project.schema);
     errors = results.errors;
   } catch(error) {
