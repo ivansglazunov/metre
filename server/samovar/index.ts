@@ -41,7 +41,7 @@ Picker.route('/try/:_id/done', function({ _id: tryId }, req, res, next) {
   const send = (json) => res.end(JSON.stringify(json));
   const tr = Tries.findOne(tryId);
   if (!tr) return send({ error: `Try ${tryId} not founded.` });
-  if (tr.completedTime) return send({ error: `Try ${tryId} already completed at ${tr.completedTime}.` });
+  if (tr.completedTime) return send({ error: `Try ${tryId} already completed.` });
   const project = Projects.findOne(tr.projectId);
   if (!project) return send({ error: `Project ${tr.projectId} not founded.` });
   const completedTime = new Date().valueOf();
