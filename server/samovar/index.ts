@@ -6,21 +6,26 @@ import { validate } from 'jsonschema';
 Picker.middleware( bodyParser.json() );
 Picker.middleware( bodyParser.urlencoded( { extended: false } ) );
 
+// developer make post query to /project/:_id/getTry and gets:
 export interface ITryReponse {
   tryId: string;
   input: { [key: string]: any; };
 }
+// or it:
 export interface IErrorResponse {
   error: string;
 }
+// developer send next post query with result data to /try/tryId/done with json:
 export interface IDoneRequest {
   data?: any;
 }
+// and gets result of parsing and validation they data:
 export interface IDoneReponse {
   tryId: string;
   errors: any[];
   schemaError?: any;
 }
+// or again error
 
 Picker.route('/project/:_id/getTry', function({  _id: projectId }, req, res, next) {
   const send = (json) => res.end(JSON.stringify(json));
