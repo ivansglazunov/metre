@@ -1,23 +1,13 @@
-import { Meteor } from 'meteor/meteor';
-import { Random } from 'meteor/random';
+import { Grid, LinearProgress, Tab, Tabs } from '@material-ui/core';
 import * as React from 'react';
-import * as _ from 'lodash';
 
-import { Users, Nodes } from '../../../api/collections/index';
-import { Context as PaginationContext, Provider as PaginationProvider } from '../../components/pagination/index';
-import { Context as StoreContext, Provider as StoreProvider } from '../../components/store/params';
-import { Table } from '../../components/table';
+import { Nodes } from '../../../api/collections';
 import { Columns } from '../../components/columns';
-import { Sorts } from '../../components/sorts';
 import { Filters } from '../../components/filters';
-import { Field } from '../../components/field';
-import { Views } from '../../components/pagination/views';
-
-import options from '../../../api/collections/index/options/index';
-
-import ReactTable from 'react-table';
-import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment, FormControl, InputLabel, Select, OutlinedInput, MenuItem, Tabs, Tab, LinearProgress } from '@material-ui/core';
-import { Add, Clear, ArrowDropDown } from '@material-ui/icons';
+import { Context as PaginationContext } from '../../components/pagination';
+import { Sorts } from '../../components/sorts';
+import { Table } from '../../components/table';
+import { Tree } from '../../components/tree';
 
 export class LeftMenu extends React.Component<any, any, any> {
   state = {
@@ -46,9 +36,10 @@ export const defaultStore = {
     { _id: 'a', path: 'values.width.values.value', desc: -1 },
   ],
   columns: [
+    { _id: 'ns', getter: 'path', value: 'positions', type: 'ns' },
     { _id: 'a', getter: 'path', value: '_id', type: 'string' },
-    { _id: 'b', getter: 'path', value: 'values.width', type: 'values' },
-    { _id: 'c', getter: 'path', value: 'values.height', type: 'values' },
+    { _id: 'b', getter: 'path', value: 'values.width', type: 'formula' },
+    { _id: 'c', getter: 'path', value: 'values.height', type: 'formula' },
   ],
 };
 
@@ -71,26 +62,42 @@ export const tracker = ({ config: { sort }, methodsResults: { loading, ids, page
   return { data, pages, loading: loading || !c.ready() };
 };
 
-export default () => (
-  <Grid container>
-    <Grid item sm={4}><LeftMenu /></Grid>
-    <Grid item sm={8}><Table /></Grid>
-    <PaginationContext.Consumer>
-      {({ storage, config, methodsResults, trackerResults }: any) => (
-        trackerResults.loading
-          ? <LinearProgress />
-          : <Grid container>
-            <Grid item sm={4}>
-              <pre><code>{JSON.stringify(config, null, 1)}</code></pre>
+export default class extends React.Component {
+  state = {
+    tab: 'table',
+  }
+  onChange = (event, value) => this.setState({ tab: value });
+
+  render() {
+    const { tab } = this.state;
+    
+    return <Grid container>
+      <Grid item sm={4}><LeftMenu /></Grid>
+      <Grid item sm={8}>
+        <Tabs value={tab} onChange={this.onChange}>
+          <Tab value='table' label='table' style={{ minWidth: 0 }} />
+          <Tab value='tree' label='tree' style={{ minWidth: 0 }} />
+        </Tabs>
+        {tab === 'table' && <Table />}
+        {tab === 'tree' && <Tree />}
+      </Grid>
+      <PaginationContext.Consumer>
+        {({ storage, config, methodsResults, trackerResults }: any) => (
+          trackerResults.loading
+            ? <LinearProgress />
+            : <Grid container>
+              <Grid item sm={4}>
+                <pre><code>{JSON.stringify(config, null, 1)}</code></pre>
+              </Grid>
+              <Grid item sm={4}>
+                <pre><code>{JSON.stringify(methodsResults, null, 1)}</code></pre>
+              </Grid>
+              <Grid item sm={4}>
+                <pre><code>{JSON.stringify(trackerResults, null, 1)}</code></pre>
+              </Grid>
             </Grid>
-            <Grid item sm={4}>
-              <pre><code>{JSON.stringify(methodsResults, null, 1)}</code></pre>
-            </Grid>
-            <Grid item sm={4}>
-              <pre><code>{JSON.stringify(trackerResults, null, 1)}</code></pre>
-            </Grid>
-          </Grid>
-      )}
-    </PaginationContext.Consumer>
-  </Grid>
-);
+        )}
+      </PaginationContext.Consumer>
+    </Grid>
+  }
+}

@@ -36,3 +36,5 @@ staringatlights:inject-data
 omega:meteor-desktop-watcher@=2.0.0
 omega:meteor-desktop-bundler@=2.0.0
 tmeasday:check-npm-versions
+ostrio:files
+meteorhacks:picker

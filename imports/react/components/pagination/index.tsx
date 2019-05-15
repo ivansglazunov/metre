@@ -98,6 +98,7 @@ export interface IViews {
   Column: any;
   Filter: any;
   Filters: any;
+  Pagination: any;
 }
 
 export interface IProps extends ILProps {

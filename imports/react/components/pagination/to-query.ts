@@ -9,10 +9,13 @@ export const toQuery = (field: string, filters: IFilter) => {
         query[field] = { $regex: filter.value };
       }
     }
-    if (filter.type === 'values') {
-      if (filter.value) {
-        query[`${field}.values.value`] = { $regex: filter.value };
-      }
+    if (filter.type === 'formula') {
+      try {
+        if (filter.value) {
+          new RegExp(filter.value);
+          query[`${field}.values.value`] = { $regex: filter.value };
+        }
+      } catch(error) {}
     }
   }
   return query;

@@ -58,14 +58,19 @@ export class Field extends React.Component<any, any, any> {
         shrink: true,
       }}
       inputProps={{
+        ...(props.inputProps || {}),
         style: {
           padding: 3,
+          ...((props.inputProps && props.inputProps.style) || {}),
         },
       }}
       SelectProps={{
+        ...(props.SelectProps || {}),
         SelectDisplayProps: {
+          ...((props.SelectProps && props.SelectDisplayProps) || {}),
           style: {
             padding: 3,
+            ...((props.SelectProps && props.SelectDisplayProps && props.SelectDisplayProps.style) || {}),
           },
         },
       }}

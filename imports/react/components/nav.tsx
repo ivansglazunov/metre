@@ -21,6 +21,7 @@ export default class Nav extends React.Component {
       <li><Link to='/params-table'>params-table</Link></li>
       <li><Link to='/props-table'>props-table</Link></li>
       <li><Link to='/math'>math</Link></li>
+      <li><Link to='/fs'>fs</Link></li>
       <li><button onClick={this.makeReset}>reset</button></li>
     </ul>;
   }

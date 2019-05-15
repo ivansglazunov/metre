@@ -1,31 +1,12 @@
-import { Meteor } from 'meteor/meteor';
-import { Random } from 'meteor/random';
-import * as React from 'react';
 import * as _ from 'lodash';
+import * as React from 'react';
 
-import { Users, Nodes } from '../../api/collections/index';
-import { Context, Provider } from '../components/pagination/index';
-
-import options from '../../api/collections/index/options/index';
-
+import { Context } from '../components/pagination';
 import ReactTable from 'react-table';
-import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment } from '@material-ui/core';
-import { Add, Clear, DragIndicator } from '@material-ui/icons';
-import { Field } from './field';
-import { SortIconButton } from './pagination/sort-icon-button';
-import treeTableHOC from "react-table/lib/hoc/treeTable";
-import arrayMove from 'array-move';
-import {
-  SortableContainer,
-  SortableElement,
-  SortableHandle,
-} from 'react-sortable-hoc';
-
-const ReactTreeTreeHOC = treeTableHOC(ReactTable);
 
 export class Table extends React.Component<any, any, any> {
   consumerRender = (context: any) => {
-    return <ReactTreeTreeHOC
+    return <ReactTable
       {...this.props}
       pages={context.trackerResults.pages}
       data={this.data(context)}
@@ -37,7 +18,11 @@ export class Table extends React.Component<any, any, any> {
       manual
       filterable
       loading={!!context.trackerResults.loading}
+      PaginationComponent={this.PaginationComponent(context)}
     />;
+  };
+  PaginationComponent = (context) => () => {
+    return context.Views.Pagination(context);
   };
   onPageChange = (context) => (pageIndex) => context.storage.setPage(pageIndex);
   onPageSizeChange = (context) => (pageSize, pageIndex) => context.storage.setPageSize(pageIndex, pageSize);
