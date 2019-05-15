@@ -28,6 +28,7 @@ export interface IDoneReponse {
 // or again error
 
 Picker.route('/project/:_id/getTry', function({  _id: projectId }, req, res, next) {
+  res.setHeader('Content-Type', 'application/json');
   const send = (json) => res.end(JSON.stringify(json));
   const project = Projects.findOne(projectId);
   if (!project) return send({ error: `Project ${projectId} not founded.` });
@@ -36,6 +37,7 @@ Picker.route('/project/:_id/getTry', function({  _id: projectId }, req, res, nex
 });
 
 Picker.route('/try/:_id/done', function({ _id: tryId }, req, res, next) {
+  res.setHeader('Content-Type', 'application/json');
   const send = (json) => res.end(JSON.stringify(json));
   const tr = Tries.findOne(tryId);
   if (!tr) return send({ error: `Try ${tryId} not founded.` });
