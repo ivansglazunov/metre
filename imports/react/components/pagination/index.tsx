@@ -9,6 +9,7 @@ import {Load, IProps as ILProps} from '../../load';
 
 import { toQuery } from './to-query';
 import { Storage } from './storage';
+import { IPosition } from '../../../api/nested-sets';
 
 export const Context = React.createContext({});
 
@@ -51,6 +52,7 @@ export interface IConfig {
   filters: IFilter[];
   sorts: ISort[];
   columns: IColumn[];
+  nests: { [nodeId: string]: { [positionId: string]: IPosition } };
 
   [key: string]: any;
 }
@@ -81,6 +83,13 @@ export interface IStorage {
   setColumn(column: IColumn);
   delColumn(column: IColumn);
   getColumn(columnId: string): IColumn;
+
+  isNest(nodeId: string, positionId: string): boolean;
+  getNest(nodeId: string, positionId: string): IPosition;
+  setNest(nodeId: string, positionId: string, position: IPosition);
+  unsetNest(nodeId: string, positionId: string);
+  unsetNests(nodeId: string);
+  getNests(nodeId: string): { [positionId: string]: IPosition };
 
   query(): any;
   sort(): any;

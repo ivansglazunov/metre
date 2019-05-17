@@ -36,6 +36,7 @@ export const Storage = (provider) => {
         filters: value.filters || [],
         sorts: value.sorts || [],
         columns: value.columns || [],
+        nests: value.nests || {},
       };
     },
 
@@ -114,6 +115,39 @@ export const Storage = (provider) => {
     },
     getColumn(columnId) {
       return _.find(this.get().columns || [], c => c._id === columnId);
+    },
+
+    isNest(nodeId, positionId) {
+      return _.get(this.get().nests, [nodeId, positionId], false);
+    },
+    getNest(nodeId, positionId) {
+      const nests = this.get().nests || {};
+      return _.get(nests, [nodeId, positionId], false);
+    },
+    setNest(nodeId, positionId, position) {
+      const nests = this.get().nests || {};
+      _.set(nests, [nodeId, positionId], position);
+      this.set({
+        nests,
+      });
+    },
+    unsetNest(nodeId, positionId) {
+      const nests = this.get().nests || {};
+      _.set(nests, [nodeId, positionId], false);
+      this.set({
+        nests,
+      });
+    },
+    unsetNests(nodeId) {
+      const nests = this.get().nests || {};
+      _.set(nests, [nodeId], {});
+      this.set({
+        nests,
+      });
+    },
+    getNests(nodeId) {
+      const nests = this.get().nests || {};
+      return _.get(nests, [nodeId], {});
     },
 
     query() {

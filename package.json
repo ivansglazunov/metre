@@ -1,6 +1,4 @@
 {
-  "name": "metre",
-  "version": "0.0.0",
   "private": true,
   "scripts": {
     "start": "meteor run --settings settings.json",
@@ -37,6 +35,7 @@
     "react-addons-pure-render-mixin": "^15.6.2",
     "react-container-dimensions": "^1.4.1",
     "react-dom": "^16.8.6",
+    "react-dropzone": "^10.1.4",
     "react-helmet": "^5.2.1",
     "react-hotkeys": "^1.1.4",
     "react-jss": "^8.6.1",

@@ -8,6 +8,7 @@ import { Context as PaginationContext } from '../../components/pagination';
 import { Sorts } from '../../components/sorts';
 import { Table } from '../../components/table';
 import { Tree } from '../../components/tree';
+import _ from 'lodash';
 
 export class LeftMenu extends React.Component<any, any, any> {
   state = {
@@ -55,10 +56,33 @@ export const methods = ({ config: { page, pageSize, query, sort } }, prevResults
   return { pages, ids, loading: _pages.loading || _ids.loading };
 };
 
-export const tracker = ({ config: { sort }, methodsResults: { loading, ids, pages } }) => {
+export const tracker = ({ config: { sort, nests }, methodsResults: { loading, ids, pages } }) => {
   const c = Nodes.find({ _id: { $in: ids } });
   const d = c.fetch();
-  const data = (ids && ids.map(id => Nodes.findOne(id, { subscribe: false }))) || [];
+  const data = [];
+  if (ids) for (let i = 0; i < ids.length; i++) {
+    data.push(Nodes.findOne(ids[i], { subscribe: false }));
+    if (nests[ids[i]]) {
+      const pIds = _.keys(nests[ids[i]]);
+      for (let p = 0; p < pIds.length; p++) {
+        const nest = nests[ids[i]][pIds[p]];
+        if (nest) {
+          const childs = _.sortBy(
+            Nodes.find({ 'positions': { $elemMatch: { tree: nest.tree, space: nest.space, left: { $gt: nest.left }, right: { $lt: nest.right } } } }).map(node => {
+              node.___nestPosition = _.find(node.positions, p => (
+                p.tree === nest.tree && p.space === nest.space &&
+                p.left > nest.left && p.right < nest.right
+              ));
+              node.___parentNestPosition = nest;
+              return node;
+            }),
+            (node) => node.___nestPosition && node.___nestPosition.left,
+          );
+          data.push(...childs);
+        }
+      }
+    }
+  }
   return { data, pages, loading: loading || !c.ready() };
 };
 

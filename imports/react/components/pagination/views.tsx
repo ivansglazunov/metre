@@ -69,12 +69,44 @@ Views.Value = ({ storage, data }, column: any) => {
   else if (column.getter === 'formula') value = mathEval(column.value, data).result;
   else return null;
 
+  const np = data && data.___nestPosition;
+  const pnp = data && data.___parentNestPosition;
+
   if (column.type === 'ns' || !column.type) {
     if (_.isArray(value)) {
+      const p = np;
       return <div style={{ height: '100%' }}>
-        {value.map(p => <div key={p._id}>
-          <Button fullWidth style={{ textAlign: 'left' }}><ArrowRight/>{p.depth} {p.left}/{p.right}</Button>
-        </div>)}
+        {np && <ListItem
+          style={{ height: '100%', padding: 0, paddingLeft: (p.depth - pnp.depth) * 10 }}
+          button
+          disabled
+          onClick={() => storage.setNest(data._id, p._id, p)}
+          key={p._id}
+        >
+          <div style={{ height: '100%', boxShadow: 'inset black 1px 0px 0px 0px' }}>
+            <ArrowRight/>{p.depth} {p.left}/{p.right}
+          </div>
+        </ListItem>}
+        {!np && value.filter(p => !storage.isNest(data._id, p._id)).map(p => {
+          return <ListItem
+            style={{ padding: 0 }}
+            button
+            onClick={() => storage.setNest(data._id, p._id, p)}
+            key={p._id}
+          >
+            <ArrowRight/>{p.depth} {p.left}/{p.right}
+          </ListItem>;
+        })}
+        {!np && value.filter(p => storage.isNest(data._id, p._id)).map(p => {
+          return <ListItem
+            style={{ padding: 0 }}
+            button
+            onClick={() => storage.unsetNest(data._id, p._id)}
+            key={p._id}
+          >
+            <ArrowDropDown/>{p.depth} {p.left}/{p.right}
+          </ListItem>;
+        })}
       </div>;
     }
     return null;
@@ -177,7 +209,7 @@ Views.Filters = (context, column: any) => {
   const filters = context.storage.getFilters(column._id);
   
   return <Grid container>
-    {filters.map(filter => Views.Filter(context, filter))}
+    {filters.map(filter => <React.Fragment key={filter._id}>{Views.Filter(context, filter)}</React.Fragment>)}
     <Grid item xs={12} style={{ textAlign: 'center' }}>
       <IconButton style={{ padding: 0 }} onClick={
         e => context.storage.addFilter({ _id: Random.id(), columnId: column._id, type: column.type })
