@@ -27,9 +27,12 @@ export class Tree extends React.Component<any, any, any> {
       <TableHead>
         <TableRow>
           {context.config.columns.map(
-            column => <TableCell key={column._id} style={{ padding: 0 }}>
-              {context.Views.Column(context, column)}
-            </TableCell>
+            column => {
+              const viewColumn = context.Views.Column(context, column);
+              return <TableCell key={column._id} style={{ padding: 0, minWidth: viewColumn.minWidth || 0, maxWidth: viewColumn.maxWidth || 0 }}>
+                {viewColumn.element}
+              </TableCell>;
+            }
           )}
         </TableRow>
       </TableHead>
@@ -55,13 +58,19 @@ export class Tree extends React.Component<any, any, any> {
     Cell: this.Cell,
     Header: this.Header,
     Filter: this.Filter,
+    ...this.columnWidths(_context, c._id),
   }));
   data = (context) => {
     return _.map(context.trackerResults.data, data => ({ data, ...context }));
-  }
+  };
+
+  columnWidths = (context, id) => {
+    const { minWidth, maxWidth } = context.Views.Column(context, context.storage.getColumn(id));
+    return { minWidth, maxWidth };
+  };
 
   Cell = ({ original, column: { id } }) => original.Views.Value(original, original.storage.getColumn(id));
-  Header = ({ column: { id, _context } }) => <div style={{ paddingTop: 5 }}>{_context.Views.Column(_context, _context.storage.getColumn(id))}</div>
+  Header = ({ column: { id, _context } }) => <div style={{ paddingTop: 5 }}>{_context.Views.Column(_context, _context.storage.getColumn(id)).element}</div>
   Filter = ({ column: { id, _context } }) => _context.Views.Filters(_context, _context.storage.getColumn(id));
 
   render() {

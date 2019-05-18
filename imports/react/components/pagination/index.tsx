@@ -102,12 +102,18 @@ export interface IStorageAdapter {
   get: () => any;
 }
 
+export interface IViewColumn {
+  element: any;
+  minWidth: number;
+  maxWidth: number;
+}
+
 export interface IViews {
-  Value: any;
-  Column: any;
-  Filter: any;
-  Filters: any;
-  Pagination: any;
+  Value: (context: any, column: IColumn) => any;
+  Column: (context: any, column: IColumn) => IViewColumn;
+  Filter: (context: any, filter: IFilter) => any;
+  Filters: (context: any, column: IColumn) => any;
+  Pagination: (context: any) => any;
 }
 
 export interface IProps extends ILProps {

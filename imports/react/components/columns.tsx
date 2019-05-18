@@ -36,7 +36,7 @@ export class Columns extends React.Component<any, any, any> {
         </Grid>
         <Grid item xs={11}>
           <Grid container justify="space-between" spacing={8}>
-            <Grid item xs={12}>{context.Views.Column(context, value)}</Grid>
+            <Grid item xs={12}>{context.Views.Column(context, value).element}</Grid>
             <Grid item xs={12}>{context.Views.Filters(context, value)}</Grid>
           </Grid>
         </Grid>

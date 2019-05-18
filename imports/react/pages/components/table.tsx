@@ -67,18 +67,23 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
       for (let p = 0; p < pIds.length; p++) {
         const nest = nests[ids[i]][pIds[p]];
         if (nest) {
-          const childs = _.sortBy(
-            Nodes.find({ 'positions': { $elemMatch: { tree: nest.tree, space: nest.space, left: { $gt: nest.left }, right: { $lt: nest.right } } } }).map(node => {
-              node.___nestPosition = _.find(node.positions, p => (
-                p.tree === nest.tree && p.space === nest.space &&
-                p.left > nest.left && p.right < nest.right
-              ));
-              node.___parentNestPosition = nest;
-              return node;
-            }),
-            (node) => node.___nestPosition && node.___nestPosition.left,
-          );
-          data.push(...childs);
+          const nodes = Nodes.find({ 'positions': { $elemMatch: { tree: nest.tree, space: nest.space, left: { $gt: nest.left }, right: { $lt: nest.right } } } }).fetch();
+          let children = [];
+          for (let n = 0; n < nodes.length; n++) {
+            const node = nodes[n];
+            for (let p = 0; p < node.positions.length; p++) {
+              const pos = node.positions[p];
+              if (pos.tree === nest.tree && pos.space === nest.space && pos.left > nest.left && pos.right < nest.right) {
+                children.push({
+                  ...node,
+                  ___nestPosition: pos,
+                  ___parentNestPosition: nest,
+                });
+              }
+            }
+          }
+          children = _.sortBy(children, n => n.___nestPosition.left);
+          data.push(...children);
         }
       }
     }

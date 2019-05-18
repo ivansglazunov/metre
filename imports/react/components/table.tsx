@@ -33,13 +33,15 @@ export class Table extends React.Component<any, any, any> {
     Cell: this.Cell,
     Header: this.Header,
     Filter: this.Filter,
+    minWidth: this.minWidth(_context, c._id),
   }));
   data = (context) => {
     return _.map(context.trackerResults.data, data => ({ data, ...context }));
   }
 
+  minWidth = (context, id) => context.Views.Column(context, context.storage.getColumn(id)).minWidth || 0;
   Cell = ({ original, column: { id } }) => original.Views.Value(original, original.storage.getColumn(id));
-  Header = ({ column: { id, _context } }) => <div style={{ paddingTop: 5 }}>{_context.Views.Column(_context, _context.storage.getColumn(id))}</div>
+  Header = ({ column: { id, _context } }) => <div style={{ paddingTop: 5 }}>{_context.Views.Column(_context, _context.storage.getColumn(id)).element}</div>
   Filter = ({ column: { id, _context } }) => _context.Views.Filters(_context, _context.storage.getColumn(id));
 
   render() {
