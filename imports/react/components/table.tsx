@@ -42,7 +42,7 @@ export class Table extends React.Component<any, any, any> {
   minWidth = (context, id) => context.Views.Column(context, context.storage.getColumn(id)).minWidth || 0;
   Cell = ({ original, column: { id } }) => original.Views.Value(original, original.storage.getColumn(id));
   Header = ({ column: { id, _context } }) => <div style={{ paddingTop: 5 }}>{_context.Views.Column(_context, _context.storage.getColumn(id)).element}</div>
-  Filter = ({ column: { id, _context } }) => _context.Views.Filters(_context, _context.storage.getColumn(id));
+  Filter = ({ column: { id, _context } }) => <div style={{ padding: 3 }}>{_context.Views.Filters(_context, _context.storage.getColumn(id))}</div>;
 
   render() {
     return <Context.Consumer>

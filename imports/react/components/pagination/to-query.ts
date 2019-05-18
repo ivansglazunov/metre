@@ -13,7 +13,7 @@ export const toQuery = (field: string, filters: IFilter) => {
       try {
         if (filter.value) {
           new RegExp(filter.value);
-          query[`${field}.values.value`] = { $regex: filter.value };
+          query[field] = { $regex: filter.value };
         }
       } catch(error) {}
     }

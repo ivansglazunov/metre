@@ -159,7 +159,7 @@ export const Storage = (provider) => {
           const filter = filters[f];
           const column = this.getColumn(filter.columnId);
           if (!column) continue;
-          const query = !filter.onlyValues ? toQuery(column.value, [filter]) : null;
+          const query = !filter.onlyValues ? toQuery(`${column.value}.values.value`, [filter]) : null;
           if (_.isEmpty(query)) continue;
           $and.push(query);
         }

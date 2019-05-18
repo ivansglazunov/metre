@@ -55,10 +55,11 @@ export class Component extends React.Component<IProps, any, any> {
   }
   render() {
     const { children } = this.props;
+    const context = this.props.context || Context;
 
-    return <Context.Provider value={{ value: this.value(), set: this.set }}>
+    return <context.Provider value={{ value: this.value(), set: this.set }}>
       {children}
-    </Context.Provider>
+    </context.Provider>
   }
 }
 

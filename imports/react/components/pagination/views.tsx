@@ -126,7 +126,7 @@ export const Views: IViews = {
     if (column.type === 'formula') {
       const filters = storage.getFilters(column._id);
       const collection = value && _.isArray(value.values) ? value.values : [];
-      const q = toQuery(column.value, filters);
+      const q = toQuery('value', filters);
       const values = find(collection, q).all();
 
       return <div>
