@@ -1,6 +1,6 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
+import * as PropTypes from 'prop-types';
+import * as  _ from 'lodash';
 
 import * as math from 'mathjs';
 

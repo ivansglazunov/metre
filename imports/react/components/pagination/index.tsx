@@ -1,8 +1,8 @@
 import { Random } from 'meteor/random';
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
+import * as PropTypes from 'prop-types';
+import * as  _ from 'lodash';
 
 import ReactTable from 'react-table';
 import {Load, IProps as ILProps} from '../../load';
@@ -19,6 +19,7 @@ export interface IFilter {
   
   type?: string;
   value?: any;
+  deny?: 'server' | 'client';
 
   collectionQuery?: (column: IColumn, filters: IFilter[]) => any;
   valueQuery?: (column: IColumn, filters: IFilter[]) => any;
@@ -41,6 +42,7 @@ export interface IColumn {
   value: any;
   type?: string;
   options?: any;
+  variant?: 'full' | 'short';
 }
 
 export interface IConfig {
@@ -102,18 +104,19 @@ export interface IStorageAdapter {
   get: () => any;
 }
 
-export interface IViewColumn {
-  element: any;
+export interface IViewColumnSizes {
   minWidth: number;
   maxWidth: number;
 }
 
 export interface IViews {
-  Value: (context: any, column: IColumn) => any;
-  Column: (context: any, column: IColumn) => IViewColumn;
-  Filter: (context: any, filter: IFilter) => any;
-  Filters: (context: any, column: IColumn) => any;
-  Pagination: (context: any) => any;
+  Value: (props: { context: any, column: IColumn, data: any }) => any;
+  columnSizes: (context, column) => IViewColumnSizes;
+  Column: (props: { context: any, column: IColumn }) => any;
+  Filter: (props: { context: any, column: IColumn, filter: IFilter, filterIndex: number }) => any;
+  Filters: (props: { context: any, column: IColumn }) => any;
+  FiltersList: (props: { context: any, column: IColumn, filters: IFilter[] }) => any;
+  Pagination: (props: { context: any }) => any;
 }
 
 export interface IProps extends ILProps {

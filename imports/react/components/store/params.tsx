@@ -1,8 +1,8 @@
 import { Random } from 'meteor/random';
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
+import * as PropTypes from 'prop-types';
+import * as  _ from 'lodash';
 import queryString from 'query-string';
 import * as jsonpack from 'jsonpack/main';
 import { withRouter } from "react-router";

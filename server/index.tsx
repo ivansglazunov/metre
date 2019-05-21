@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
-import _ from 'lodash';
+import * as  _ from 'lodash';
 
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';

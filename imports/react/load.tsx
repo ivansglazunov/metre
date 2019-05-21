@@ -1,8 +1,11 @@
+import * as Debug from 'debug';
+import * as _ from 'lodash';
 import { Meteor } from 'meteor/meteor';
-import * as React from 'react';
-import _ from 'lodash';
-import stringHash from 'string-hash';
 import { withTracker } from 'meteor/react-meteor-data';
+import * as React from 'react';
+import * as stringHash from 'string-hash';
+
+const debug = Debug('metre:load');
 
 export interface ICall {
   (id: string, name: string, ...args: any[]): Promise<any>;
@@ -46,11 +49,14 @@ export class Load extends React.Component<IProps, any, any> {
     if (!_.isEqual(this.callsArgs[id], newCallArgs)) {
       this.callsArgs[id] = {name, args};
       this.callsResults[id] = { loading: true, result: null };
+      debug(`Meteor.call id: ${id} name: ${name} start`);
       const result = Meteor.call(name, ...args, Meteor.isClient ? (error, result) => {
+        debug(`Meteor.call id: ${id} name: ${name} async done`);
         this.callsResults[id] = { loading: false, result };
         this.rerender = true;
         this.setState(this.state);
       } : null);
+      if (result) debug(`Meteor.call id: ${id} name: ${name} sync done`);
       const hash = stringHash(JSON.stringify(newCallArgs));
       if (Meteor.isServer) {
         if (global.metreServerCalls) global.metreServerCalls[hash] = result;

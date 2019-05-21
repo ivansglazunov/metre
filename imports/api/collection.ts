@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import _ from 'lodash';
+import * as  _ from 'lodash';
 
 export const defaultCursorReady = () => true;
 

@@ -1,15 +1,15 @@
 import { Random } from 'meteor/random';
 
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import _ from 'lodash';
+import * as PropTypes from 'prop-types';
+import * as  _ from 'lodash';
 import queryString from 'query-string';
 import * as jsonpack from 'jsonpack/main';
 
 import ReactTable from 'react-table';
 import {Load, IProps as ILProps} from '../../load';
 
-import { toQuery } from './to-query';
+import { toQuery, toPath } from './to-query';
 import { IStorage } from './';
 
 export const Storage = (provider) => {
@@ -159,7 +159,7 @@ export const Storage = (provider) => {
           const filter = filters[f];
           const column = this.getColumn(filter.columnId);
           if (!column) continue;
-          const query = !filter.onlyValues ? toQuery(`${column.value}.values.value`, [filter]) : null;
+          const query = filter.deny != 'server' ? toQuery(toPath(column), [filter]) : null;
           if (_.isEmpty(query)) continue;
           $and.push(query);
         }

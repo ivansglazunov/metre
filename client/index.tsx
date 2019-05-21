@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { LocalCollection } from 'meteor/minimongo';
-import _ from 'lodash';
+import * as  _ from 'lodash';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';

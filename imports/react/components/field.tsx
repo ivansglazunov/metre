@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import _ from "lodash";
 import TextField from "@material-ui/core/TextField";
 import {FormControl, InputLabel, OutlinedInput, MenuItem} from "@material-ui/core";
@@ -13,8 +13,14 @@ export class Field extends React.Component<any, any, any> {
     value: this.props.value,
   };
 
+  onValidate = (e) => {
+    if (this.props.onValidate) return !!this.props.onValidate(e);
+    return true;
+  };
+
   public timeout;
   handleChange = (e) => {
+    if (!this.onValidate(e)) return;
     this.setState({ value: e.target.value });
     if (typeof(this.props.delay) === 'number' && this.props.delay > 0) {
       clearTimeout(this.timeout);
@@ -42,7 +48,7 @@ export class Field extends React.Component<any, any, any> {
   }
 
   render() {
-    const { style, ...props } = this.props;
+    const { style, onValidate, ...props } = this.props;
     const { value } = this.state;
 
     return <TextField

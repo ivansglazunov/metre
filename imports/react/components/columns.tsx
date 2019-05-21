@@ -28,16 +28,16 @@ export class Columns extends React.Component<any, any, any> {
   SortableList = SortableContainer(({ children }) => {
     return <List dense>{children}</List>;
   });
-  SortableItem = SortableElement(({ value, context }) => (
-    <ListItem key={value._id} divider>
+  SortableItem = SortableElement(({ value: column, context }) => (
+    <ListItem key={column._id} divider>
       <Grid container justify="space-between" spacing={8}>
         <Grid item xs={1}>
           <this.DragHandle/>
         </Grid>
         <Grid item xs={11}>
           <Grid container justify="space-between" spacing={8}>
-            <Grid item xs={12}>{context.Views.Column(context, value).element}</Grid>
-            <Grid item xs={12}>{context.Views.Filters(context, value)}</Grid>
+            <Grid item xs={12}><context.Views.Column context={context} column={{ ...column, variant: 'full' }}/></Grid>
+            <Grid item xs={12}><context.Views.FiltersList context={context} column={column} filters={context.storage.getFilters(column._id)}/></Grid>
           </Grid>
         </Grid>
       </Grid>

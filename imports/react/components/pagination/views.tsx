@@ -1,14 +1,16 @@
-import { Button, Grid, IconButton, ListItem } from '@material-ui/core';
+import { Button, Grid, IconButton, ListItem, Popover } from '@material-ui/core';
 import { Add, ArrowDropDown, ArrowRight, ChevronLeft, ChevronRight, Clear } from '@material-ui/icons';
 import * as _ from 'lodash';
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { find } from 'mingo';
+
 import * as React from 'react';
+import { useState } from 'react';
 
 import { mathEval } from '../../../api/math';
 import { Field } from '../field';
-import { types as filterTypes } from './filters';
+import { FilterType } from './filters';
 import { ColumnSortIconButton } from './sort-icon-button';
 import { toQuery } from './to-query';
 import { IViews } from '.';
@@ -19,11 +21,17 @@ export const getters = [
 ];
 
 export const types = [
+  'tree',
   'ns',
   'string',
   'formula',
   'id',
 ];
+
+export const ViewValueString = ({ value }: any) => {
+  if (typeof (value) === 'object') return <React.Fragment>{JSON.stringify(value)}</React.Fragment>;
+  else return <React.Fragment>{String(value)}</React.Fragment>;
+};
 
 export const ViewValueFormula = ({ value, v, data, column }) => {
   const result = mathEval(value.value);
@@ -52,7 +60,7 @@ export const ViewValueFormula = ({ value, v, data, column }) => {
   </Grid>
 };
 
-export const ViewValuePosition = ({ data, value, position, Icon, fullHeight = false, ...props }) => {
+export const ViewValuePosition = ({ data, value, position, Icon, fullHeight = false, short = false, ...props }) => {
   return <ListItem
     style={{
       height: fullHeight ? '100%' : 'auto',
@@ -65,66 +73,112 @@ export const ViewValuePosition = ({ data, value, position, Icon, fullHeight = fa
     {...props}
   >
     <div style={{ fontSize: '0.8em', height: fullHeight ? '100%' : 'auto', boxShadow: 'inset black 1px 0px 0px 0px' }}>
-      <div><Icon style={{ float: 'left' }}  />{position.depth} {position.left}/{position.right} {position.tree}</div>
-      <div>{position.space}</div>
+      {short
+      ? <Icon style={{ float: 'left' }}  />
+      : <React.Fragment>
+        <div><Icon style={{ float: 'left' }}  />{position.depth} {position.left}/{position.right} {position.tree}</div>
+        <div>{position.space}</div>
+        </React.Fragment>
+      }
     </div>
   </ListItem>;
 };
 
 export const Views: IViews = {
-  Value: ({ storage, data }, column: any) => {
+  Value: ({ context, data, column }) => {
     let value;
     if (column.getter === 'path') value = _.get(data, column.value);
     else if (column.getter === 'formula') value = mathEval(column.value, data).result;
     else return null;
 
     if (column.type === 'string' || !column.type) {
-      if (typeof (value) === 'object') return JSON.stringify(value);
-      else return String(value);
+      return <ViewValueString value={value}/>;
+    }
+
+    if (column.type === 'tree') {
+      const filters = context.storage.getFilters(column._id);
+
+      if (_.isArray(value)) {
+        let list = [];
+        if (data.___nestPosition) {
+          list.push({ value: data.___nestPosition, disabled: true });
+        } else {
+          // not nested
+          list.push.apply(list, value.filter(
+            p => !context.storage.isNest(data._id, p._id)
+          ).map(value => ({ value, disabled: false, isNest: false })));
+          // nested
+          list.push.apply(list, value.filter(
+            p => context.storage.isNest(data._id, p._id)
+          ).map(value => ({ value, disabled: false, isNest: true })));
+        }
+        list = find(list, toQuery('value', filters.filter(filter => filter.deny != 'client'))).all();
+
+        return <div style={{ height: '100%' }}>
+          {list.map(({ value: p, disabled, isNest }) => (
+            <ViewValuePosition
+              key={p._id}
+              data={data}
+              value={value}
+              position={p}
+              Icon={data.___nestPosition || isNest ? ArrowDropDown : ArrowRight}
+              disabled={disabled}
+              fullHeight={!!data.___nestPosition}
+              onClick={() => {
+                context.storage.unsetNests(data._id);
+                if (!isNest) context.storage.setNest(data._id, p._id, p);
+              }}
+              short
+            />
+          ))}
+        </div>;
+      }
+      return null;
     }
 
     if (column.type === 'ns') {
+      const filters = context.storage.getFilters(column._id);
+
       if (_.isArray(value)) {
-        const p = data.___nestPosition;
+        let list = [];
+        if (data.___nestPosition) {
+          list.push({ value: data.___nestPosition, disabled: true });
+        } else {
+          // not nested
+          list.push.apply(list, value.filter(
+            p => !context.storage.isNest(data._id, p._id)
+          ).map(value => ({ value, disabled: false, isNest: false })));
+          // nested
+          list.push.apply(list, value.filter(
+            p => context.storage.isNest(data._id, p._id)
+          ).map(value => ({ value, disabled: false, isNest: true })));
+        }
+        list = find(list, toQuery('value', filters.filter(filter => filter.deny != 'client'))).all();
+
         return <div style={{ height: '100%' }}>
-          {data.___nestPosition && <ViewValuePosition
-            data={data}
-            value={value}
-            position={p}
-            Icon={ArrowRight}
-            disabled
-            fullHeight
-          />}
-          {!data.___nestPosition && value.filter(p => !storage.isNest(data._id, p._id)).map(p => {
-            return <ViewValuePosition
+          {list.map(({ value: p, disabled, isNest }) => (
+            <ViewValuePosition
               key={p._id}
               data={data}
+              short={column.variant === 'short'}
               value={value}
               position={p}
-              Icon={ArrowRight}
+              Icon={data.___nestPosition || isNest ? ArrowDropDown : ArrowRight}
+              disabled={disabled}
+              fullHeight={!!data.___nestPosition}
               onClick={() => {
-                storage.unsetNests(data._id);
-                storage.setNest(data._id, p._id, p);
+                context.storage.unsetNests(data._id);
+                if (!isNest) context.storage.setNest(data._id, p._id, p);
               }}
-            />;
-          })}
-          {!data.___nestPosition && value.filter(p => storage.isNest(data._id, p._id)).map(p => {
-            return <ViewValuePosition
-              key={p._id}
-              data={data}
-              value={value}
-              position={p}
-              Icon={ArrowDropDown}
-              onClick={() => storage.unsetNest(data._id, p._id)}
-            />;
-          })}
+            />
+          ))}
         </div>;
       }
       return null;
     }
 
     if (column.type === 'formula') {
-      const filters = storage.getFilters(column._id);
+      const filters = context.storage.getFilters(column._id);
       const collection = value && _.isArray(value.values) ? value.values : [];
       const q = toQuery('value', filters);
       const values = find(collection, q).all();
@@ -147,17 +201,25 @@ export const Views: IViews = {
     }
     return null;
   },
-  Column: (context, column: any) => {
-    return {
-      minWidth: 300,
-      maxWidth: 999,
-      element: <Grid
-        container
-        spacing={8}
-        style={{ textAlign: 'left' }}
-        justify="space-between"
-      >
-        <Grid item xs={3} style={{ textAlign: 'center' }}>
+  columnSizes: (context, column) => ({
+    minWidth: column.variant === 'short' ? 100 : 300,
+    maxWidth: 999,
+  }),
+  Column: ({ context, column }) => {
+    const full = !column.variant || column.variant === 'full';
+    return <Grid
+      container
+      spacing={8}
+      style={{ textAlign: 'left' }}
+      justify="space-between"
+    >
+      <Grid item xs={2} style={{ textAlign: 'center' }}>
+        <IconButton style={{ padding: 0 }} onClick={
+          () => context.storage.setColumn({ ...column, variant: full ? 'short' : 'full' })
+        }>{full ? <ArrowDropDown/> : <ArrowRight/>}</IconButton>
+      </Grid>
+      {full && <React.Fragment>
+        <Grid item xs={2} style={{ textAlign: 'center' }}>
           <ColumnSortIconButton column={column} storage={context.storage} style={{ padding: 0 }}/>
         </Grid>
         <Grid item xs={3}>
@@ -186,7 +248,7 @@ export const Views: IViews = {
             {types.map((t, i) => <option key={i} value={t}>{t}</option>)}
           </Field>
         </Grid>
-        <Grid item xs={3} style={{ textAlign: 'center' }}>
+        <Grid item xs={2} style={{ textAlign: 'center' }}>
           <IconButton
             style={{ padding: 0 }}
             onClick={() => context.storage.delColumn(column)}
@@ -204,19 +266,52 @@ export const Views: IViews = {
             })}
           />
         </Grid>
-      </Grid>,
-    };
+      </React.Fragment>}
+    </Grid>;
   },
-  Filter: (context, filter: any) => {
-    return filterTypes[filter.type]
-    ? filterTypes[filter.type](context, filter)
-    : <Grid key={filter._id} item xs={12}>unexpected filter type {filter.type}</Grid>
+  Filter: ({ context, column, filter, filterIndex }) => {
+    return <FilterType context={context} column={column} filter={filter} filterIndex={filterIndex}/>;
   },
-  Filters: (context, column: any) => {
+  FiltersList: ({ context, column, filters }) => {
+    return <React.Fragment>
+      {filters.map((filter, i) => (
+        <React.Fragment key={filter._id}>
+          <Views.Filter context={context} filter={filter} column={column} filterIndex={i}/>
+        </React.Fragment>
+      ))}
+    </React.Fragment>;
+  },
+  Filters: ({ context, column }) => {
+    const [open, setOpen] = useState(null);
+
     const filters = context.storage.getFilters(column._id);
     
+    const content = <context.Views.FiltersList context={context} column={column} filters={filters}/>;
+
     return <Grid container>
-      {filters.map(filter => <React.Fragment key={filter._id}>{Views.Filter(context, filter)}</React.Fragment>)}
+      {column.variant === 'short'
+      ? <React.Fragment>
+        {!!filters.length && <Button fullWidth onClick={e => setOpen(e.currentTarget)}>
+          {filters.length}
+        </Button>}
+        <Popover
+          open={!!open}
+          anchorEl={open}
+          onClose={() => setOpen(null)}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+        >
+          {content}
+        </Popover>
+      </React.Fragment>
+      : content
+      }
       <Grid item xs={12} style={{ textAlign: 'center' }}>
         <IconButton style={{ padding: 0 }} onClick={
           e => context.storage.addFilter({ _id: Random.id(), columnId: column._id, type: column.type })
@@ -224,7 +319,7 @@ export const Views: IViews = {
       </Grid>
     </Grid>;
   },
-  Pagination: (context) => {
+  Pagination: ({ context }) => {
     const page = context.config.page || 0;
     const pageSize = context.config.pageSize || 5;
     const { pages } = context.methodsResults;
@@ -248,6 +343,7 @@ export const Views: IViews = {
         {ps.map(p => (
           p === page
           ? <Field
+            key={'page'}
             value={`${page}`}
             type="number"
             max={pages - 1}
@@ -261,6 +357,7 @@ export const Views: IViews = {
             }}
           />
           : <Button
+            key={p}
             disabled={p === page}
             size="small" style={{ minWidth: 0 }}
             onClick={

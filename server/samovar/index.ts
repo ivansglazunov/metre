@@ -1,5 +1,5 @@
 import { Projects, Tries } from '../../imports/api/collections/index';
-import bodyParser  from 'body-parser';
+import * as bodyParser  from 'body-parser';
 
 import { validate } from 'jsonschema';
 

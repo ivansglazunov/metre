@@ -34,7 +34,7 @@ export class Filters extends React.Component<any, any, any> {
         <Grid item xs={1}>
           <this.DragHandle/>
         </Grid>
-        <Grid item xs={11}>{context.Views.Filter(context, value)}</Grid>
+        <Grid item xs={11}><context.Views.Filter context={context} filter={value}/></Grid>
       </Grid>
     </ListItem>
   ));

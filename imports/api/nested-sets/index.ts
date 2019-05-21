@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { Random } from 'meteor/random';
-import chai from 'chai';
-import _ from 'lodash';
+import * as chai from 'chai';
+import * as _ from 'lodash';
 import SimpleSchema from 'simpl-schema';
 
 export interface IDoc {

@@ -6,7 +6,7 @@ import { Random } from 'meteor/random';
 import { check } from 'meteor/check';
 
 import SimpleSchema from 'simpl-schema';
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 import { wrapCollection } from '../collection';
 import { TPositions, NestedSets } from '../nested-sets';

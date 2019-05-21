@@ -28,9 +28,8 @@ export class Tree extends React.Component<any, any, any> {
         <TableRow>
           {context.config.columns.map(
             column => {
-              const viewColumn = context.Views.Column(context, column);
-              return <TableCell key={column._id} style={{ padding: 0, minWidth: viewColumn.minWidth || 0, maxWidth: viewColumn.maxWidth || 0 }}>
-                {viewColumn.element}
+              return <TableCell key={column._id} style={{ padding: 0 }}>
+                <context.Views.Column context={context} column={column}/>
               </TableCell>;
             }
           )}
@@ -41,7 +40,7 @@ export class Tree extends React.Component<any, any, any> {
           document => <TableRow key={document._id}>
             {context.config.columns.map(
               column => <TableCell key={column._id} style={{ padding: 0 }}>
-                {context.Views.Value({ ...context, data: document }, column)}
+                <context.Views.Value context={context} data={document} column={column}/>
               </TableCell>
             )}
           </TableRow>
@@ -49,30 +48,6 @@ export class Tree extends React.Component<any, any, any> {
       </TableBody>
     </Table>
   };
-  onPageChange = (context) => (pageIndex) => context.storage.setPage(pageIndex);
-  onPageSizeChange = (context) => (pageSize, pageIndex) => context.storage.setPageSize(pageIndex, pageSize);
-  columns = (_context) => _context.config.columns.map(c => ({
-    accessor: c._id,
-    sortable: false,
-    _context,
-    Cell: this.Cell,
-    Header: this.Header,
-    Filter: this.Filter,
-    ...this.columnWidths(_context, c._id),
-  }));
-  data = (context) => {
-    return _.map(context.trackerResults.data, data => ({ data, ...context }));
-  };
-
-  columnWidths = (context, id) => {
-    const { minWidth, maxWidth } = context.Views.Column(context, context.storage.getColumn(id));
-    return { minWidth, maxWidth };
-  };
-
-  Cell = ({ original, column: { id } }) => original.Views.Value(original, original.storage.getColumn(id));
-  Header = ({ column: { id, _context } }) => <div style={{ paddingTop: 5 }}>{_context.Views.Column(_context, _context.storage.getColumn(id)).element}</div>
-  Filter = ({ column: { id, _context } }) => _context.Views.Filters(_context, _context.storage.getColumn(id));
-
   render() {
     return <Context.Consumer>
       {this.consumerRender}

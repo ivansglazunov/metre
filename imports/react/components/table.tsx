@@ -22,7 +22,7 @@ export class Table extends React.Component<any, any, any> {
     />;
   };
   PaginationComponent = (context) => () => {
-    return context.Views.Pagination(context);
+    return <context.Views.Pagination context={context}/>;
   };
   onPageChange = (context) => (pageIndex) => context.storage.setPage(pageIndex);
   onPageSizeChange = (context) => (pageSize, pageIndex) => context.storage.setPageSize(pageIndex, pageSize);
@@ -33,16 +33,15 @@ export class Table extends React.Component<any, any, any> {
     Cell: this.Cell,
     Header: this.Header,
     Filter: this.Filter,
-    minWidth: this.minWidth(_context, c._id),
+    ..._context.Views.columnSizes(_context, c),
   }));
   data = (context) => {
-    return _.map(context.trackerResults.data, data => ({ data, ...context }));
-  }
+    return _.map(context.trackerResults.data, data => ({ data, context }));
+  };
 
-  minWidth = (context, id) => context.Views.Column(context, context.storage.getColumn(id)).minWidth || 0;
-  Cell = ({ original, column: { id } }) => original.Views.Value(original, original.storage.getColumn(id));
-  Header = ({ column: { id, _context } }) => <div style={{ paddingTop: 5 }}>{_context.Views.Column(_context, _context.storage.getColumn(id)).element}</div>
-  Filter = ({ column: { id, _context } }) => <div style={{ padding: 3 }}>{_context.Views.Filters(_context, _context.storage.getColumn(id))}</div>;
+  Cell = ({ original: { data, context }, column: { id } }) => <context.Views.Value data={data} context={context} column={context.storage.getColumn(id)}/>;
+  Header = ({ column: { id, _context } }) => <div style={{ paddingTop: 5 }}><_context.Views.Column context={_context} column={_context.storage.getColumn(id)}/></div>;
+  Filter = ({ column: { id, _context } }) => <div style={{ padding: 3 }}><_context.Views.Filters context={_context} column={_context.storage.getColumn(id)}/></div>;
 
   render() {
     return <Context.Consumer>

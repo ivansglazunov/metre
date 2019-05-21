@@ -8,7 +8,7 @@ import { Context as PaginationContext } from '../../components/pagination';
 import { Sorts } from '../../components/sorts';
 import { Table } from '../../components/table';
 import { Tree } from '../../components/tree';
-import _ from 'lodash';
+import * as  _ from 'lodash';
 
 export class LeftMenu extends React.Component<any, any, any> {
   state = {
@@ -37,6 +37,7 @@ export const defaultStore = {
     { _id: 'a', path: 'values.width.values.value', desc: -1 },
   ],
   columns: [
+    { _id: 'tree', getter: 'path', value: 'positions', type: 'tree', variant: 'short' },
     { _id: 'ns', getter: 'path', value: 'positions', type: 'ns' },
     { _id: 'a', getter: 'path', value: '_id', type: 'string' },
     { _id: 'b', getter: 'path', value: 'values.width', type: 'formula' },

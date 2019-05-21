@@ -8,7 +8,7 @@ import { check } from 'meteor/check';
 import { FilesCollection } from 'meteor/ostrio:files';
 
 import SimpleSchema from 'simpl-schema';
-import _ from 'lodash';
+import * as  _ from 'lodash';
 
 import { wrapCollection } from '../collection';
 import { TPositions, NestedSets } from '../nested-sets';

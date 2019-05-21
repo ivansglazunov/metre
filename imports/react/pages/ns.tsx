@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import * as React from 'react';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { withTracker } from 'meteor/react-meteor-data';
 
 import { HotKeys } from "react-hotkeys";

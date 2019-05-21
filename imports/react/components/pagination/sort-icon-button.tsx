@@ -1,22 +1,9 @@
-import { Meteor } from 'meteor/meteor';
-import { Random } from 'meteor/random';
-import * as React from 'react';
+import { IconButton } from '@material-ui/core';
+import { ExpandLess, ExpandMore, UnfoldMore } from '@material-ui/icons';
 import * as _ from 'lodash';
+import * as React from 'react';
 
-import { Users, Nodes } from '../../../api/collections/index';
-import { Context, Provider, IColumn, IStorage, ISort } from './index';
-import { Field } from '../field';
-import { mathEval } from '../../../api/math';
-
-import options from '../../../api/collections/index/options/index';
-import { types as filterTypes } from './filters';
-
-import ReactTable from 'react-table';
-import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment, FormControl, InputLabel, Select, OutlinedInput, MenuItem } from '@material-ui/core';
-import { Add, Clear, ExpandLess, ExpandMore, UnfoldMore } from '@material-ui/icons';
-
-import { find } from 'mingo';
-import { toQuery } from './to-query';
+import { IColumn, ISort, IStorage } from '.';
 
 export const SortIconButton = ({
   sort,

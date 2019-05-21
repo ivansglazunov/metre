@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { Accounts } from 'meteor/accounts-base';
 import React, { useState } from 'react';
-import _ from 'lodash';
+import * as  _ from 'lodash';
 import { withTracker } from 'meteor/react-meteor-data';
 
 import { HotKeys } from "react-hotkeys";
