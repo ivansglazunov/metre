@@ -3,7 +3,7 @@ import { Random } from 'meteor/random';
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import * as  _ from 'lodash';
-import queryString from 'query-string';
+import * as queryString from 'query-string';
 import * as jsonpack from 'jsonpack/main';
 import { withRouter } from "react-router";
 

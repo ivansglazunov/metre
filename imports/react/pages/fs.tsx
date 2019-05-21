@@ -1,7 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
 import { Accounts } from 'meteor/accounts-base';
-import React, { useState } from 'react';
+
+import * as React from 'react';
+import { useState } from 'react';
+
 import * as  _ from 'lodash';
 import { withTracker } from 'meteor/react-meteor-data';
 
