@@ -92,42 +92,29 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
   return { data, pages, loading: loading || !c.ready() };
 };
 
-export default class extends React.Component {
-  state = {
-    tab: 'table',
-  }
-  onChange = (event, value) => this.setState({ tab: value });
-
-  render() {
-    const { tab } = this.state;
-    
-    return <Grid container>
-      <Grid item sm={4}><LeftMenu /></Grid>
-      <Grid item sm={8}>
-        <Tabs value={tab} onChange={this.onChange}>
-          <Tab value='table' label='table' style={{ minWidth: 0 }} />
-          <Tab value='tree' label='tree' style={{ minWidth: 0 }} />
-        </Tabs>
-        {tab === 'table' && <Table />}
-        {tab === 'tree' && <Tree />}
-      </Grid>
-      <PaginationContext.Consumer>
-        {({ storage, config, methodsResults, trackerResults }: any) => (
-          trackerResults.loading
-            ? <LinearProgress />
-            : <Grid container>
-              <Grid item sm={4}>
-                <pre><code>{JSON.stringify(config, null, 1)}</code></pre>
-              </Grid>
-              <Grid item sm={4}>
-                <pre><code>{JSON.stringify(methodsResults, null, 1)}</code></pre>
-              </Grid>
-              <Grid item sm={4}>
-                <pre><code>{JSON.stringify(trackerResults, null, 1)}</code></pre>
-              </Grid>
-            </Grid>
-        )}
-      </PaginationContext.Consumer>
+export default () => {
+  return <Grid container>
+    <Grid item sm={4}><LeftMenu /></Grid>
+    <Grid item sm={8}>
+      <Table />
     </Grid>
-  }
-}
+    <PaginationContext.Consumer>
+      {({ storage, config, methodsResults, trackerResults }: any) => (
+        trackerResults.loading
+          ? <LinearProgress />
+          : <Grid container>
+            <Grid item sm={4}>
+              <pre><code>{JSON.stringify(config, null, 1)}</code></pre>
+            </Grid>
+            <Grid item sm={4}>
+              <pre><code>{JSON.stringify(methodsResults, null, 1)}</code></pre>
+            </Grid>
+            <Grid item sm={4}>
+              <pre><code>{JSON.stringify(trackerResults, null, 1)}</code></pre>
+            </Grid>
+          </Grid>
+      )}
+    </PaginationContext.Consumer>
+  </Grid>;
+};
+

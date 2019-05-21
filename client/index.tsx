@@ -52,7 +52,7 @@ Meteor.startup(() => {
           };
         }
       }
-    }
+    } else Meteor.connection._send = originalSend;
   
     ReactDOM[_.get(Meteor, 'settings.public.server', true) !== false ? 'hydrate' : 'render'](
       <BrowserRouter>
@@ -63,6 +63,6 @@ Meteor.startup(() => {
       document.getElementById('app'),
     );
 
-    Meteor.connection._send = originalSend;
+    if (metreArgs) Meteor.connection._send = originalSend;
   });
 });

@@ -28,7 +28,7 @@ export class Tree extends React.Component<any, any, any> {
         <TableRow>
           {context.config.columns.map(
             column => {
-              return <TableCell key={column._id} style={{ padding: 0 }}>
+              return <TableCell key={column._id} style={{ padding: 0, ...context.Views.columnSizes(context, column) }}>
                 <context.Views.Column context={context} column={column}/>
               </TableCell>;
             }
@@ -39,7 +39,7 @@ export class Tree extends React.Component<any, any, any> {
         {context.trackerResults.data.map(
           document => <TableRow key={document._id}>
             {context.config.columns.map(
-              column => <TableCell key={column._id} style={{ padding: 0 }}>
+              column => <TableCell key={column._id} style={{ padding: 0, ...context.Views.columnSizes(context, column) }}>
                 <context.Views.Value context={context} data={document} column={column}/>
               </TableCell>
             )}
