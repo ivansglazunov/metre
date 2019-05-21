@@ -3,7 +3,7 @@
   "scripts": {
     "start": "meteor run --settings settings.json",
     "start-debug": "meteor debug --inspect-brk=5959",
-    "test": "TEST_WATCH=0 meteor test --driver-package meteortesting:mocha --raw-logs",
+    "test": "TEST_CLIENT=0 meteor test --once --driver-package meteortesting:mocha --raw-logs",
     "test-debug": "meteor test --driver-package meteortesting:mocha --raw-logs --inspect-brk=5959",
     "desktop": "meteor-desktop"
   },
