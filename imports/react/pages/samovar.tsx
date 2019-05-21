@@ -22,7 +22,24 @@ export class Samovar extends React.Component<any, any, any> {
       <Grid item xs={6}>
         <Button variant="outlined" onClick={() => {
           Tries.find({}).forEach(tr => Tries.remove(tr._id));
-        }}>clear tries</Button>
+          Projects.find({}).forEach(p => Projects.remove(p._id));
+          Projects.insert(
+            {
+             "_id": "abc",
+             "schema": {
+              "type": "object",
+              "properties": {
+               "data": {
+                "type": "number"
+               }
+              }
+             },
+             "input": {
+              "data": 123
+             }
+            }
+          );
+        }}>clear</Button>
         <pre><code>{JSON.stringify(projects, null, 1)}</code></pre>
         <pre><code>{JSON.stringify(tries, null, 1)}</code></pre>
       </Grid>
@@ -55,6 +72,7 @@ export class Samovar extends React.Component<any, any, any> {
               }
               return false;
             })()}
+            placeholder={`{"data":123}`}
             value={tryResult}
             multiline
             onChange={e => this.setState({ tryResult: e.target.value })}

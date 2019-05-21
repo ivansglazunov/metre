@@ -103,14 +103,14 @@ export const Views: IViews = {
         if (data.___nestPosition) {
           list.push({ value: data.___nestPosition, disabled: true });
         } else {
-          // not nested
-          list.push.apply(list, value.filter(
-            p => !context.storage.isNest(data._id, p._id)
-          ).map(value => ({ value, disabled: false, isNest: false })));
-          // nested
-          list.push.apply(list, value.filter(
-            p => context.storage.isNest(data._id, p._id)
-          ).map(value => ({ value, disabled: false, isNest: true })));
+          let biggest;
+          for (let v = 0; v < value.length; v++) {
+            const p = value[v];
+            if (!biggest || (p.right - p.left > biggest.right - biggest.left)) {
+              biggest = p;
+            }
+          }
+          if (biggest) list.push({ value: biggest, disabled: false, isNest: context.storage.isNest(data._id, biggest._id) });
         }
         list = find(list, toQuery('value', filters.filter(filter => filter.deny != 'client'))).all();
 
