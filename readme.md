@@ -1,5 +1,7 @@
 # metre
 
+[![Build Status](https://travis-ci.org/ivansglazunov/metre.svg?branch=master)](https://travis-ci.org/ivansglazunov/metre)
+
 ## install:
 
 - https://git-scm.com/
