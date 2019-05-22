@@ -101,9 +101,9 @@ Nodes.helpers({
     }
     return Nodes.find($or.length ? { $or } : { _id: { $exists: false } }).fetch();
   },
-  __nsPositions({ tree, space }: any = {}, options?: any): { position: IPosition, node: INode }[] {
+  __nsPositions({ tree, space, root }: any = {}, options?: any): INode[] {
     const nodes = this.__nsChildren({ tree, space }, options);
-    let positions = [];
+    let results = [];
     for (let n = 0; n < nodes.length; n++) {
       const node = nodes[n];
       for (let p = 0; p < node.positions.length; p++) {
@@ -113,14 +113,14 @@ Nodes.helpers({
           &&
           (typeof(space) === 'string' && space === position.space) || (typeof(space) !== 'string')
         ) {
-          positions.push({
-            position, node,
-          });
+          node.___nsUsedPosition = position;
+          if (root) node.___nsRootUserPosition = root;
+          results.push(node);
         }
       }
     }
-    positions = _.sortBy(positions, n => n.position.left);
-    return positions;
+    results = _.sortBy(results, n => n.___nsUsedPosition.left);
+    return results;
   },
 });
 

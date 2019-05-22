@@ -103,8 +103,8 @@ export const ViewValuePosition = (
     style={{
       height: fullHeight ? '100%' : 'auto',
       padding: 0,
-      paddingLeft: data.___parentNestPosition
-      ? (position.depth - data.___parentNestPosition.depth) * 10 
+      paddingLeft: data.___nsRootUserPosition
+      ? (position.depth - data.___nsRootUserPosition.depth) * 10 
       : 0
     }}
     {...props}
@@ -152,8 +152,8 @@ export const Views: IViews = {
 
       if (_.isArray(value)) {
         let list = [];
-        if (data.___nestPosition) {
-          list.push({ value: data.___nestPosition, disabled: true });
+        if (data.___nsUsedPosition) {
+          list.push({ value: data.___nsUsedPosition, disabled: true });
         } else {
           let biggest;
           for (let v = 0; v < value.length; v++) {
@@ -175,13 +175,13 @@ export const Views: IViews = {
               position={p}
               ToggleProps={{
                 disabled,
-                children: data.___nestPosition || isNest ? <ArrowDropDown/> : <ArrowRight/>,
+                children: data.___nsUsedPosition || isNest ? <ArrowDropDown/> : <ArrowRight/>,
                 onClick: () => {
                   context.storage.unsetNests(data._id);
                   if (!isNest) context.storage.setNest(data._id, p._id, p);
                 },
               }}
-              fullHeight={!!data.___nestPosition}
+              fullHeight={!!data.___nsUsedPosition}
               short
             />
           ))}
@@ -196,8 +196,8 @@ export const Views: IViews = {
 
       if (_.isArray(value)) {
         let list = [];
-        if (data.___nestPosition) {
-          list.push({ value: data.___nestPosition, disabled: true });
+        if (data.___nsUsedPosition) {
+          list.push({ value: data.___nsUsedPosition, disabled: true });
         } else {
           // not nested
           list.push.apply(list, value.filter(
@@ -220,13 +220,13 @@ export const Views: IViews = {
               position={p}
               ToggleProps={{
                 disabled,
-                children: data.___nestPosition || isNest ? <ArrowDropDown/> : <ArrowRight/>,
+                children: data.___nsUsedPosition || isNest ? <ArrowDropDown/> : <ArrowRight/>,
                 onClick: () => {
                   context.storage.unsetNests(data._id);
                   if (!isNest) context.storage.setNest(data._id, p._id, p);
                 },
               }}
-              fullHeight={!!data.___nestPosition}
+              fullHeight={!!data.___nsUsedPosition}
             />
           ))}
           <ViewValuePositionLine/>

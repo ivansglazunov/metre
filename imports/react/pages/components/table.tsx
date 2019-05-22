@@ -47,13 +47,7 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
       const pIds = _.keys(nests[ids[i]]);
       for (let p = 0; p < pIds.length; p++) {
         const nest = nests[ids[i]][pIds[p]] && doc && doc.positions ? _.find(doc.positions, pos => pos._id === nests[ids[i]][pIds[p]]._id) : null;
-        if (nest) data.push(...(doc.__nsPositions().map(
-          ({ position, node }) => ({
-            ...node,
-            ___nestPosition: position,
-            ___parentNestPosition: nest,
-          })
-        )));
+        if (nest) data.push(...doc.__nsPositions({ root: nest }));
       }
     }
   }
