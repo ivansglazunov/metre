@@ -71,7 +71,6 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
       }
     }
   }
-  console.log(data);
   return { data, pages, loading: loading || !c.ready() };
 };
 
