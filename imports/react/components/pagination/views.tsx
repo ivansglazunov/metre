@@ -14,6 +14,8 @@ import { FilterType } from './filters';
 import { ColumnSortIconButton } from './sort-icon-button';
 import { toQuery } from './to-query';
 import { IViews } from '.';
+import { Nodes } from '../../../api/collections/index';
+import { IPosition } from '../../../api/nested-sets/index';
 
 export const getters = [
   'path',
@@ -60,7 +62,43 @@ export const ViewValueFormula = ({ value, v, data, column }) => {
   </Grid>
 };
 
-export const ViewValuePosition = ({ data, value, position, Icon, fullHeight = false, short = false, ...props }) => {
+export const ViewValuePositionLine = ({ children = '' }: { children?: any; }) => {
+  return <div style={{ width: '100%', fontSize: '0.8em', height: 'auto', boxShadow: 'inset black 1px 0px 0px 0px', textAlign: 'left' }}>
+    {children}
+  </div>;
+};
+
+export const ViewValuePosition = (
+  {
+    data, value, position, fullHeight = false, short = false, PullProps = {}, AddProps = {}, ToggleProps = {}, ...props
+  }: any
+) => {
+  if (!data) return null;
+
+  const pull = <IconButton
+    style={{ padding: 0 }}
+    onClick={e => {
+      const parentId = position.parentId;
+      Meteor.call('nodes.pull', { docId: data._id, parentId });
+    }}
+    {...PullProps}
+  >
+    <Clear />
+  </IconButton>;
+
+  const add = <IconButton
+    style={{ padding: 0 }}
+    onClick={e => Nodes.insert({}, (error, docId) => Meteor.call('nodes.put', { tree: 'nesting', docId, parentId: data._id }))}
+    {...AddProps}
+  >
+    <Add />
+  </IconButton>;
+
+  const toggle = <IconButton
+    style={{ padding: 0, float: 'left' }}
+    {...ToggleProps}
+  />;
+
   return <ListItem
     style={{
       height: fullHeight ? '100%' : 'auto',
@@ -69,23 +107,37 @@ export const ViewValuePosition = ({ data, value, position, Icon, fullHeight = fa
       ? (position.depth - data.___parentNestPosition.depth) * 10 
       : 0
     }}
-    button
     {...props}
   >
-    <div style={{ fontSize: '0.8em', height: fullHeight ? '100%' : 'auto', boxShadow: 'inset black 1px 0px 0px 0px' }}>
+    <ViewValuePositionLine>
       {short
-      ? <Icon style={{ float: 'left' }}  />
+      ? <div>
+          <div>{toggle}</div>
+          <div>
+            {pull}
+            {add}
+          </div>
+        </div>
       : <React.Fragment>
-        <div><Icon style={{ float: 'left' }}  />{position.depth} {position.left}/{position.right} {position.tree}</div>
-        <div>{position.space}</div>
+        <div>
+          {toggle}
+          {position.depth} {position.left}/{position.right} {position.tree}
+        </div>
+        <div>
+          {pull}
+          {add}
+          {position.space}
+        </div>
         </React.Fragment>
       }
-    </div>
+    </ViewValuePositionLine>
   </ListItem>;
 };
 
 export const Views: IViews = {
   Value: ({ context, data, column }) => {
+    if (!data) return null;
+
     let value;
     if (column.getter === 'path') value = _.get(data, column.value);
     else if (column.getter === 'formula') value = mathEval(column.value, data).result;
@@ -115,25 +167,28 @@ export const Views: IViews = {
         list = find(list, toQuery('value', filters.filter(filter => filter.deny != 'client'))).all();
 
         return <div style={{ height: '100%' }}>
-          {list.map(({ value: p, disabled, isNest }) => (
+          {!!list.length && list.map(({ value: p, disabled, isNest }) => (
             <ViewValuePosition
               key={p._id}
               data={data}
               value={value}
               position={p}
-              Icon={data.___nestPosition || isNest ? ArrowDropDown : ArrowRight}
-              disabled={disabled}
-              fullHeight={!!data.___nestPosition}
-              onClick={() => {
-                context.storage.unsetNests(data._id);
-                if (!isNest) context.storage.setNest(data._id, p._id, p);
+              ToggleProps={{
+                disabled,
+                children: data.___nestPosition || isNest ? <ArrowDropDown/> : <ArrowRight/>,
+                onClick: () => {
+                  context.storage.unsetNests(data._id);
+                  if (!isNest) context.storage.setNest(data._id, p._id, p);
+                },
               }}
+              fullHeight={!!data.___nestPosition}
               short
             />
           ))}
+          <ViewValuePositionLine/>
         </div>;
       }
-      return null;
+      return <ViewValuePositionLine/>;
     }
 
     if (column.type === 'ns') {
@@ -156,25 +211,28 @@ export const Views: IViews = {
         list = find(list, toQuery('value', filters.filter(filter => filter.deny != 'client'))).all();
 
         return <div style={{ height: '100%' }}>
-          {list.map(({ value: p, disabled, isNest }) => (
+          {!!list.length && list.map(({ value: p, disabled, isNest }) => (
             <ViewValuePosition
               key={p._id}
               data={data}
               short={column.variant === 'short'}
               value={value}
               position={p}
-              Icon={data.___nestPosition || isNest ? ArrowDropDown : ArrowRight}
-              disabled={disabled}
-              fullHeight={!!data.___nestPosition}
-              onClick={() => {
-                context.storage.unsetNests(data._id);
-                if (!isNest) context.storage.setNest(data._id, p._id, p);
+              ToggleProps={{
+                disabled,
+                children: data.___nestPosition || isNest ? <ArrowDropDown/> : <ArrowRight/>,
+                onClick: () => {
+                  context.storage.unsetNests(data._id);
+                  if (!isNest) context.storage.setNest(data._id, p._id, p);
+                },
               }}
+              fullHeight={!!data.___nestPosition}
             />
           ))}
+          <ViewValuePositionLine/>
         </div>;
       }
-      return null;
+      return <ViewValuePositionLine/>;
     }
 
     if (column.type === 'formula') {

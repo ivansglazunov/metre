@@ -1,5 +1,7 @@
-import { Grid, LinearProgress, Tab, Tabs } from '@material-ui/core';
+import { Grid, LinearProgress, Tab, Tabs, Button } from '@material-ui/core';
+
 import * as React from 'react';
+import { useState } from 'react';
 
 import { Nodes } from '../../../api/collections';
 import { Columns } from '../../components/columns';
@@ -7,29 +9,7 @@ import { Filters } from '../../components/filters';
 import { Context as PaginationContext } from '../../components/pagination';
 import { Sorts } from '../../components/sorts';
 import { Table } from '../../components/table';
-import { Tree } from '../../components/tree';
 import * as  _ from 'lodash';
-
-export class LeftMenu extends React.Component<any, any, any> {
-  state = {
-    tab: 'columns',
-  }
-  onChange = (event, value) => this.setState({ tab: value });
-  render() {
-    const { tab } = this.state;
-
-    return <React.Fragment>
-      <Tabs value={tab} onChange={this.onChange}>
-        <Tab value='columns' label='columns' style={{ minWidth: 0 }} />
-        <Tab value='filters' label='filters' style={{ minWidth: 0 }} />
-        <Tab value='sorts' label='sorts' style={{ minWidth: 0 }} />
-      </Tabs>
-      {tab === 'columns' && <Columns />}
-      {tab === 'filters' && <Filters />}
-      {tab === 'sorts' && <Sorts />}
-    </React.Fragment>
-  }
-}
 
 export const defaultStore = {
   filters: [],
@@ -62,11 +42,13 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
   const d = c.fetch();
   const data = [];
   if (ids) for (let i = 0; i < ids.length; i++) {
-    data.push(Nodes.findOne(ids[i], { subscribe: false }));
+    const doc = Nodes.findOne(ids[i], { subscribe: false });
+    data.push(doc);
     if (nests[ids[i]]) {
       const pIds = _.keys(nests[ids[i]]);
       for (let p = 0; p < pIds.length; p++) {
-        const nest = nests[ids[i]][pIds[p]];
+        const _nest = nests[ids[i]][pIds[p]];
+        const nest = _nest && doc && doc.positions ? _.find(doc.positions, p => p._id === _nest._id) : null;
         if (nest) {
           const nodes = Nodes.find({ 'positions': { $elemMatch: { tree: nest.tree, space: nest.space, left: { $gt: nest.left }, right: { $lt: nest.right } } } }).fetch();
           let children = [];
@@ -89,13 +71,33 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
       }
     }
   }
+  console.log(data);
   return { data, pages, loading: loading || !c.ready() };
 };
 
+const tabs = [
+  'columns',
+  'filters',
+  'sorts',
+];
+
 export default () => {
+  const [tab, setTab] = useState('columns');
+
   return <Grid container>
-    <Grid item sm={4}><LeftMenu /></Grid>
-    <Grid item sm={8}>
+    {tab !== 'closed' && <Grid item sm={4}>
+      <Tabs value={tab} onChange={(event, value) => setTab(value)}>
+        {tabs.map(t => <Tab value={t} label={t} style={{ minWidth: 0 }}/>)}
+        <Tab value="closed" label="close" style={{ minWidth: 0 }}/>
+      </Tabs>
+      {tab === 'columns' && <Columns />}
+      {tab === 'filters' && <Filters />}
+      {tab === 'sorts' && <Sorts />}
+    </Grid>}
+    {tab === 'closed' && <Grid item sm={1}>
+      {tabs.map(t => <Button key={t} fullWidth onClick={() => setTab(t)}>{t}</Button>)}
+    </Grid>}
+    <Grid item sm={tab !== 'closed' ? 8 : 11}>
       <Table />
     </Grid>
     <PaginationContext.Consumer>

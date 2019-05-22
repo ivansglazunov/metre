@@ -112,7 +112,6 @@ export const types = {
   },
   formula: (context, filter) => {
     const column = context.storage.getColumn(filter.columnId);
-    const deny = filter.deny;
     return <Grid
       container
       spacing={8}
