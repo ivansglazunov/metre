@@ -79,7 +79,7 @@ export const ViewValuePosition = (
     style={{ padding: 0 }}
     onClick={e => {
       const parentId = position.parentId;
-      Meteor.call('nodes.pull', { docId: data._id, parentId });
+      Meteor.call('nodes.ns.pull', { docId: data._id, parentId });
     }}
     {...PullProps}
   >
@@ -88,7 +88,7 @@ export const ViewValuePosition = (
 
   const add = <IconButton
     style={{ padding: 0 }}
-    onClick={e => Nodes.insert({}, (error, docId) => Meteor.call('nodes.put', { tree: 'nesting', docId, parentId: data._id }))}
+    onClick={e => Nodes.insert({}, (error, docId) => Meteor.call('nodes.ns.put', { tree: 'nesting', docId, parentId: data._id }))}
     {...AddProps}
   >
     <Add />

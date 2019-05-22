@@ -10,6 +10,7 @@ import * as _ from 'lodash';
 
 import { wrapCollection } from '../collection';
 import { TPositions, NestedSets } from '../nested-sets';
+import { IPosition } from '../nested-sets/index';
 
 /**
  * Numeric options in formula format.
@@ -61,7 +62,8 @@ SchemaRules.Values = {
   },
 };
 
-// Schema
+// Schemas
+
 export const Schema: any = {};
 
 Schema.Values = new SimpleSchema(SchemaRules.Values);
@@ -71,7 +73,56 @@ Schema.Node = new SimpleSchema({
   ...SchemaRules.Values,
 });
 
-// Nodes.attachSchema(Schema.Node);
+Nodes.attachSchema(Schema.Node);
+
+// Helpers
+
+Nodes.helpers({
+  __nsChildren({ tree, space }: any = {}, options?: any): INode[] {
+    const $or = [];
+    if (this.positions) for (let p = 0; p < this.positions.length; p++) {
+      const pos = this.positions[p];
+      if (
+        (typeof(tree) === 'string' && tree === pos.tree) || (typeof(tree) !== 'string')
+        &&
+        (typeof(space) === 'string' && space === pos.space) || (typeof(space) !== 'string')
+      ) {
+        const $elemMatch: any = {};
+        if ((typeof(tree) === 'string' && tree === pos.tree)) {
+          $elemMatch.tree = tree;
+        }
+        if ((typeof(space) === 'string' && space === pos.space)) {
+          $elemMatch.space = space;
+        }
+        $elemMatch.left = { $gt: pos.left };
+        $elemMatch.right = { $lt: pos.right };
+        $or.push({ 'positions': { $elemMatch } });
+      }
+    }
+    return Nodes.find($or.length ? { $or } : { _id: { $exists: false } }).fetch();
+  },
+  __nsPositions({ tree, space }: any = {}, options?: any): { position: IPosition, node: INode }[] {
+    const nodes = this.__nsChildren({ tree, space }, options);
+    let positions = [];
+    for (let n = 0; n < nodes.length; n++) {
+      const node = nodes[n];
+      for (let p = 0; p < node.positions.length; p++) {
+        const position = node.positions[p];
+        if (
+          (typeof(tree) === 'string' && tree === position.tree) || (typeof(tree) !== 'string')
+          &&
+          (typeof(space) === 'string' && space === position.space) || (typeof(space) !== 'string')
+        ) {
+          positions.push({
+            position, node,
+          });
+        }
+      }
+    }
+    positions = _.sortBy(positions, n => n.position.left);
+    return positions;
+  },
+});
 
 // Server
 if (Meteor.isServer) {
@@ -93,7 +144,8 @@ if (Meteor.isServer) {
     },
   });
 
-  // Methods
+  // Schemas NS
+
   Schema.NestedSets = {};
   
   Schema.NestedSets.Put = new SimpleSchema({
@@ -129,6 +181,9 @@ if (Meteor.isServer) {
     pull: Schema.NestedSets.Pull,
   });
 
+  // methods
+
+  // demo
   Meteor.methods({
     'nodes.reset'(){
       Nodes.remove({});
@@ -149,6 +204,10 @@ if (Meteor.isServer) {
         });
       }
     },
+  });
+  
+  // value
+  Meteor.methods({
     'nodes.values.set'(docId, type, value) {
       if (!(typeof(value) === 'object' && typeof(value._id) === 'string')) {
         throw new Error(`Invalid value object ${JSON.stringify(value)}`);
@@ -197,15 +256,19 @@ if (Meteor.isServer) {
         [`values.${type}.values`]: { _id: valueId },
       } });
     },
-    async 'nodes.put'(options) {
+  });
+
+  // nested sets
+  Meteor.methods({
+    async 'nodes.ns.put'(options) {
       Schema.NestedSets.Put.validate(options);
       await ns.put(options);
     },
-    async 'nodes.pull'(options) {
+    async 'nodes.ns.pull'(options) {
       Schema.NestedSets.Pull.validate(options);
       await ns.pull(options);
     },
-    async 'nodes.move'(options) {
+    async 'nodes.ns.move'(options) {
       Schema.NestedSets.Move.validate(options);
       await ns.put(options.put);
       await ns.pull(options.pull);

@@ -139,11 +139,11 @@ class NS extends React.Component<any, any, any>{
           {d._id}
         </Button>
         {!!dp && <Button disabled style={{ fontWeight: 'bold' }}>({dp.left} | {dp.right}) </Button>}
-        {!dp && <Button onClick={() => Meteor.call('nodes.put', { tree, docId: d._id, parentId: null })}>+space</Button>}
-        <Button disabled={!selectedDocument} onClick={() => Meteor.call('nodes.put', { tree, docId: selectedDocument, parentId: d._id })}>+</Button>
-        {!!dp && <Button disabled={!selectedPosition} onClick={() => Meteor.call('nodes.move', { pull: { positionId: selectedPosition }, put: { tree, docId: selectedDocument, parentId: d._id } })}>m</Button>}
-        {!!dp && <Button onClick={() => Meteor.call('nodes.pull', { positionId: dp._id })}>-</Button>}
-        {!!dp && <Button onClick={() => Meteor.call('nodes.pull', { docId: d._id, parentId: dp.parentId })}>x</Button>}
+        {!dp && <Button onClick={() => Meteor.call('nodes.ns.put', { tree, docId: d._id, parentId: null })}>+space</Button>}
+        <Button disabled={!selectedDocument} onClick={() => Meteor.call('nodes.ns.put', { tree, docId: selectedDocument, parentId: d._id })}>+</Button>
+        {!!dp && <Button disabled={!selectedPosition} onClick={() => Meteor.call('nodes.ns.move', { pull: { positionId: selectedPosition }, put: { tree, docId: selectedDocument, parentId: d._id } })}>m</Button>}
+        {!!dp && <Button onClick={() => Meteor.call('nodes.ns.pull', { positionId: dp._id })}>-</Button>}
+        {!!dp && <Button onClick={() => Meteor.call('nodes.ns.pull', { docId: d._id, parentId: dp.parentId })}>x</Button>}
         {!!dp && !!dp.last && <span>last</span>}
       </Container>
       {!!dp && <Container>
@@ -193,7 +193,7 @@ class NS extends React.Component<any, any, any>{
           {spaces.map(s => (
             <div key={s}>
               <Container>
-                <Button disabled>{s}</Button> <Button disabled={!selectedDocument} onClick={() => Meteor.call('nodes.put', { tree, docId: selectedDocument, space: s, parentId: null })}>+</Button>
+                <Button disabled>{s}</Button> <Button disabled={!selectedDocument} onClick={() => Meteor.call('nodes.ns.put', { tree, docId: selectedDocument, space: s, parentId: null })}>+</Button>
               </Container>
               <Container>
                 {this.level(tree, 0, 0, 99999999999999, s)}

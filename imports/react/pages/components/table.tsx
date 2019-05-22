@@ -39,7 +39,6 @@ export const methods = ({ config: { page, pageSize, query, sort } }, prevResults
 
 export const tracker = ({ config: { sort, nests }, methodsResults: { loading, ids, pages } }) => {
   const c = Nodes.find({ _id: { $in: ids } });
-  const d = c.fetch();
   const data = [];
   if (ids) for (let i = 0; i < ids.length; i++) {
     const doc = Nodes.findOne(ids[i], { subscribe: false });
@@ -47,27 +46,14 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
     if (nests[ids[i]]) {
       const pIds = _.keys(nests[ids[i]]);
       for (let p = 0; p < pIds.length; p++) {
-        const _nest = nests[ids[i]][pIds[p]];
-        const nest = _nest && doc && doc.positions ? _.find(doc.positions, p => p._id === _nest._id) : null;
-        if (nest) {
-          const nodes = Nodes.find({ 'positions': { $elemMatch: { tree: nest.tree, space: nest.space, left: { $gt: nest.left }, right: { $lt: nest.right } } } }).fetch();
-          let children = [];
-          for (let n = 0; n < nodes.length; n++) {
-            const node = nodes[n];
-            for (let p = 0; p < node.positions.length; p++) {
-              const pos = node.positions[p];
-              if (pos.tree === nest.tree && pos.space === nest.space && pos.left > nest.left && pos.right < nest.right) {
-                children.push({
-                  ...node,
-                  ___nestPosition: pos,
-                  ___parentNestPosition: nest,
-                });
-              }
-            }
-          }
-          children = _.sortBy(children, n => n.___nestPosition.left);
-          data.push(...children);
-        }
+        const nest = nests[ids[i]][pIds[p]] && doc && doc.positions ? _.find(doc.positions, pos => pos._id === nests[ids[i]][pIds[p]]._id) : null;
+        if (nest) data.push(...(doc.__nsPositions().map(
+          ({ position, node }) => ({
+            ...node,
+            ___nestPosition: position,
+            ___parentNestPosition: nest,
+          })
+        )));
       }
     }
   }
@@ -86,7 +72,7 @@ export default () => {
   return <Grid container>
     {tab !== 'closed' && <Grid item sm={4}>
       <Tabs value={tab} onChange={(event, value) => setTab(value)}>
-        {tabs.map(t => <Tab value={t} label={t} style={{ minWidth: 0 }}/>)}
+        {tabs.map(t => <Tab key={t} value={t} label={t} style={{ minWidth: 0 }}/>)}
         <Tab value="closed" label="close" style={{ minWidth: 0 }}/>
       </Tabs>
       {tab === 'columns' && <Columns />}
