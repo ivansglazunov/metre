@@ -36,7 +36,7 @@ export const ViewValueString = ({ value }: any) => {
 };
 
 export const ViewValueFormula = ({ value, v, data, column }) => {
-  const result = mathEval(value.value);
+  const result = mathEval(value.value, data.mathScope());
 
   return <Grid container justify="space-between" spacing={8}>
     <Grid item xs={8}>

@@ -11,6 +11,7 @@ import * as _ from 'lodash';
 import { wrapCollection } from '../collection';
 import { TPositions, NestedSets } from '../nested-sets';
 import { IPosition } from '../nested-sets/index';
+import { mathEval } from '../math';
 
 /**
  * Numeric options in formula format.
@@ -22,6 +23,8 @@ export interface INode {
   _id?: string;
   positions?: TPositions;
   values?: IValueTypes;
+  ___nsUsedPosition?: IPosition;
+  ___nsRootUserPosition?: IPosition;
 }
 
 export interface IValueTypes {
@@ -77,6 +80,7 @@ Nodes.attachSchema(Schema.Node);
 
 // Helpers
 
+// ns
 Nodes.helpers({
   __nsChildren({ tree, space }: any = {}, options?: any): INode[] {
     const $or = [];
@@ -107,20 +111,37 @@ Nodes.helpers({
     for (let n = 0; n < nodes.length; n++) {
       const node = nodes[n];
       for (let p = 0; p < node.positions.length; p++) {
-        const position = node.positions[p];
+        const doc = Nodes.findOne(node._id, { subscribe: false });
+        const position = doc.positions[p];
         if (
           (typeof(tree) === 'string' && tree === position.tree) || (typeof(tree) !== 'string')
           &&
           (typeof(space) === 'string' && space === position.space) || (typeof(space) !== 'string')
         ) {
-          node.___nsUsedPosition = position;
-          if (root) node.___nsRootUserPosition = root;
-          results.push(node);
+          doc.___nsUsedPosition = position;
+          if (root) doc.___nsRootUserPosition = root;
+          results.push(doc);
         }
       }
     }
     results = _.sortBy(results, n => n.___nsUsedPosition.left);
     return results;
+  },
+});
+
+// math
+
+Nodes.helpers({
+  mathScope() {
+    const proxyHandler = (obj: any, prop: any): any => {
+      if (prop === 'p') return this.___nsUsedPosition && Nodes.findOne(this.___nsUsedPosition.parentId, { subscribe: false }).mathScope();
+
+      return _.get(this, `values[${prop}].values.0.value`);
+    };
+    return new Proxy({}, <ProxyHandler<any>>proxyHandler);
+  },
+  mathEval(exp) {
+    return mathEval(exp, this.mathScope());
   },
 });
 
