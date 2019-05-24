@@ -36,13 +36,13 @@ export const ViewValueString = ({ value }: any) => {
 };
 
 export const ViewValueFormula = ({ value, v, data, column }) => {
-  const result = mathEval(value.value, data.mathScope());
+  const result = data.formulaEval(value.value);
 
   return <Grid container justify="space-between" spacing={8}>
     <Grid item xs={8}>
       <Field
         value={value.value}
-        onChange={e => Meteor.call('nodes.values.set', data._id, column.value.split('.')[1], { _id: value._id, value: e.target.value })}
+        onChange={e => Meteor.call('nodes.formulas.set', data._id, column.value.split('.')[1], { _id: value._id, value: e.target.value })}
       />
     </Grid>
     <Grid item xs={3}>
@@ -54,7 +54,7 @@ export const ViewValueFormula = ({ value, v, data, column }) => {
     <Grid item xs={1} style={{ textAlign: 'center' }}>
       <IconButton
         style={{ padding: 0 }}
-        onClick={e => Meteor.call('nodes.values.pull', data._id, column.value.split('.')[1], value._id)}
+        onClick={e => Meteor.call('nodes.formulas.pull', data._id, column.value.split('.')[1], value._id)}
       >
         <Clear />
       </IconButton>
@@ -127,6 +127,13 @@ export const ViewValuePosition = (
           {pull}
           {add}
           {position.space}
+        </div>
+        <div>
+          <Field
+            value={position.name}
+            type="string"
+            onChange={e => Meteor.call('nodes.ns.name', { docId: data._id, positionId: position._id, name: e.target.value })}
+          />
         </div>
         </React.Fragment>
       }
@@ -250,7 +257,7 @@ export const Views: IViews = {
         <Grid item xs={12} style={{ textAlign: 'center' }}>
           <IconButton
             style={{ padding: 0 }}
-            onClick={e => Meteor.call('nodes.values.push', data._id, column.value.split('.')[1], { value: '' })}
+            onClick={e => Meteor.call('nodes.formulas.push', data._id, column.value.split('.')[1], { value: '' })}
           >
             <Add />
           </IconButton>

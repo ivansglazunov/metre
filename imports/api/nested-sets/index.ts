@@ -12,13 +12,18 @@ export interface IDoc {
 
 export interface IPosition {
   _id: string;
+
   parentId?: string;
+
   tree: string;
   space: string;
   left: number;
   right: number;
   depth: number;
+
   last?: boolean;
+
+  name?: string;
 }
 
 export type TPositions = IPosition[];
@@ -34,6 +39,7 @@ export interface IPullOptions {
   positionId?: string;
   docId?: string;
   parentId?: string;
+  tree?: string;
 }
 
 export interface IDocPositions extends IDoc {
@@ -87,6 +93,10 @@ export class NestedSets<Doc extends IDocPositions> {
       [`${this.field}.$.left`]: String,
       [`${this.field}.$.right`]: String,
       [`${this.field}.$.depth`]: String,
+      [`${this.field}.$.name`]: {
+        type: String,
+        optional: true,
+      },
     };
   }
 
@@ -122,12 +132,12 @@ export class NestedSets<Doc extends IDocPositions> {
     }
   }
 
-  getPositionsByParentId(doc: Doc, parentId: string) {
+  getPositionsByParentId(doc: Doc, parentId: string, tree: string) {
     const pss = [];
     if (doc && doc[this.field]) {
       for (let d = 0; d < doc[this.field].length; d++) {
         const ps = doc[this.field][d];
-        if (ps.parentId === parentId) pss.push(ps);
+        if (ps.parentId === parentId && ps.tree === tree) pss.push(ps);
       }
     }
     return pss;
@@ -491,10 +501,10 @@ export class NestedSets<Doc extends IDocPositions> {
 
       chai.assert.isObject(options);
 
-      const { positionId, docId, parentId } = options;
+      const { positionId, docId, parentId, tree } = options;
 
       let d, dPs;
-      if (positionId && !docId && !parentId) {
+      if (positionId && !docId && !parentId && !tree) {
         chai.assert.isString(positionId);
         d = c.findOne({
           [field]: { $elemMatch: { _id: positionId } },
@@ -503,15 +513,16 @@ export class NestedSets<Doc extends IDocPositions> {
         const tdP = this.getPositionByPositionId(d, positionId);
         chai.assert.exists(tdP, `Doc position is not founded.`);
         dPs = [tdP];
-      } else if (!positionId && docId && parentId) {
+      } else if (!positionId && docId && parentId && tree) {
         chai.assert.isString(docId);
         chai.assert.isString(parentId);
+        chai.assert.isString(tree);
         d = c.findOne(docId);
         chai.assert.exists(d, `Doc is not founded.`);
-        dPs = this.getPositionsByParentId(d, parentId);
+        dPs = this.getPositionsByParentId(d, parentId, tree);
         chai.assert.isNotEmpty(dPs, `Positions in parentId ${parentId} of doc not founded`);
       } else {
-        throw new Error(`Must be (positionId) or (docId and parentId), not both.`);
+        throw new Error(`Must be (positionId) or (docId and parentId and tree), not both.`);
       }
 
       for (let dPi = 0; dPi < dPs.length; dPi++) {

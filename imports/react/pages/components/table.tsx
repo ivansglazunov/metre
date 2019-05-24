@@ -14,14 +14,14 @@ import * as  _ from 'lodash';
 export const defaultStore = {
   filters: [],
   sorts: [
-    { _id: 'a', path: 'values.width.values.value', desc: -1 },
+    { _id: 'a', path: 'formulas.width.values.value', desc: -1 },
   ],
   columns: [
     { _id: 'tree', getter: 'path', value: 'positions', type: 'tree', variant: 'short' },
     { _id: 'ns', getter: 'path', value: 'positions', type: 'ns' },
     { _id: 'a', getter: 'path', value: '_id', type: 'string' },
-    { _id: 'b', getter: 'path', value: 'values.width', type: 'formula' },
-    { _id: 'c', getter: 'path', value: 'values.height', type: 'formula' },
+    { _id: 'b', getter: 'path', value: 'formulas.width', type: 'formula' },
+    { _id: 'c', getter: 'path', value: 'formulas.height', type: 'formula' },
   ],
 };
 
@@ -42,13 +42,15 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
   const data = [];
   if (ids) for (let i = 0; i < ids.length; i++) {
     const doc = Nodes.findOne(ids[i], { subscribe: false });
-    data.push(doc);
-    if (nests[ids[i]]) {
-      const pIds = _.keys(nests[ids[i]]);
-      for (let p = 0; p < pIds.length; p++) {
-        const nest = nests[ids[i]][pIds[p]] && doc && doc.positions ? _.find(doc.positions, pos => pos._id === nests[ids[i]][pIds[p]]._id) : null;
-        const results = doc.__nsPositions({ root: nest });
-        if (nest) data.push(...results);
+    if (doc) {
+      data.push(doc);
+      if (nests[ids[i]]) {
+        const pIds = _.keys(nests[ids[i]]);
+        for (let p = 0; p < pIds.length; p++) {
+          const nest = nests[ids[i]][pIds[p]] && doc && doc.positions ? _.find(doc.positions, pos => pos._id === nests[ids[i]][pIds[p]]._id) : null;
+          const results = doc.__nsPositions({ root: nest });
+          if (nest) data.push(...results);
+        }
       }
     }
   }
