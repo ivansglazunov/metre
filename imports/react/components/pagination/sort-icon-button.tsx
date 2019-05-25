@@ -18,7 +18,7 @@ export const SortIconButton = ({
     {...props}
     onClick={() => storage.setSort({ ...sort, desc: ~sort.desc ? -1 : 1 })}
   >
-    {~sort.desc ? <ExpandLess/> : <ExpandMore/>}
+    {~sort.desc ? <ExpandMore/> : <ExpandLess/>}
   </IconButton>;
 };
 

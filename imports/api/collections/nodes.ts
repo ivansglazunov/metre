@@ -85,13 +85,16 @@ Nodes.attachSchema(Schema.Node);
 Nodes.helpers({
   p(name?: string) {
     let pos;
+    if (this.___nsUsedPosition) pos = this.___nsUsedPosition;
     if (name && this.positions) {
       for (let p = 0; p < this.positions.length; p++) {
         const position = this.positions[p];
-        if (position.name === name) pos = position;
+        if (position.name === name) {
+          pos = position;
+          break;
+        }
       }
     }
-    if (this.___nsUserPosition) pos = this.___nsUserPosition;
     return pos && Nodes.findOne(pos.parentId, { subscribe: false });
   },
   __nsChildren({ tree, space }: any = {}, options?: any): INode[] {
