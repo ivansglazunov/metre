@@ -31,7 +31,6 @@ aldeed:collection2@3.0.0
 meteortesting:mocha
 xolvio:cleaner
 dburles:factory
-jquery
 staringatlights:inject-data
 tmeasday:check-npm-versions
 ostrio:files

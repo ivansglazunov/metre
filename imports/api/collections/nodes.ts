@@ -83,8 +83,16 @@ Nodes.attachSchema(Schema.Node);
 // ns
 
 Nodes.helpers({
-  p() {
-    return this.___nsUsedPosition && Nodes.findOne(this.___nsUsedPosition.parentId, { subscribe: false });
+  p(name?: string) {
+    let pos;
+    if (name && this.positions) {
+      for (let p = 0; p < this.positions.length; p++) {
+        const position = this.positions[p];
+        if (position.name === name) pos = position;
+      }
+    }
+    if (this.___nsUserPosition) pos = this.___nsUserPosition;
+    return pos && Nodes.findOne(pos.parentId, { subscribe: false });
   },
   __nsChildren({ tree, space }: any = {}, options?: any): INode[] {
     const $or = [];
