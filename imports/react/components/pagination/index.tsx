@@ -1,15 +1,8 @@
-import { Random } from 'meteor/random';
-
-import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import * as  _ from 'lodash';
+import * as React from 'react';
 
-import ReactTable from 'react-table';
-import {Load, IProps as ILProps} from '../../load';
-
-import { toQuery } from './to-query';
+import { IProps as ILProps, Load } from '../../load';
 import { Storage } from './storage';
-import { IPosition } from '../../../api/nested-sets';
 
 export const Context = React.createContext({});
 
@@ -54,7 +47,7 @@ export interface IConfig {
   filters: IFilter[];
   sorts: ISort[];
   columns: IColumn[];
-  nests: { [nodeId: string]: { [positionId: string]: IPosition } };
+  nests: { [nodeId: string]: { [positionId: string]: boolean } };
 
   [key: string]: any;
 }
@@ -87,11 +80,10 @@ export interface IStorage {
   getColumn(columnId: string): IColumn;
 
   isNest(nodeId: string, positionId: string): boolean;
-  getNest(nodeId: string, positionId: string): IPosition;
-  setNest(nodeId: string, positionId: string, position: IPosition);
+  setNest(nodeId: string, positionId: string);
   unsetNest(nodeId: string, positionId: string);
   unsetNests(nodeId: string);
-  getNests(nodeId: string): { [positionId: string]: IPosition };
+  getNests(nodeId: string): { [positionId: string]: boolean };
 
   query(): any;
   sort(): any;

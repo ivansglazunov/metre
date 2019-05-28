@@ -120,13 +120,9 @@ export const Storage = (provider) => {
     isNest(nodeId, positionId) {
       return _.get(this.get().nests, [nodeId, positionId], false);
     },
-    getNest(nodeId, positionId) {
+    setNest(nodeId, positionId) {
       const nests = this.get().nests || {};
-      return _.get(nests, [nodeId, positionId], false);
-    },
-    setNest(nodeId, positionId, position) {
-      const nests = this.get().nests || {};
-      _.set(nests, [nodeId, positionId], position);
+      _.set(nests, [nodeId, positionId], true);
       this.set({
         nests,
       });
