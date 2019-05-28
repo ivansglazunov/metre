@@ -5,6 +5,13 @@ import * as chai from 'chai';
 import * as _ from 'lodash';
 import SimpleSchema from 'simpl-schema';
 
+// TODO client/server restricted api
+// call meteor methods not verified by ts, not reponse result id and not make subs and abstract logic
+// Nodes.nesting.put => _id
+// Nodes.nesting.pull
+// Nodes.nesting.move
+// Nodes.nesting.deny({ put, pull, move })
+
 export interface IDoc {
   _id: string;
   [key: string]: any;
@@ -42,10 +49,6 @@ export interface IPullOptions {
   tree?: string;
 }
 
-export interface IDocPositions extends IDoc {
-  positions: IPosition[];
-}
-
 /**
  * @example
  * const ns = new NestedSets();
@@ -54,7 +57,7 @@ export interface IDocPositions extends IDoc {
  *   field: 'positions', // default
  * });
  */
-export class NestedSets<Doc extends IDocPositions> {
+export class NestedSets<Doc extends IDoc> {
   public c;
   public rc;
   public field: string;
@@ -280,7 +283,7 @@ export class NestedSets<Doc extends IDocPositions> {
       }
     });
     if (d) {
-      const dps = d.positions;
+      const dps = d[field];
       for (let p = 0; p < dps.length; p++) {
         const dp = dps[p];
         if (dp.tree === tree && dp.space === space && dp.last) return { d, dp };

@@ -17,8 +17,8 @@ export const defaultStore = {
     { _id: 'a', path: 'formulas.width.values.value', desc: -1 },
   ],
   columns: [
-    { _id: 'tree', getter: 'path', value: 'positions', type: 'tree', variant: 'short' },
-    { _id: 'ns', getter: 'path', value: 'positions', type: 'ns' },
+    { _id: 'tree', getter: 'path', value: 'nesting', type: 'tree', variant: 'short' },
+    { _id: 'ns', getter: 'path', value: 'nesting', type: 'ns' },
     { _id: 'a', getter: 'path', value: '_id', type: 'string' },
     { _id: 'b', getter: 'path', value: 'formulas.width', type: 'formula' },
     { _id: 'c', getter: 'path', value: 'formulas.height', type: 'formula' },
@@ -47,7 +47,7 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
       if (nests[ids[i]]) {
         const pIds = _.keys(nests[ids[i]]);
         for (let p = 0; p < pIds.length; p++) {
-          const nest = nests[ids[i]][pIds[p]] && doc && doc.positions ? _.find(doc.positions, pos => pos._id === nests[ids[i]][pIds[p]]._id) : null;
+          const nest = nests[ids[i]][pIds[p]] && doc && doc.nesting ? _.find(doc.nesting, pos => pos._id === nests[ids[i]][pIds[p]]._id) : null;
           const results = doc.__nsPositions({ root: nest });
           if (nest) data.push(...results);
         }

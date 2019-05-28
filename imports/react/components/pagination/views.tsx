@@ -79,7 +79,7 @@ export const ViewValuePosition = (
     style={{ padding: 0 }}
     onClick={e => {
       const parentId = position.parentId;
-      Meteor.call('nodes.ns.pull', { docId: data._id, parentId });
+      Meteor.call('nodes.ns.nesting.pull', { docId: data._id, parentId });
     }}
     {...PullProps}
   >
@@ -88,7 +88,7 @@ export const ViewValuePosition = (
 
   const add = <IconButton
     style={{ padding: 0 }}
-    onClick={e => Nodes.insert({}, (error, docId) => Meteor.call('nodes.ns.put', { tree: 'nesting', docId, parentId: data._id }))}
+    onClick={e => Nodes.insert({}, (error, docId) => Meteor.call('nodes.ns.nesting.put', { tree: 'nesting', docId, parentId: data._id }))}
     {...AddProps}
   >
     <Add />
@@ -132,7 +132,7 @@ export const ViewValuePosition = (
           <Field
             value={position.name}
             type="string"
-            onChange={e => Meteor.call('nodes.ns.name', { docId: data._id, positionId: position._id, name: e.target.value })}
+            onChange={e => Meteor.call('nodes.ns.nesting.name', { docId: data._id, parentId: position.parentId, tree: position.tree, name: e.target.value })}
           />
         </div>
         </React.Fragment>

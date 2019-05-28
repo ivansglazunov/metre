@@ -10,7 +10,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 import { Users, Nodes } from '../../api/collections/index';
 
-const field = 'positions';
+const field = 'nesting';
 const tree = 'nesting';
 
 const Container = (props) => <div {...props} style={{ position: 'relative', overflow: 'hidden', ...props.style }}></div>;
@@ -77,9 +77,9 @@ class NS extends React.Component<any, any, any>{
     const results = [];
     for (let n = 0; n < docs.length; n++) {
       const doc = docs[n];
-      if (doc.positions) {
-        for (let p = 0; p < doc.positions.length; p++) {
-          const position = doc.positions[p];
+      if (doc[field]) {
+        for (let p = 0; p < doc[field].length; p++) {
+          const position = doc[field][p];
           if (position.tree === tree && position.depth === depth && position.left >= left && position.right <= right && position.space === space) {
             results.push({ position, doc });
           }
@@ -95,7 +95,7 @@ class NS extends React.Component<any, any, any>{
     const results = [];
     for (let n = 0; n < docs.length; n++) {
       const doc = docs[n];
-      if (!doc.positions || !doc.positions.length) {
+      if (!doc[field] || !doc[field].length) {
         results.push({ doc });
       }
     }
@@ -139,11 +139,11 @@ class NS extends React.Component<any, any, any>{
           {d._id}
         </Button>
         {!!dp && <Button disabled style={{ fontWeight: 'bold' }}>({dp.left} | {dp.right}) </Button>}
-        {!dp && <Button onClick={() => Meteor.call('nodes.ns.put', { tree, docId: d._id, parentId: null })}>+space</Button>}
-        <Button disabled={!selectedDocument} onClick={() => Meteor.call('nodes.ns.put', { tree, docId: selectedDocument, parentId: d._id })}>+</Button>
-        {!!dp && <Button disabled={!selectedPosition} onClick={() => Meteor.call('nodes.ns.move', { pull: { positionId: selectedPosition }, put: { tree, docId: selectedDocument, parentId: d._id } })}>m</Button>}
-        {!!dp && <Button onClick={() => Meteor.call('nodes.ns.pull', { positionId: dp._id })}>-</Button>}
-        {!!dp && <Button onClick={() => Meteor.call('nodes.ns.pull', { docId: d._id, parentId: dp.parentId })}>x</Button>}
+        {!dp && <Button onClick={() => Meteor.call(`${Nodes._name}.ns.${field}.put`, { tree, docId: d._id, parentId: null })}>+space</Button>}
+        <Button disabled={!selectedDocument} onClick={() => Meteor.call(`${Nodes._name}.ns.${field}.put`, { tree, docId: selectedDocument, parentId: d._id })}>+</Button>
+        {!!dp && <Button disabled={!selectedPosition} onClick={() => Meteor.call(`${Nodes._name}.ns.${field}.move`, { pull: { positionId: selectedPosition }, put: { tree, docId: selectedDocument, parentId: d._id } })}>m</Button>}
+        {!!dp && <Button onClick={() => Meteor.call(`${Nodes._name}.ns.${field}.pull`, { positionId: dp._id })}>-</Button>}
+        {!!dp && <Button onClick={() => Meteor.call(`${Nodes._name}.ns.${field}.pull`, { docId: d._id, parentId: dp.parentId, tree })}>x</Button>}
         {!!dp && !!dp.last && <span>last</span>}
       </Container>
       {!!dp && <Container>
@@ -193,7 +193,7 @@ class NS extends React.Component<any, any, any>{
           {spaces.map(s => (
             <div key={s}>
               <Container>
-                <Button disabled>{s}</Button> <Button disabled={!selectedDocument} onClick={() => Meteor.call('nodes.ns.put', { tree, docId: selectedDocument, space: s, parentId: null })}>+</Button>
+                <Button disabled>{s}</Button> <Button disabled={!selectedDocument} onClick={() => Meteor.call(`${Nodes._name}.ns.${field}.put`, { tree, docId: selectedDocument, space: s, parentId: null })}>+</Button>
               </Container>
               <Container>
                 {this.level(tree, 0, 0, 99999999999999, s)}
@@ -219,9 +219,9 @@ const tracked = withTracker((props) => {
   const spaces = {};
   for (let n = 0; n < nodes.length; n++) {
     const node = nodes[n];
-    if (node.positions) {
-      for (let p = 0; p < node.positions.length; p++) {
-        const position = node.positions[p];
+    if (node[field]) {
+      for (let p = 0; p < node[field].length; p++) {
+        const position = node[field][p];
         spaces[position.space] = true;
       }
     }

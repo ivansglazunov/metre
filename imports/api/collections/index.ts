@@ -1,5 +1,5 @@
 import Users from './users';
-import Nodes from './nodes';
+import Nodes from './nodes/index';
 import Files from './files';
 
 import Projects from './projects';
