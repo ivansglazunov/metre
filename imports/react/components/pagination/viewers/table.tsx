@@ -1,8 +1,8 @@
 import * as _ from 'lodash';
 import * as React from 'react';
-
-import { Context } from '../components/pagination';
 import ReactTable from 'react-table';
+
+import { Context } from '../';
 
 export class Table extends React.Component<any, any, any> {
   consumerRender = (context: any) => {

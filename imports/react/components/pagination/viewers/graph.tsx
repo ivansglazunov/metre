@@ -1,8 +1,6 @@
-import * as _ from 'lodash';
 import * as React from 'react';
 
-import { Context } from './pagination';
-import ReactTable from 'react-table';
+import { Context } from '../';
 
 export class Graph extends React.Component<any, any, any> {
   consumerRender = (context: any) => {

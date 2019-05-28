@@ -1,25 +1,12 @@
-import { Meteor } from 'meteor/meteor';
-import { Random } from 'meteor/random';
-import * as React from 'react';
-import * as _ from 'lodash';
-
-import { Users, Nodes } from '../../api/collections/index';
-import { Context, Provider, ISort, IContext } from './pagination/index';
-
-import options from '../../api/collections/index/options/index';
-
-import ReactTable from 'react-table';
-import { TextField, Grid, List, ListItem, ListItemText, CardContent, Card, Button, ListItemSecondaryAction, IconButton, InputAdornment } from '@material-ui/core';
+import { Grid, IconButton, List, ListItem } from '@material-ui/core';
 import { Add, Clear, DragIndicator } from '@material-ui/icons';
-import { Field } from './field';
-import { SortIconButton } from './pagination/sort-icon-button';
-import treeTableHOC from "react-table/lib/hoc/treeTable";
 import arrayMove from 'array-move';
-import {
-  SortableContainer,
-  SortableElement,
-  SortableHandle,
-} from 'react-sortable-hoc';
+import * as React from 'react';
+import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+
+import { Field } from '../../field';
+import { Context, IContext, ISort } from '../';
+import { SortIconButton } from '../sort-icon-button';
 
 export class Sorts extends React.Component<any, any, any> {
   onSortEnd = (context) => ({ oldIndex, newIndex }) => {

@@ -7,12 +7,12 @@ import { Nodes } from '../../../api/collections';
 
 import { Context as PaginationContext } from '../../components/pagination';
 
-import { Columns } from '../../components/columns';
-import { Filters } from '../../components/filters';
-import { Sorts } from '../../components/sorts';
+import { Columns } from '../../components/pagination/viewers/columns';
+import { Filters } from '../../components/pagination/viewers/filters';
+import { Sorts } from '../../components/pagination/viewers/sorts';
 
-import { Table } from '../../components/table';
-import { Graph } from '../../components/graph';
+import { Table } from '../../components/pagination/viewers/table';
+import { Graph } from '../../components/pagination/viewers/graph';
 
 import * as  _ from 'lodash';
 
