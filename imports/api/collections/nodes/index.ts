@@ -16,17 +16,20 @@ import { mathEval } from '../../math';
 import { nsInit, nsHelpers, nsMethods } from './ns';
 import {
   IFormulaTypes,
-  Schema as FormulasSchema,
+  SchemaRules as FormulasSchemaRules,
   formulasHelpers,
   formulasMethods,
 } from './formulas';
+
+// TODO add types selectors, times, coords, strings, numbers, booleans, selects
 
 // Interface
 export interface INode {
   _id?: string;
   nesting?: TPositions;
   formulas?: IFormulaTypes;
-  ___nsUsedPosition?: IPosition;
+  ___nsUsedFromChildPosition?: IPosition;
+  ___nsUsedFromParentPosition?: IPosition;
   ___nsRootUserPosition?: IPosition;
 }
 
@@ -38,10 +41,11 @@ Meteor.nodes = Nodes;
 
 const { ns: nsNesting } = nsInit({ collection: Nodes, field: 'nesting' });
 
-export const Schema = new SimpleSchema({
+export const SchemaRules = {
   ...nsNesting.SimpleSchemaRules(),
-  ...FormulasSchema,
-});
+  ...FormulasSchemaRules,
+};
+export const Schema = new SimpleSchema(SchemaRules);
 Nodes.attachSchema(Schema);
 
 nsHelpers({ collection: Nodes, ns: nsNesting });

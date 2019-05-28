@@ -49,6 +49,23 @@ export interface IPullOptions {
   tree?: string;
 }
 
+export interface IPullOptions {
+  positionId?: string;
+  parentId?: string;
+  tree?: string;
+  docId?: string;
+}
+
+export interface INameOptions {
+  positionId?: string;
+
+  parentId?: string;
+  tree?: string;
+
+  docId?: string;
+  name: string;
+}
+
 /**
  * @example
  * const ns = new NestedSets();
@@ -545,5 +562,44 @@ export class NestedSets<Doc extends IDoc> {
       await session.endSession();
       throw error;
     }
+  }
+
+  name(options: INameOptions) {
+    const { c, field, } = this;
+    const { positionId, parentId, tree, docId, name } = options;
+
+    const doc = c.findOne(docId);
+    if (!doc) throw new Error(`Doc ${docId} not founded`);
+
+    let $set: any = {};
+    if (parentId && tree) {
+      chai.assert.isString(parentId, 'Option parentId must be a string.');
+      chai.assert.isString(tree, 'Option tree must be a string.');
+      for (let p = 0; p < doc[field].length; p++) {
+        if (doc[field][p].parentId === parentId && doc[field][p].tree === tree) {
+          $set[`${field}.${p}.name`] = name;
+        }
+      }
+    } else if (positionId) {
+      for (let p = 0; p < doc[field].length; p++) {
+        if (doc[field][p]._id === positionId) {
+          if (doc[field][p].parentId) {
+            for (let pa = 0; pa < doc[field].length; pa++) {
+              if (doc[field][pa].parentId === doc[field][p].parentId && doc[field][pa].tree === doc[field][p].tree) {
+                $set[`${field}.${pa}.name`] = name;
+              }
+            }
+          } else {
+            $set[`${field}.${p}.name`] = name;
+          }
+          break;
+        }
+      }
+    } else throw new Error(`Options parentId (${parentId ? '+' : '-'}) and tree (${tree ? '+' : '-'}) or positionId (${positionId ? '+' : '-'}) must be defined.`);
+
+    if (!_.isEmpty($set)) c.update(
+      docId,
+      { $set },
+    );
   }
 }

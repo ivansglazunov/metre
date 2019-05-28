@@ -13,6 +13,9 @@ import { TPositions, NestedSets } from '../../nested-sets';
 import { IPosition } from '../../nested-sets/index';
 import { mathEval } from '../../math';
 
+// TODO rename to scripts
+// TODO add script format and dependencies
+
 export interface IFormulaTypes {
   [type: string]: IFormulaType;
 }
@@ -36,8 +39,6 @@ export const SchemaRules = {
   },
 };
 
-export const Schema = new SimpleSchema(SchemaRules);
-
 export const formulasHelpers = ({
   collection,
 }) => {
@@ -46,7 +47,7 @@ export const formulasHelpers = ({
       return this.formulaEval(_.get(this, `formulas.${key}.values.0.value`)).value;
     },
     formulaEval(exp) {
-      return mathEval(exp, { n: this });
+      return mathEval(exp, { n: generateEnv({ doc: this }) });
     },
   });
 };
@@ -107,6 +108,39 @@ export const formulasMethods = ({
   });
 };
 
-export const generateEnv = ({}) => {
+const getter = (obj, key, fun) => {
+  Object.defineProperty(obj, key, { get: fun });
+};
+
+export const generateEnv = ({
+  doc,
+}) => {
   const env = {};
+  getter(env, 'p', () => {
+    const results = {};
+    const parents = doc.__nsParents();
+    for (let p = 0; p < parents.length; p++) {
+      const par = parents[p];
+      const _pos = par.___nsUsedFromChildPosition;
+      if (par.nesting) for (let o = 0; o < par.nesting.length; o++) {
+        const pos = par.nesting[o];
+        if (pos.space === _pos.space && pos.left < _pos.left && pos.right > _pos.right && pos.name) {
+          results[pos.name] = generateEnv({ doc: parents[p] });
+        }
+      }
+    }
+    return results;
+  });
+  getter(env, 'formulas', () => {
+    const results = {};
+    const fs = doc.formulas;
+    const fsk = Object.keys(fs);
+    for (let k = 0; k < fsk.length; k++) {
+      const f = fs[fsk[k]];
+      results[fsk[k]] = _.clone(f.values);
+      results[fsk[k]].toString = () => results[fsk[k]][0] && doc.formulaEval(results[fsk[k]][0].value).value;
+    }
+    return results;
+  });
+  return env;
 };

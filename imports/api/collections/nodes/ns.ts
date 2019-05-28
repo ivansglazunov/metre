@@ -33,9 +33,9 @@ export const nsHelpers = ({
   collection.helpers({
     /**
      * @description
-     * get one parent by name, and optional tree, or by __nsUsedPosition
+     * get one parent by name, and optional tree, or by ___nsUsedFromParentPosition
      */
-    __nsParent({ name, tree }: { name: string, tree?: string }) {
+    __nsParent({ name, tree, options = { subscribe: false } }: { name: string, tree?: string, options?: any }) {
       const parentIds = [];
       if (typeof(name) === 'string') {
         if (this[ns.field]) {
@@ -48,8 +48,8 @@ export const nsHelpers = ({
           }
         }
       } else {
-        if (this.___nsUsedPosition) {
-          parentIds.push(this.___nsUsedPosition.parentId);
+        if (this.___nsUsedFromParentPosition) {
+          parentIds.push(this.___nsUsedFromParentPosition.parentId);
         }
       }
       const $elemMatch: any = { name };
@@ -59,15 +59,38 @@ export const nsHelpers = ({
         return collection.findOne({
           _id: { $in: parentIds },
           [ns.field]: { $elemMatch },
-        }, { subscribe: false });
+        }, options);
       }
+    },
+
+    /**
+     * @description
+     * get all parent positions by name
+     */
+    __nsParents({ tree, options = { subscribe: false } }: { tree?: string, options?: any } = {}) {
+      const positions = [];
+      if (this[ns.field]) {
+        for (let p = 0; p < this[ns.field].length; p++) {
+          const position = this[ns.field][p];
+          if (typeof(tree) === 'string') {
+            if (position.tree !== tree) continue;
+          }
+          positions.push(position);
+        }
+      }
+
+      return positions.map(p => {
+        const d = collection.findOne(p.parentId, options);
+        d.___nsUsedFromChildPosition = p;
+        return d;
+      });
     },
 
     /**
      * @description
      * get child by name and optional tree
      */
-    __nsChild({ name, tree = this.___nsUsedPosition && this.___nsUsedPosition.tree }: { name: string, tree?: string }) {
+    __nsChild({ name, tree = this.___nsUsedFromParentPosition && this.___nsUsedFromParentPosition.tree, options = { subscribe: false } }: { name: string, tree?: string, options?: any }) {
       if (typeof(name) != 'string') return null;
       return collection.findOne({
         [`${ns.field}.parentId`]: this._id,
@@ -78,7 +101,7 @@ export const nsHelpers = ({
         },
       }, { subscribe: false });
     },
-    __nsChildren({ tree, space }: any = {}, options?: any): any[] {
+    __nsChildren({ tree, space, options = { subscribe: false } }: { tree?: string; space?: string; options?: any } = {}): any[] {
       const $or = [];
       if (this[ns.field]) for (let p = 0; p < this[ns.field].length; p++) {
         const pos = this[ns.field][p];
@@ -99,10 +122,10 @@ export const nsHelpers = ({
           $or.push({ [ns.field]: { $elemMatch } });
         }
       }
-      return collection.find($or.length ? { $or } : { _id: { $exists: false } }).fetch();
+      return collection.find($or.length ? { $or } : { _id: { $exists: false } }, options).fetch();
     },
-    __nsPositions({ tree, space, root }: any = {}, options?: any): any[] {
-      const nodes = this.__nsChildren({ tree, space }, options);
+    __nsPositions({ tree, space, root, options }: { tree?: string; space?: string; root?: IPosition; options?: any; } = {}): any[] {
+      const nodes = this.__nsChildren({ tree, space, options });
       let results = [];
       for (let n = 0; n < nodes.length; n++) {
         const node = nodes[n];
@@ -114,13 +137,13 @@ export const nsHelpers = ({
             &&
             (typeof(space) === 'string' && space === position.space) || (typeof(space) !== 'string')
           ) {
-            doc.___nsUsedPosition = position;
+            doc.___nsUsedFromParentPosition = position;
             if (root) doc.___nsRootUserPosition = root;
             results.push(doc);
           }
         }
       }
-      results = _.sortBy(results, n => n.___nsUsedPosition.left);
+      results = _.sortBy(results, n => n.___nsUsedFromParentPosition.left);
       return results;
     },
   });
@@ -195,34 +218,7 @@ export const nsMethods = ({
   Meteor.methods({
     [`${collection._name}.ns.${ns.field}.name`](options) {
       Schemas.Name.validate(options);
-      const { positionId, parentId, tree, docId, name } = options;
-
-      const doc = collection.findOne(docId);
-      if (!doc) throw new Error(`Doc ${docId} not founded`);
-
-      let $set: any = {};
-      if (positionId && !parentId && !tree) {
-        for (let p = 0; p < doc[ns.field].length; p++) {
-          if (doc[ns.field][p]._id === positionId) {
-            $set[`${ns.field}.${p}.name`] = options.name;
-          }
-        }
-      } else if (parentId && tree && !positionId) {
-        for (let p = 0; p < doc[ns.field].length; p++) {
-          if (
-            doc[ns.field][p].parentId === parentId
-            &&
-            doc[ns.field][p].tree === tree
-          ) {
-            $set[`${ns.field}.${p}.name`] = options.name;
-          }
-        }
-      } else throw new Error(`Must be (positionId) or (parentId and tree), not both.`);
-
-      if (!_.isEmpty($set)) collection.update(
-        options.docId,
-        { $set },
-      );
+      ns.name(options);
     },
     async [`${collection._name}.ns.${ns.field}.put`](options) {
       Schemas.Put.validate(options);

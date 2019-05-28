@@ -132,7 +132,7 @@ export const ViewValuePosition = (
           <Field
             value={position.name}
             type="string"
-            onChange={e => Meteor.call('nodes.ns.nesting.name', { docId: data._id, parentId: position.parentId, tree: position.tree, name: e.target.value })}
+            onChange={e => Meteor.call('nodes.ns.nesting.name', { docId: data._id, positionId: position._id, name: e.target.value })}
           />
         </div>
         </React.Fragment>
@@ -159,8 +159,8 @@ export const Views: IViews = {
 
       if (_.isArray(value)) {
         let list = [];
-        if (data.___nsUsedPosition) {
-          list.push({ value: data.___nsUsedPosition, disabled: true });
+        if (data.___nsUsedFromParentPosition) {
+          list.push({ value: data.___nsUsedFromParentPosition, disabled: true });
         } else {
           let biggest;
           for (let v = 0; v < value.length; v++) {
@@ -182,13 +182,13 @@ export const Views: IViews = {
               position={p}
               ToggleProps={{
                 disabled,
-                children: data.___nsUsedPosition || isNest ? <ArrowDropDown/> : <ArrowRight/>,
+                children: data.___nsUsedFromParentPosition || isNest ? <ArrowDropDown/> : <ArrowRight/>,
                 onClick: () => {
                   context.storage.unsetNests(data._id);
                   if (!isNest) context.storage.setNest(data._id, p._id, p);
                 },
               }}
-              fullHeight={!!data.___nsUsedPosition}
+              fullHeight={!!data.___nsUsedFromParentPosition}
               short
             />
           ))}
@@ -203,8 +203,8 @@ export const Views: IViews = {
 
       if (_.isArray(value)) {
         let list = [];
-        if (data.___nsUsedPosition) {
-          list.push({ value: data.___nsUsedPosition, disabled: true });
+        if (data.___nsUsedFromParentPosition) {
+          list.push({ value: data.___nsUsedFromParentPosition, disabled: true });
         } else {
           // not nested
           list.push.apply(list, value.filter(
@@ -227,13 +227,13 @@ export const Views: IViews = {
               position={p}
               ToggleProps={{
                 disabled,
-                children: data.___nsUsedPosition || isNest ? <ArrowDropDown/> : <ArrowRight/>,
+                children: data.___nsUsedFromParentPosition || isNest ? <ArrowDropDown/> : <ArrowRight/>,
                 onClick: () => {
                   context.storage.unsetNests(data._id);
                   if (!isNest) context.storage.setNest(data._id, p._id, p);
                 },
               }}
-              fullHeight={!!data.___nsUsedPosition}
+              fullHeight={!!data.___nsUsedFromParentPosition}
             />
           ))}
           <ViewValuePositionLine/>

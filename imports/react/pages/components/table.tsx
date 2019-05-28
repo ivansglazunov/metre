@@ -4,11 +4,16 @@ import * as React from 'react';
 import { useState } from 'react';
 
 import { Nodes } from '../../../api/collections';
+
+import { Context as PaginationContext } from '../../components/pagination';
+
 import { Columns } from '../../components/columns';
 import { Filters } from '../../components/filters';
-import { Context as PaginationContext } from '../../components/pagination';
 import { Sorts } from '../../components/sorts';
+
 import { Table } from '../../components/table';
+import { Graph } from '../../components/graph';
+
 import * as  _ from 'lodash';
 
 export const defaultStore = {
@@ -57,30 +62,40 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
   return { data, pages, loading: loading || !c.ready() };
 };
 
-const tabs = [
+const configs = [
   'columns',
   'filters',
   'sorts',
 ];
 
+const views = [
+  'table',
+  'graph',
+];
+
 export default () => {
-  const [tab, setTab] = useState('columns');
+  const [config, setConfig] = useState('columns');
+  const [view, setView] = useState('table');
 
   return <Grid container>
-    {tab !== 'closed' && <Grid item sm={4}>
-      <Tabs value={tab} onChange={(event, value) => setTab(value)}>
-        {tabs.map(t => <Tab key={t} value={t} label={t} style={{ minWidth: 0 }}/>)}
+    {config !== 'closed' && <Grid item sm={4}>
+      <Tabs value={config} onChange={(event, value) => setConfig(value)}>
+        {configs.map(t => <Tab key={t} value={t} label={t} style={{ minWidth: 0 }}/>)}
         <Tab value="closed" label="close" style={{ minWidth: 0 }}/>
       </Tabs>
-      {tab === 'columns' && <Columns />}
-      {tab === 'filters' && <Filters />}
-      {tab === 'sorts' && <Sorts />}
+      {config === 'columns' && <Columns />}
+      {config === 'filters' && <Filters />}
+      {config === 'sorts' && <Sorts />}
     </Grid>}
-    {tab === 'closed' && <Grid item sm={1}>
-      {tabs.map(t => <Button key={t} fullWidth onClick={() => setTab(t)}>{t}</Button>)}
+    {config === 'closed' && <Grid item sm={1}>
+      {configs.map(t => <Button key={t} fullWidth onClick={() => setConfig(t)}>{t}</Button>)}
     </Grid>}
-    <Grid item sm={tab !== 'closed' ? 8 : 11}>
-      <Table />
+    <Grid item sm={config !== 'closed' ? 8 : 11}>
+      <Tabs value={view} onChange={(event, value) => setView(value)}>
+        {views.map(t => <Tab key={t} value={t} label={t} style={{ minWidth: 0 }}/>)}
+      </Tabs>
+      {view === 'table' && <Table />}
+      {view === 'graph' && <Table />}
     </Grid>
     <PaginationContext.Consumer>
       {({ storage, config, methodsResults, trackerResults }: any) => (
