@@ -13,6 +13,7 @@ import { Sorts } from '../../components/pagination/viewers/sorts';
 
 import { Table } from '../../components/pagination/viewers/table';
 import { Graph } from '../../components/pagination/viewers/graph';
+import { List } from '../../components/pagination/viewers/list';
 
 import * as  _ from 'lodash';
 
@@ -22,7 +23,6 @@ export const defaultStore = {
     { _id: 'a', path: 'formulas.width.values.value', desc: -1 },
   ],
   columns: [
-    { _id: 'tree', getter: 'path', value: 'nesting', type: 'tree', variant: 'short' },
     { _id: 'ns', getter: 'path', value: 'nesting', type: 'ns' },
     { _id: 'a', getter: 'path', value: '_id', type: 'string' },
     { _id: 'b', getter: 'path', value: 'formulas.width', type: 'formula' },
@@ -71,6 +71,7 @@ const configs = [
 const views = [
   'table',
   'graph',
+  'list',
 ];
 
 export default () => {
@@ -95,7 +96,8 @@ export default () => {
         {views.map(t => <Tab key={t} value={t} label={t} style={{ minWidth: 0 }}/>)}
       </Tabs>
       {view === 'table' && <Table />}
-      {view === 'graph' && <Table />}
+      {view === 'graph' && <Graph />}
+      {view === 'list' && <List />}
     </Grid>
     <PaginationContext.Consumer>
       {({ storage, config, methodsResults, trackerResults }: any) => (

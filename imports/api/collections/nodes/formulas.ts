@@ -131,14 +131,26 @@ export const generateEnv = ({
     }
     return results;
   });
+  getter(env, 'formula', () => {
+    const results = {};
+    const fs = doc.formulas;
+    const fsk = Object.keys(fs);
+    for (let k = 0; k < fsk.length; k++) {
+      const f = fs[fsk[k]];
+      if (f.values[0]) results[fsk[k]] = doc.formulaEval(f.values[0].value).value;
+    }
+    return results;
+  });
   getter(env, 'formulas', () => {
     const results = {};
     const fs = doc.formulas;
     const fsk = Object.keys(fs);
     for (let k = 0; k < fsk.length; k++) {
       const f = fs[fsk[k]];
-      results[fsk[k]] = _.clone(f.values);
-      results[fsk[k]].toString = () => results[fsk[k]][0] && doc.formulaEval(results[fsk[k]][0].value).value;
+      results[fsk[k]] = [];
+      for (let v = 0; v < f.values.length; v++) {
+        results[fsk[k]].push(doc.formulaEval(f.values[v].value).value);
+      }
     }
     return results;
   });
