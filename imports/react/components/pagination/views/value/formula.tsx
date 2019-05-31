@@ -13,7 +13,7 @@ import { toQuery } from '../../to-query';
 export const ViewValueFormula = ({ value, v, data, column }) => {
   const result = data.formulaEval(value.value);
 
-  return <Grid container justify="space-between" spacing={8}>
+  return <Grid container justify="space-between" spacing={1}>
     <Grid item xs={8}>
       <Field
         value={value.value}

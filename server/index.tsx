@@ -11,7 +11,7 @@ import { Helmet } from 'react-helmet';
 
 import { SheetsRegistry } from 'react-jss/lib/jss';
 import JssProvider from 'react-jss/lib/JssProvider';
-import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
+import { ServerStyleSheets, ThemeProvider } from '@material-ui/styles';
 
 import { Routes } from '../imports/react/routes';
 import theme from '../imports/react/theme';
@@ -36,10 +36,7 @@ Meteor.subscribe = (name?, query?, options?, callback?) => {
 };
 
 if (_.get(Meteor, 'settings.public.server', true) !== false) onPageLoad((sink: any) => {
-
-  const sheetsRegistry = new SheetsRegistry();
-
-  const generateClassName = createGenerateClassName();
+  const sheets = new ServerStyleSheets();
 
   const helmet = Helmet.renderStatic();
   sink.appendToHead(helmet.meta.toString());
@@ -49,13 +46,13 @@ if (_.get(Meteor, 'settings.public.server', true) !== false) onPageLoad((sink: a
   global.metreServerCalls = {};
 
   sink.renderIntoElementById('app', renderToString(
-    <StaticRouter location={sink.request.url} context={{}}>
-      <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-        <MuiThemeProvider theme={theme} sheetsManager={new Map()}>
+    sheets.collect(
+      <StaticRouter location={sink.request.url} context={{}}>
+        <ThemeProvider theme={theme}>
           <Routes/>
-        </MuiThemeProvider>
-      </JssProvider>
-    </StaticRouter>,
+        </ThemeProvider>
+      </StaticRouter>,
+    ),
   ));
   
   // @ts-ignore
@@ -63,5 +60,5 @@ if (_.get(Meteor, 'settings.public.server', true) !== false) onPageLoad((sink: a
   global.metreServerSubs = undefined;
   global.metreServerCalls = undefined;
 
-  sink.appendToHead(`<style>${sheetsRegistry.toString()}</style>`);
+  sink.appendToHead(`<style>${sheets.toString()}</style>`);
 });

@@ -17,7 +17,7 @@ export class Sorts extends React.Component<any, any, any> {
   });
   SortableItem = SortableElement(({ value, context }: { value: ISort, context: IContext }) => (
     <ListItem key={value._id} divider>
-      <Grid container justify="space-between" spacing={8}>
+      <Grid container justify="space-between" spacing={1}>
         <Grid item xs={1}>
           <this.DragHandle/>
         </Grid>

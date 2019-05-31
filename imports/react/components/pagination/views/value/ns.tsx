@@ -57,33 +57,24 @@ export const ViewValuePosition = (
     {...props}
   >
     <ViewValuePositionLine>
-      {short
-      ? <div>
-          <div>{toggle}</div>
-          <div>
-            {pull}
-            {add}
-          </div>
-        </div>
-      : <>
-        <div>
-          {toggle}
+      <div>
+        {toggle}
+        {!short && <>
           {position.depth} {position.left}/{position.right} {position.tree}
-        </div>
-        <div>
-          {pull}
-          {add}
-          {position.space}
-        </div>
-        <div>
-          <Field
-            value={position.name}
-            type="string"
-            onChange={e => Meteor.call('nodes.ns.nesting.name', { docId: data._id, positionId: position._id, name: e.target.value })}
-          />
-        </div>
-        </>
-      }
+        </>}
+      </div>
+      <div>
+        {pull}
+        {add}
+        {!short && position.space}
+      </div>
+      <div>
+        <Field
+          value={position.name}
+          type="string"
+          onChange={e => Meteor.call('nodes.ns.nesting.name', { docId: data._id, positionId: position._id, name: e.target.value })}
+        />
+      </div>
     </ViewValuePositionLine>
   </ListItem>;
 };

@@ -36,7 +36,7 @@ export const types = [
 export const ViewValueFormula = ({ value, v, data, column }) => {
   const result = data.formulaEval(value.value);
 
-  return <Grid container justify="space-between" spacing={8}>
+  return <Grid container justify="space-between" spacing={1}>
     <Grid item xs={8}>
       <Field
         value={value.value}
@@ -109,7 +109,7 @@ export const Views: IViews = {
     const full = !column.variant || column.variant === 'full';
     return <Grid
       container
-      spacing={8}
+      spacing={1}
       style={{ textAlign: 'left' }}
       justify="space-between"
     >
@@ -231,7 +231,7 @@ export const Views: IViews = {
 
     return <Grid
       container
-      spacing={8}
+      spacing={1}
       justify="center"
     >
       <Grid item style={{ textAlign: 'center' }}>

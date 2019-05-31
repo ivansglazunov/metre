@@ -5,7 +5,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 
-import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
 
 import { Routes } from '../imports/react/routes';
 import theme from '../imports/react/theme';
@@ -56,9 +56,9 @@ Meteor.startup(() => {
   
     ReactDOM[_.get(Meteor, 'settings.public.server', true) !== false ? 'hydrate' : 'render'](
       <BrowserRouter>
-        <MuiThemeProvider theme={theme}>
+        <ThemeProvider theme={theme}>
           <Routes/>
-        </MuiThemeProvider>
+        </ThemeProvider>
       </BrowserRouter>,
       document.getElementById('app'),
     );

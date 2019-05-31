@@ -75,7 +75,7 @@ export const Dropzone = ({ files, onLoad, onLoadStart, onLoadEnd, onLoaded }: IP
   });
 
   return (
-    <Grid container justify="space-between" spacing={8}>
+    <Grid container justify="space-between" spacing={1}>
       <div {...getRootProps({className: 'dropzone'})}>
         <input {...getInputProps()} />
         <p>Drag 'n' drop some files here, or click to select files</p>

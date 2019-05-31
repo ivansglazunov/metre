@@ -32,7 +32,7 @@ const positionsType = (context, filter) => {
   const column = context.storage.getColumn(filter.columnId);
   return <Grid
     container
-    spacing={8}
+    spacing={1}
     justify="space-between"
     key={filter._id}
   >
@@ -89,7 +89,7 @@ export const types = {
   string: (context, filter) => {
     return <Grid
       container
-      spacing={8}
+      spacing={1}
       justify="space-between"
       key={filter._id}
     >
@@ -114,7 +114,7 @@ export const types = {
     const column = context.storage.getColumn(filter.columnId);
     return <Grid
       container
-      spacing={8}
+      spacing={1}
       justify="space-between"
       key={filter._id}
     >
