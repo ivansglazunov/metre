@@ -6,36 +6,29 @@ import * as React from 'react';
 import { IColumn, ISort, IStorage } from '.';
 
 export const SortIconButton = ({
-  sort,
-  storage,
-  ...props
-}: {
-  sort: ISort,
-  storage: IStorage,
-  [key: string]: any;
-}) => {
-  return <IconButton
-    {...props}
-    onClick={() => storage.setSort({ ...sort, desc: ~sort.desc ? -1 : 1 })}
-  >
-    {~sort.desc ? <ExpandMore/> : <ExpandLess/>}
-  </IconButton>;
-};
-
-export const ColumnSortIconButton = ({
+  sort: _sort,
   column,
   storage,
   ...props
 }: {
-  column: IColumn;
+  sort?: ISort;
+  column?: IColumn;
   storage: IStorage;
   [key: string]: any;
 }) => {
-  const sorts = storage.getSorts(column._id);
-  const sort = _.find(sorts, sort => sort.path == column.value);
+  let sort = _sort;
+  if (!sort) {
+    const sorts = storage.getSorts(column._id);
+    const sort = _.find(sorts, sort => sort.path == column.value);
+  }
 
   if (sort) {
-    return <SortIconButton sort={sort} storage={storage} {...props}/>
+    return <IconButton
+      {...props}
+      onClick={() => storage.setSort({ ...sort, desc: ~sort.desc ? -1 : 1 })}
+    >
+      {~sort.desc ? <ExpandMore/> : <ExpandLess/>}
+    </IconButton>
   } else {
     return <IconButton
       {...props}

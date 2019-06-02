@@ -21,7 +21,7 @@ export class Columns extends React.Component<any, any, any> {
         </Grid>
         <Grid item xs={11}>
           <Grid container justify="space-between" spacing={1}>
-            <Grid item xs={12}><context.Views.Column context={context} column={{ ...column, variant: 'full' }}/></Grid>
+            <Grid item xs={12}><context.Views.Column context={context} column={{ ...column }}/></Grid>
             <Grid item xs={12}><context.Views.FiltersList context={context} column={column} filters={context.storage.getFilters(column._id)}/></Grid>
           </Grid>
         </Grid>

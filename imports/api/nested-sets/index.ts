@@ -12,6 +12,8 @@ import SimpleSchema from 'simpl-schema';
 // Nodes.nesting.move
 // Nodes.nesting.deny({ put, pull, move })
 
+// TODO if pull root positionId, currectly pulled children positions?
+
 export interface IDoc {
   _id: string;
   [key: string]: any;

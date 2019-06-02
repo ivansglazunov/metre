@@ -1,5 +1,5 @@
 import { Button, Grid, IconButton, ListItem, Popover } from '@material-ui/core';
-import { Add, ArrowDropDown, ArrowRight, ChevronLeft, ChevronRight, Clear } from '@material-ui/icons';
+import { Add, ArrowDropDown, ArrowDropUp, ArrowRight, ChevronLeft, ChevronRight, Clear } from '@material-ui/icons';
 import * as _ from 'lodash';
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
@@ -11,14 +11,16 @@ import { useState } from 'react';
 import { mathEval } from '../../../api/math';
 import { Field } from '../field';
 import { FilterType } from './filters';
-import { ColumnSortIconButton } from './sort-icon-button';
+import { SortIconButton } from './sort-icon-button';
+import { ClearIconButton } from './clear-icon-button';
 import { toQuery } from './to-query';
 import { IViews } from '.';
 import { Nodes } from '../../../api/collections/index';
 import { IPosition } from '../../../api/nested-sets/index';
 
 import ViewString from './views/value/string';
-import NSString from './views/value/ns';
+import ViewNS from './views/value/ns';
+import ViewFormula from './views/value/formula';
 
 export const getters = [
   'path',
@@ -32,33 +34,6 @@ export const types = [
   'formula',
   'id',
 ];
-
-export const ViewValueFormula = ({ value, v, data, column }) => {
-  const result = data.formulaEval(value.value);
-
-  return <Grid container justify="space-between" spacing={1}>
-    <Grid item xs={8}>
-      <Field
-        value={value.value}
-        onChange={e => Meteor.call('nodes.formulas.set', data._id, column.value.split('.')[1], { _id: value._id, value: e.target.value })}
-      />
-    </Grid>
-    <Grid item xs={3}>
-      <Field
-        value={result.value}
-        disabled
-      />
-    </Grid>
-    <Grid item xs={1} style={{ textAlign: 'center' }}>
-      <IconButton
-        style={{ padding: 0 }}
-        onClick={e => Meteor.call('nodes.formulas.pull', data._id, column.value.split('.')[1], value._id)}
-      >
-        <Clear />
-      </IconButton>
-    </Grid>
-  </Grid>
-};
 
 export const Views: IViews = {
   Value: ({ context, data, column }) => {
@@ -74,55 +49,30 @@ export const Views: IViews = {
     }
 
     if (column.type === 'ns') {
-      return <NSString value={value} data={data} column={column} context={context}/>
+      return <ViewNS value={value} data={data} column={column} context={context}/>
     }
 
     if (column.type === 'formula') {
-      const filters = context.storage.getFilters(column._id);
-      const collection = value && _.isArray(value.values) ? value.values : [];
-      const q = toQuery('value', filters);
-      const values = find(collection, q).all();
-
-      return <div>
-        {values.map((value, n) => {
-          return <div key={value._id}>
-            <ViewValueFormula data={data} value={value} v={n} column={column}/>
-          </div>;
-        })}
-        <Grid item xs={12} style={{ textAlign: 'center' }}>
-          <IconButton
-            style={{ padding: 0 }}
-            onClick={e => Meteor.call('nodes.formulas.push', data._id, column.value.split('.')[1], { value: '' })}
-          >
-            <Add />
-          </IconButton>
-        </Grid>
-      </div>;
+      return <ViewFormula value={value} data={data} column={column} context={context}/>
     }
     return null;
   },
   columnSizes: (context, column) => ({
-    minWidth: column.variant === 'short' ? 100 : 300,
+    minWidth: 300,
     maxWidth: 999,
   }),
   Column: ({ context, column }) => {
-    const full = !column.variant || column.variant === 'full';
     return <Grid
       container
       spacing={1}
       style={{ textAlign: 'left' }}
       justify="space-between"
     >
-      <Grid item xs={2} style={{ textAlign: 'center' }}>
-        <IconButton style={{ padding: 0 }} onClick={
-          () => context.storage.setColumn({ ...column, variant: full ? 'short' : 'full' })
-        }>{full ? <ArrowDropDown/> : <ArrowRight/>}</IconButton>
-      </Grid>
-      {full && <React.Fragment>
+      <React.Fragment>
         <Grid item xs={2} style={{ textAlign: 'center' }}>
-          <ColumnSortIconButton column={column} storage={context.storage} style={{ padding: 0 }}/>
+          <SortIconButton column={column} storage={context.storage} style={{ padding: 0 }}/>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Field
             select
             label={'getter'}
@@ -135,7 +85,7 @@ export const Views: IViews = {
             {getters.map((g, i) => <option key={i} value={g}>{g}</option>)}
           </Field>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           <Field
             select
             label={'type'}
@@ -149,12 +99,7 @@ export const Views: IViews = {
           </Field>
         </Grid>
         <Grid item xs={2} style={{ textAlign: 'center' }}>
-          <IconButton
-            style={{ padding: 0 }}
-            onClick={() => context.storage.delColumn(column)}
-          >
-            <Clear />
-          </IconButton>
+          <ClearIconButton column={column} context={context} style={{ padding: 0 }}/>
         </Grid>
         <Grid item xs={12}>
           <Field
@@ -166,7 +111,7 @@ export const Views: IViews = {
             })}
           />
         </Grid>
-      </React.Fragment>}
+      </React.Fragment>
     </Grid>;
   },
   Filter: ({ context, column, filter, filterIndex }) => {
@@ -189,29 +134,7 @@ export const Views: IViews = {
     const content = <context.Views.FiltersList context={context} column={column} filters={filters}/>;
 
     return <Grid container>
-      {column.variant === 'short'
-      ? <React.Fragment>
-        {!!filters.length && <Button fullWidth onClick={e => setOpen(e.currentTarget)}>
-          {filters.length}
-        </Button>}
-        <Popover
-          open={!!open}
-          anchorEl={open}
-          onClose={() => setOpen(null)}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'center',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'center',
-          }}
-        >
-          {content}
-        </Popover>
-      </React.Fragment>
-      : content
-      }
+      {content}
       <Grid item xs={12} style={{ textAlign: 'center' }}>
         <IconButton style={{ padding: 0 }} onClick={
           e => context.storage.addFilter({ _id: Random.id(), columnId: column._id, type: column.type })

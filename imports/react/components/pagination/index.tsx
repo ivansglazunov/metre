@@ -35,7 +35,6 @@ export interface IColumn {
   value: any;
   type?: string;
   options?: any;
-  variant?: 'full' | 'short';
 }
 
 export interface IConfig {

@@ -14,7 +14,7 @@ export const ViewValueFormula = ({ value, v, data, column }) => {
   const result = data.formulaEval(value.value);
 
   return <Grid container justify="space-between" spacing={1}>
-    <Grid item xs={8}>
+    <Grid item xs={7}>
       <Field
         value={value.value}
         onChange={e => Meteor.call('nodes.formulas.set', data._id, column.value.split('.')[1], { _id: value._id, value: e.target.value })}
@@ -26,7 +26,7 @@ export const ViewValueFormula = ({ value, v, data, column }) => {
         disabled
       />
     </Grid>
-    <Grid item xs={1} style={{ textAlign: 'center' }}>
+    <Grid item xs={2} style={{ textAlign: 'center' }}>
       <IconButton
         style={{ padding: 0 }}
         onClick={e => Meteor.call('nodes.formulas.pull', data._id, column.value.split('.')[1], value._id)}

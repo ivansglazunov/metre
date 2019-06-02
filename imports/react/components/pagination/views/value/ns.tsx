@@ -17,7 +17,7 @@ export const ViewValuePositionLine = ({ children = '' }: { children?: any; }) =>
 
 export const ViewValuePosition = (
   {
-    data, value, position, fullHeight = false, short = false, PullProps = {}, AddProps = {}, ToggleProps = {}, ...props
+    data, value, position, fullHeight = false, PullProps = {}, AddProps = {}, ToggleProps = {}, ...props
   }: any
 ) => {
   if (!data) return null;
@@ -26,7 +26,8 @@ export const ViewValuePosition = (
     style={{ padding: 0 }}
     onClick={e => {
       const parentId = position.parentId;
-      Meteor.call('nodes.ns.nesting.pull', { docId: data._id, parentId });
+      if (parentId) Meteor.call('nodes.ns.nesting.pull', { docId: data._id, parentId, tree: position.tree });
+      else Meteor.call('nodes.ns.nesting.pull', { positionId: position._id });
     }}
     {...PullProps}
   >
@@ -59,14 +60,12 @@ export const ViewValuePosition = (
     <ViewValuePositionLine>
       <div>
         {toggle}
-        {!short && <>
-          {position.depth} {position.left}/{position.right} {position.tree}
-        </>}
+        {position.depth} {position.left}/{position.right} {position.tree}
       </div>
       <div>
         {pull}
         {add}
-        {!short && position.space}
+        {position.space}
       </div>
       <div>
         <Field
@@ -103,7 +102,6 @@ export default ({ value, data, column, context }: IConfig) => {
         <ViewValuePosition
           key={p._id}
           data={data}
-          short={column.variant === 'short'}
           value={value}
           position={p}
           ToggleProps={{
