@@ -26,11 +26,20 @@ import {
 // Interface
 export interface INode {
   _id?: string;
+
   nesting?: TPositions;
-  formulas?: IFormulaTypes;
   ___nsUsedFromChildPosition?: IPosition;
   ___nsUsedFromParentPosition?: IPosition;
   ___nsRootUserPosition?: IPosition;
+
+  formulas?: IFormulaTypes;
+
+  users?: INodeUser[];
+}
+
+export interface INodeUser {
+  type: string;
+  value: string;
 }
 
 // Collection
@@ -43,7 +52,13 @@ const { ns: nsNesting } = nsInit({ collection: Nodes, field: 'nesting' });
 
 export const SchemaRules = {
   ...nsNesting.SimpleSchemaRules(),
+
   ...FormulasSchemaRules,
+
+  'users': { type: Array, optional: true },
+  'users.$': Object,
+  'users.$.type': String,
+  'users.$.value': String,
 };
 export const Schema = new SimpleSchema(SchemaRules);
 Nodes.attachSchema(Schema);
