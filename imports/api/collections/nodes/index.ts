@@ -13,7 +13,7 @@ import { TPositions, NestedSets } from '../../nested-sets';
 import { IPosition } from '../../nested-sets/index';
 import { mathEval } from '../../math';
 
-import { nsInit, nsHelpers, nsMethods } from './ns';
+import { nsInit, nsHelpers, nsMethods, IFindConfig, IFounded } from './ns';
 import {
   IFormulaTypes,
   SchemaRules as FormulasSchemaRules,
@@ -28,9 +28,11 @@ export interface INode {
   _id?: string;
 
   nesting?: TPositions;
+
   ___nsUsedFromChildPosition?: IPosition;
   ___nsUsedFromParentPosition?: IPosition;
-  ___nsRootUserPosition?: IPosition;
+
+  ___nsFoundedTrace?: IFounded;
 
   formulas?: IFormulaTypes;
 
@@ -63,7 +65,7 @@ export const SchemaRules = {
 export const Schema = new SimpleSchema(SchemaRules);
 Nodes.attachSchema(Schema);
 
-nsHelpers({ collection: Nodes, ns: nsNesting });
+nsHelpers({ ns: nsNesting, collection: Nodes });
 formulasHelpers({ collection: Nodes });
 
 // Server

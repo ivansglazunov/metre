@@ -31,76 +31,6 @@ export const nsHelpers = ({
   ns,
 }) => {
   collection.helpers({
-    /**
-     * @description
-     * get one parent by name, and optional tree, or by ___nsUsedFromParentPosition
-     */
-    __nsParent({ name, tree, options = { subscribe: false } }: { name: string, tree?: string, options?: any }) {
-      const parentIds = [];
-      if (typeof(name) === 'string') {
-        if (this[ns.field]) {
-          for (let p = 0; p < this[ns.field].length; p++) {
-            const position = this[ns.field][p];
-            if (typeof(tree) === 'string') {
-              if (position.tree !== tree) continue;
-            }
-            parentIds.push(position.parentId);
-          }
-        }
-      } else {
-        if (this.___nsUsedFromParentPosition) {
-          parentIds.push(this.___nsUsedFromParentPosition.parentId);
-        }
-      }
-      const $elemMatch: any = { name };
-      if (typeof(tree) === 'string') $elemMatch.tree = tree;
-
-      if (parentIds.length) {
-        return collection.findOne({
-          _id: { $in: parentIds },
-          [ns.field]: { $elemMatch },
-        }, options);
-      }
-    },
-
-    /**
-     * @description
-     * get all parent positions by name
-     */
-    __nsParents({ tree, options = { subscribe: false } }: { tree?: string, options?: any } = {}) {
-      const positions = [];
-      if (this[ns.field]) {
-        for (let p = 0; p < this[ns.field].length; p++) {
-          const position = this[ns.field][p];
-          if (typeof(tree) === 'string') {
-            if (position.tree !== tree) continue;
-          }
-          positions.push(position);
-        }
-      }
-
-      return positions.map(p => {
-        const d = collection.findOne(p.parentId, options);
-        d.___nsUsedFromChildPosition = p;
-        return d;
-      });
-    },
-
-    /**
-     * @description
-     * get child by name and optional tree
-     */
-    __nsChild({ name, tree = this.___nsUsedFromParentPosition && this.___nsUsedFromParentPosition.tree, options = { subscribe: false } }: { name: string, tree?: string, options?: any }) {
-      if (typeof(name) != 'string') return null;
-      return collection.findOne({
-        [`${ns.field}.parentId`]: this._id,
-        [`${ns.field}.name`]: name,
-        [`${ns.field}.tree`]: { $in: tree
-          ? [tree]
-          : this[ns.field].map(p => p.tree),
-        },
-      }, { subscribe: false });
-    },
     __nsChildren({ tree, space, options = { subscribe: false } }: { tree?: string; space?: string; options?: any } = {}): any[] {
       const $or = [];
       if (this[ns.field]) for (let p = 0; p < this[ns.field].length; p++) {
@@ -146,9 +76,25 @@ export const nsHelpers = ({
       results = _.sortBy(results, n => n.___nsUsedFromParentPosition.left);
       return results;
     },
+    __nsFind(config: IFindConfig, options: any = { subscribe: false }) {
+      const pss = parseDocPositions(config);
+      const query = generateFindQuery(pss, { field: 'nesting', ...config, doc: this });
+      if (query) {
+        const cursor = collection.find(query, options)
+        
+        if (config.trace) {
+          const docs = cursor.map(d => traceDocPositions(config, pss, query, d));
+
+          if (config.sort) return sortDocsByPos(config, docs);
+        
+          return docs;
+        }
+
+        return cursor.fetch();
+      } else return [];
+    },
   });
 };
-
 
 const Schemas: any = {};
   
@@ -234,4 +180,144 @@ export const nsMethods = ({
       await ns.pull(options.pull);
     },
   });
+};
+
+export interface IFindConfig {
+  /**
+   * Limit and direction of find.
+   * @description
+   * -1/-2...
+   * +1/+2...
+   */
+  depth: number;
+  
+  position?: IPosition;
+
+  field?: string;
+  doc?: any;
+
+  positionId?: string;  
+
+  tree?: string;
+  space?: string;
+  
+  name?: string;
+
+  trace?: boolean;
+  sort?: boolean;
+}
+
+export interface IFounded {
+  config: IFindConfig;
+  positions: { base: IPosition; used: IPosition; }[];
+}
+
+export const parseDocPositions = (config: IFindConfig) => {
+  const {
+    depth,
+    position,
+    field, doc,
+    positionId,
+    tree, space,
+    name,
+  } = config;
+
+  if (!depth) throw new Error('depth must be > or < then 0');
+
+  let pss = [];
+  if (position) pss = [position];
+  else if (!doc || !field) throw new Error('position or doc and field must be defined');
+  else {
+    if (positionId) {
+      for (let p = 0; !pss.length && p < doc[field].length; p++) {
+        const ps = doc[field][p];
+        if (ps._id === positionId) pss = [ps];
+      }
+    } else {
+      for (let p = 0; p < doc[field].length; p++) {
+        const ps = doc[field][p];
+        if (
+          (!tree || tree && ps.tree === tree) &&
+          (!space || space && ps.space === space)
+        ) pss.push(ps);
+      }
+    }
+  }
+
+  return pss;
+};
+
+export const generateFindQuery = (pss: IPosition[], config: IFindConfig) => {
+  const {
+    depth,
+    position,
+    field, doc,
+    positionId,
+    tree, space,
+    name,
+  } = config;
+  if (pss.length) {
+    const $or = [];
+    
+    for (let p = 0; p < pss.length; p++) {
+      const ps = pss[p];
+      const $elemMatch: any = {};
+      if (name) $elemMatch.name = name;
+      $elemMatch.tree = ps.tree;
+      $elemMatch.space = ps.space;
+      if (depth > 0) {
+        $elemMatch.left = { $gt: ps.left };
+        $elemMatch.right = { $lt: ps.right };
+        $elemMatch.depth = { $gt: ps.depth, $lte: ps.depth + depth };
+      } else {
+        $elemMatch.left = { $lt: ps.left };
+        $elemMatch.right = { $gt: ps.right };
+        $elemMatch.depth = { $lt: ps.depth, $gte: ps.depth + depth };
+      }
+      $or.push({ [field]: { $elemMatch } });
+    }
+
+    return { $or };
+  } else return undefined;
+};
+
+export const traceDocPositions = (config: IFindConfig, pss: IPosition[], query: any, doc: any) => {
+  if (!config.field) throw new Error('field must be defined');
+  const positions = [];
+  for (let f = 0; f < doc[config.field].length; f++) {
+    const pf = doc[config.field][f];
+    for (let p = 0; p < pss.length; p++) {
+      const ps = pss[p];
+      if (
+        (!config.name || config.name === pf.name) &&
+        (ps.tree === pf.tree) &&
+        (ps.space === pf.space) &&
+        (config.depth > 0
+          ? pf.left > ps.left && pf.right < ps.right &&
+          pf.depth > ps.depth && pf.depth <= ps.depth + config.depth
+          : pf.left < ps.left && pf.right > ps.right &&
+          pf.depth < ps.depth && pf.depth >= ps.depth + config.depth
+        )
+      ) positions.push({ base: ps, used: pf });
+    }
+  }
+  doc.___nsFoundedTrace = {
+    config,
+    positions,
+  };
+  return doc;
+};
+
+export const sortDocsByPos = (config: IFindConfig, docs: any[]) => {
+  if (!config.trace) throw new Error('docs can be sorted by pos only if traced');
+  const result = [];
+  for (let d = 0; d < docs.length; d++) {
+    const doc = docs[d];
+    for (let f = 0; f < doc.___nsFoundedTrace.positions.length; f++) {
+      const clone = _.clone(doc);
+      clone.___nsFoundedTrace =  { ...doc.___nsFoundedTrace, positions: [doc.___nsFoundedTrace.positions[f]] };
+      result.push(clone);
+    }
+  }
+  return _.sortBy(result, r => r.___nsFoundedTrace.positions[0].used.left);
 };

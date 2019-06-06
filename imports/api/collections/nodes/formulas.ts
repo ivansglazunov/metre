@@ -115,29 +115,28 @@ const getter = (obj, key, fun) => {
 export const generateEnv = ({
   doc,
 }) => {
-  const env = {};
-  getter(env, 'p', () => {
+  const env: any = {};
+  env.doc = doc;
+  env.ns = (config: any) => {
+    const ct = typeof(config);
+    const parents = doc.__nsFind({ doc, sort: true, trace: true, field: 'nesting', ...(ct === 'number' ? { depth: config } : config) });
     const results = {};
-    const parents = doc.__nsParents();
     for (let p = 0; p < parents.length; p++) {
-      const par = parents[p];
-      const _pos = par.___nsUsedFromChildPosition;
-      if (par.nesting) for (let o = 0; o < par.nesting.length; o++) {
-        const pos = par.nesting[o];
-        if (pos.space === _pos.space && pos.left < _pos.left && pos.right > _pos.right && pos.name) {
-          results[pos.name] = generateEnv({ doc: parents[p] });
-        }
-      }
+      const name = _.get(parents[p], '___nsFoundedTrace.positions.0.used.name', '');
+      if (name) results[name] = generateEnv({ doc: parents[p] });
     }
     return results;
-  });
+  };
   getter(env, 'formula', () => {
     const results = {};
     const fs = doc.formulas;
     const fsk = Object.keys(fs);
     for (let k = 0; k < fsk.length; k++) {
       const f = fs[fsk[k]];
-      if (f.values[0]) results[fsk[k]] = doc.formulaEval(f.values[0].value).value;
+      if (f.values[0]) getter(results, fsk[k], () => {
+        console.log('getter', fsk[k], doc);
+        return doc.formulaEval(f.values[0].value).value;
+      });
     }
     return results;
   });

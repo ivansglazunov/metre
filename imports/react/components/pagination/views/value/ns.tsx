@@ -21,7 +21,9 @@ export const ViewValuePosition = (
   }: any
 ) => {
   if (!data) return null;
-
+  
+  const founded = data.___nsFoundedTrace && _.find(data.___nsFoundedTrace.positions, p => p.used._id === position._id);
+  
   const pull = <IconButton
     style={{ padding: 0 }}
     onClick={e => {
@@ -51,8 +53,8 @@ export const ViewValuePosition = (
     style={{
       height: fullHeight ? '100%' : 'auto',
       padding: 0,
-      paddingLeft: data.___nsRootUserPosition
-      ? (position.depth - data.___nsRootUserPosition.depth) * 10 
+      paddingLeft: founded
+      ? (position.depth - founded.base.depth) * 10 
       : 0
     }}
     {...props}
@@ -83,8 +85,11 @@ export default ({ value, data, column, context }: IConfig) => {
 
   if (_.isArray(value)) {
     let list = [];
-    if (data.___nsUsedFromParentPosition) {
-      list.push({ value: data.___nsUsedFromParentPosition, disabled: true });
+    if (data.___nsFoundedTrace) {
+      for (let p = 0; p < data.___nsFoundedTrace.positions.length; p++) {
+        const f = data.___nsFoundedTrace.positions[p];
+        list.push({ value: f.used, disabled: true });
+      }
     } else {
       // not nested
       list.push.apply(list, value.filter(
@@ -106,13 +111,13 @@ export default ({ value, data, column, context }: IConfig) => {
           position={p}
           ToggleProps={{
             disabled,
-            children: data.___nsUsedFromParentPosition || isNest ? <ArrowDropDown/> : <ArrowRight/>,
+            children: data.___nsFoundedTrace || isNest ? <ArrowDropDown/> : <ArrowRight/>,
             onClick: () => {
               context.storage.unsetNests(data._id);
               if (!isNest) context.storage.setNest(data._id, p._id);
             },
           }}
-          fullHeight={!!data.___nsUsedFromParentPosition}
+          fullHeight={!!data.___nsFoundedTrace}
         />
       ))}
       <ViewValuePositionLine/>
