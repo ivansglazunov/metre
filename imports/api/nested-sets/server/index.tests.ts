@@ -361,7 +361,7 @@ describe('nested-sets', () => {
     it('+p+dPs-chPs-lPs-rPs', async () => {
       const rootId = await put(tree, null);
       const nodeId = await put(tree, rootId);
-      await ns.pull({ parentId: rootId, docId: nodeId });
+      await ns.pull({ parentId: rootId, docId: nodeId, tree: 'nesting' });
       const docs = Nodes.find().fetch();
       assert.lengthOf(docs, 2);
       assert.lengthOf(docs[0].positions, 1);
@@ -372,7 +372,7 @@ describe('nested-sets', () => {
       const rootId = await put(tree, null);
       const nodeId = await put(tree, rootId);
       const childId = await put(tree, nodeId);
-      await ns.pull({ parentId: rootId, docId: nodeId });
+      await ns.pull({ parentId: rootId, docId: nodeId, tree: 'nesting' });
       const docs = Nodes.find().fetch();
       assert.lengthOf(docs, 3);
       assert.lengthOf(docs[0].positions, 1);
@@ -386,7 +386,7 @@ describe('nested-sets', () => {
       const centerId = await put(tree, rootId);
       const rightId = await put(tree, rootId);
       const nodeId = await put(tree, centerId);
-      await ns.pull({ parentId: centerId, docId: nodeId });
+      await ns.pull({ parentId: centerId, docId: nodeId, tree: 'nesting' });
       const docs = Nodes.find().fetch();
       assert.lengthOf(docs, 5);
       assert.lengthOf(docs[0].positions, 1);
@@ -403,7 +403,7 @@ describe('nested-sets', () => {
       const rightId = await put(tree, rootId);
       const nodeId = await put(tree, centerId);
       const childId = await put(tree, nodeId);
-      await ns.pull({ parentId: centerId, docId: nodeId });
+      await ns.pull({ parentId: centerId, docId: nodeId, tree: 'nesting' });
       const docs = Nodes.find().fetch();
       assert.lengthOf(docs, 6);
       assert.lengthOf(docs[0].positions, 1);
