@@ -28,11 +28,9 @@ export const getters = [
 ];
 
 export const types = [
-  'tree',
-  'ns',
   'string',
+  'ns',
   'formula',
-  'id',
 ];
 
 export const Views: IViews = {

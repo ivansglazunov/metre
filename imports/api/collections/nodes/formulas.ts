@@ -119,7 +119,7 @@ export const generateEnv = ({
   env.doc = doc;
   env.ns = (config: any) => {
     const ct = typeof(config);
-    const parents = doc.__nsFind({ doc, sort: true, trace: true, field: 'nesting', ...(ct === 'number' ? { depth: config } : config) });
+    const parents = doc.__nsFind({ doc, sort: true, trace: true, field: 'nesting', ...(ct === 'number' ? { limitDepth: config } : config) });
     const results = {};
     for (let p = 0; p < parents.length; p++) {
       const name = _.get(parents[p], '___nsFoundedTrace.positions.0.used.name', '');

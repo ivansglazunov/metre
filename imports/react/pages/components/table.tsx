@@ -20,7 +20,7 @@ import * as  _ from 'lodash';
 export const defaultStore = {
   filters: [],
   sorts: [
-    { _id: 'a', path: 'formulas.width.values.value', desc: -1 },
+    { _id: 'a', path: 'nesting', desc: -1 },
   ],
   columns: [
     { _id: 'ns', getter: 'path', value: 'nesting', type: 'ns' },
@@ -53,7 +53,7 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
         const pIds = _.keys(nests[ids[i]]);
         for (let p = 0; p < pIds.length; p++) {
           const nest = nests[ids[i]][pIds[p]] && doc && doc.nesting ? _.find(doc.nesting, pos => pos._id === pIds[p]) : null;
-          const results = doc.__nsFind({ trace: true, depth: 999, position: nest, field: 'nesting' });
+          const results = doc.__nsFind({ trace: true, limitDepth: 999, position: nest, field: 'nesting' });
           if (nest) data.push(...results);
         }
       }

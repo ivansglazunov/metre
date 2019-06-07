@@ -189,7 +189,7 @@ export interface IFindConfig {
    * -1/-2...
    * +1/+2...
    */
-  depth: number;
+  limitDepth: number;
   
   position?: IPosition;
 
@@ -214,7 +214,7 @@ export interface IFounded {
 
 export const parseDocPositions = (config: IFindConfig) => {
   const {
-    depth,
+    limitDepth,
     position,
     field, doc,
     positionId,
@@ -222,7 +222,7 @@ export const parseDocPositions = (config: IFindConfig) => {
     name,
   } = config;
 
-  if (!depth) throw new Error('depth must be > or < then 0');
+  if (!limitDepth) throw new Error('limitDepth must be > or < then 0');
 
   let pss = [];
   if (position) pss = [position];
@@ -249,7 +249,7 @@ export const parseDocPositions = (config: IFindConfig) => {
 
 export const generateFindQuery = (pss: IPosition[], config: IFindConfig) => {
   const {
-    depth,
+    limitDepth,
     position,
     field, doc,
     positionId,
@@ -265,14 +265,20 @@ export const generateFindQuery = (pss: IPosition[], config: IFindConfig) => {
       if (name) $elemMatch.name = name;
       $elemMatch.tree = ps.tree;
       $elemMatch.space = ps.space;
-      if (depth > 0) {
+      if (limitDepth > 0) {
         $elemMatch.left = { $gt: ps.left };
         $elemMatch.right = { $lt: ps.right };
-        $elemMatch.depth = { $gt: ps.depth, $lte: ps.depth + depth };
+        $elemMatch.depth = {
+          $gt: ps.depth,
+          $lte: ps.depth + limitDepth,
+        };
       } else {
         $elemMatch.left = { $lt: ps.left };
         $elemMatch.right = { $gt: ps.right };
-        $elemMatch.depth = { $lt: ps.depth, $gte: ps.depth + depth };
+        $elemMatch.depth = {
+          $lt: ps.depth,
+          $gte: ps.depth + limitDepth,
+        };
       }
       $or.push({ [field]: { $elemMatch } });
     }
@@ -281,7 +287,12 @@ export const generateFindQuery = (pss: IPosition[], config: IFindConfig) => {
   } else return undefined;
 };
 
-export const traceDocPositions = (config: IFindConfig, pss: IPosition[], query: any, doc: any) => {
+export const traceDocPositions = (
+  config: IFindConfig,
+  pss: IPosition[],
+  query: any,
+  doc: any
+) => {
   if (!config.field) throw new Error('field must be defined');
   const positions = [];
   for (let f = 0; f < doc[config.field].length; f++) {
@@ -292,11 +303,11 @@ export const traceDocPositions = (config: IFindConfig, pss: IPosition[], query: 
         (!config.name || config.name === pf.name) &&
         (ps.tree === pf.tree) &&
         (ps.space === pf.space) &&
-        (config.depth > 0
+        (config.limitDepth > 0
           ? pf.left > ps.left && pf.right < ps.right &&
-          pf.depth > ps.depth && pf.depth <= ps.depth + config.depth
+          pf.depth > ps.depth && pf.depth <= ps.depth + config.limitDepth
           : pf.left < ps.left && pf.right > ps.right &&
-          pf.depth < ps.depth && pf.depth >= ps.depth + config.depth
+          pf.depth < ps.depth && pf.depth >= ps.depth + config.limitDepth
         )
       ) positions.push({ base: ps, used: pf });
     }
