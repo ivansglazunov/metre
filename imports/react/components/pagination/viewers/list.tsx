@@ -54,13 +54,25 @@ export const BlockField = ({ field }) => {
   </Paper>;
 };
 
+export const fields = (object, path = '') => {
+  const keys = _.keys(object);
+  return keys.map(key => {
+    const field = `${path ? path+'.' : path }${key}`;
+    return <React.Fragment key={key}>
+      <BlockField key={`${path}.${key}`} field={field} />
+      {typeof(object[key]) === 'object' && !_.isArray(object[key]) && (
+        fields(object[key], field)
+      )}
+    </React.Fragment>;
+  })
+};
+
 export class List extends React.Component<any, any, any> {
   consumerRender = (context: any) => {
     return <div style={{
       overflow: 'auto',
     }}>
       {context.trackerResults.data.map((d, i) => {
-        const keys = _.keys(d);
         return <div
           key={`${d._id}${d.___nsUsedFromParentPosition && d.___nsUsedFromParentPosition._id}${i}`}
           style={{
@@ -71,9 +83,7 @@ export class List extends React.Component<any, any, any> {
           {context.config.columns.map(c => {
             return<BlockColumn key={c._id} context={context} column={c} data={d} />;
           })}
-          {keys.map(k => {
-            return<BlockField key={k} field={k} />;
-          })}
+          {fields(d)}
           <Divider />
         </div>;
       })}

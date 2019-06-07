@@ -134,7 +134,6 @@ export const generateEnv = ({
     for (let k = 0; k < fsk.length; k++) {
       const f = fs[fsk[k]];
       if (f.values[0]) getter(results, fsk[k], () => {
-        console.log('getter', fsk[k], doc);
         return doc.formulaEval(f.values[0].value).value;
       });
     }
