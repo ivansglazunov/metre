@@ -5,7 +5,7 @@ import { IConfig } from './index';
 import { toQuery } from './../../to-query';
 import * as _ from 'lodash';
 import { Button, Grid, IconButton, ListItem, Popover } from '@material-ui/core';
-import { Add, ArrowDropDown, ArrowRight, ChevronLeft, ChevronRight, Clear } from '@material-ui/icons';
+import { Add, ArrowDropDown, ArrowRight, PlaulistAdd, ChevronLeft, ChevronRight, Clear, PlaylistAdd } from '@material-ui/icons';
 import { Nodes } from '../../../../../api/collections/index';
 import { Field } from '../../../field';
 
@@ -17,7 +17,7 @@ export const ViewValuePositionLine = ({ children = '' }: { children?: any; }) =>
 
 export const ViewValuePosition = (
   {
-    data, value, position, fullHeight = false, PullProps = {}, AddProps = {}, ToggleProps = {}, ...props
+    data, value, position, fullHeight = false, PullProps = {}, AddProps = {}, PushProps = {}, ToggleProps = {}, ...props
   }: any
 ) => {
   if (!data) return null;
@@ -44,6 +44,14 @@ export const ViewValuePosition = (
     <Add />
   </IconButton>;
 
+  const push = <IconButton
+    style={{ padding: 0 }}
+    onClick={e => alert(123)}
+    {...PushProps}
+  >
+    <PlaylistAdd />
+  </IconButton>;
+
   const toggle = <IconButton
     style={{ padding: 0, float: 'left' }}
     {...ToggleProps}
@@ -67,6 +75,7 @@ export const ViewValuePosition = (
       <div>
         {pull}
         {add}
+        {push}
         {position.space}
       </div>
       <div>
