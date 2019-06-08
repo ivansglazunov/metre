@@ -53,7 +53,7 @@ export const tracker = ({ config: { sort, nests }, methodsResults: { loading, id
         const pIds = _.keys(nests[ids[i]]);
         for (let p = 0; p < pIds.length; p++) {
           const nest = nests[ids[i]][pIds[p]] && doc && doc.nesting ? _.find(doc.nesting, pos => pos._id === pIds[p]) : null;
-          const results = doc.__nsFind({ trace: true, limitDepth: 999, position: nest, field: 'nesting' });
+          const results = doc.__nsFind({ sort: true, trace: true, limitDepth: 999, position: nest, field: 'nesting' });
           if (nest) data.push(...results);
         }
       }
