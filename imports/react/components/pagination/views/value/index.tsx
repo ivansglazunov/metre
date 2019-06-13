@@ -14,6 +14,7 @@ import ns from './ns';
 import formula from './formula';
 import values from './values';
 import strings from './strings';
+import id from './id';
 
 export {
   string,
@@ -21,4 +22,5 @@ export {
   formula,
   values,
   strings,
+  id,
 };

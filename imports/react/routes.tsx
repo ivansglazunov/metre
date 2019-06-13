@@ -38,6 +38,10 @@ const FS = isP ? Loadable({
   loader: () => import('./pages/fs'),
   loading: () => <LinearProgress/>,
 }) : require('./pages/fs').default;
+const User = isP ? Loadable({
+  loader: () => import('./pages/user'),
+  loading: () => <LinearProgress/>,
+}) : require('./pages/user').default;
 
 // TODO review title and favicon
 
@@ -52,6 +56,7 @@ export class Routes extends React.Component {
         <Route path='/props-table' component={PropsTable} />
         <Route path='/math' component={Math} />
         <Route path='/fs' component={FS} />
+        <Route path='/user' component={User} />
         <Route component={NotFound} />
       </Switch>
     </React.Fragment>;

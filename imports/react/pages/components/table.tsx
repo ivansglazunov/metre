@@ -27,7 +27,7 @@ export const defaultStore = {
     { _id: 'a', getter: 'path', value: 'strings.title', type: 'strings' },
     { _id: 'b', getter: 'path', value: 'formulas.width', type: 'formula' },
     { _id: 'c', getter: 'path', value: 'formulas.height', type: 'formula' },
-    { _id: 'd', getter: 'path', value: '_id', type: 'string' },
+    { _id: 'd', getter: 'path', value: '_id', type: 'id' },
   ],
 };
 
@@ -96,7 +96,7 @@ export default () => {
       <Tabs value={view} onChange={(event, value) => setView(value)}>
         {views.map(t => <Tab key={t} value={t} label={t} style={{ minWidth: 0 }}/>)}
       </Tabs>
-      {view === 'table' && <Table style={{ height: '100vh' }}/>}
+      {view === 'table' && <Table />}
       {view === 'graph' && <Graph />}
       {view === 'list' && <List />}
     </Grid>

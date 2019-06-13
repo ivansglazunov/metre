@@ -31,6 +31,7 @@ export const types = [
   'formula',
   'values',
   'strings',
+  'id',
 ];
 
 export const Views: IViews = {

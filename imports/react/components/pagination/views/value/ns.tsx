@@ -9,7 +9,7 @@ import { IConfig } from './index';
 import { toQuery } from './../../to-query';
 import * as _ from 'lodash';
 import { Button, Grid, IconButton, ListItem, Popover, List } from '@material-ui/core';
-import { Add, ArrowDropDown, ArrowRight, ChevronLeft, ChevronRight, Clear, PlaylistAdd } from '@material-ui/icons';
+import { Add, ArrowDropDown, ArrowRight, ChevronLeft, ChevronRight, Clear, PlaylistAdd, Title } from '@material-ui/icons';
 import { Nodes } from '../../../../../api/collections/index';
 import { Field } from '../../../field';
 
@@ -52,10 +52,13 @@ export const ViewValuePositionSearch = ({
 
 export const ViewValuePosition = (
   {
-    data, value, position, fullHeight = false, PullProps = {}, AddProps = {}, PushProps = {}, ToggleProps = {}, ...props
+    data, value, position, fullHeight = false,
+    PullProps = {}, AddProps = {}, PushProps = {}, ToggleProps = {}, NameToggleProps = {}, NameProps = {},
+    ...props
   }: any
 ) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [nameOpen, setNameOpen] = useState(!!position.name);
 
   if (!data) return null;
 
@@ -116,6 +119,27 @@ export const ViewValuePosition = (
     </IconButton>
   </>;
 
+  const nameToggle = <>
+    <IconButton
+      style={{ padding: 0 }}
+      onClick={(e) => {
+        setNameOpen(!nameOpen);
+        Meteor.call('nodes.ns.nesting.name', { docId: data._id, positionId: position._id, name: '' });
+      }}
+      {...PushProps}
+    >
+      <Title />
+    </IconButton>
+  </>;
+
+  const name = <>
+    {nameOpen && <Field
+      value={position.name}
+      type="string"
+      onChange={e => Meteor.call('nodes.ns.nesting.name', { docId: data._id, positionId: position._id, name: e.target.value })}
+    />}
+  </>;
+
   const toggle = <IconButton
     style={{ padding: 0, float: 'left' }}
     {...ToggleProps}
@@ -140,14 +164,11 @@ export const ViewValuePosition = (
         {pull}
         {add}
         {push}
+        {nameToggle}
         {position.space}
       </div>
       <div>
-        <Field
-          value={position.name}
-          type="string"
-          onChange={e => Meteor.call('nodes.ns.nesting.name', { docId: data._id, positionId: position._id, name: e.target.value })}
-        />
+        {name}
       </div>
     </ViewValuePositionLine>
   </ListItem>;
