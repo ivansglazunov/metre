@@ -1,11 +1,15 @@
 import { Meteor } from 'meteor/meteor';
+
 import * as React from 'react';
+import { useState } from 'react';
+import { useTracker } from 'react-meteor-hooks'
+
 import { find } from 'mingo';
 import { IConfig } from './index';
 import { toQuery } from './../../to-query';
 import * as _ from 'lodash';
-import { Button, Grid, IconButton, ListItem, Popover } from '@material-ui/core';
-import { Add, ArrowDropDown, ArrowRight, PlaulistAdd, ChevronLeft, ChevronRight, Clear, PlaylistAdd } from '@material-ui/icons';
+import { Button, Grid, IconButton, ListItem, Popover, List } from '@material-ui/core';
+import { Add, ArrowDropDown, ArrowRight, ChevronLeft, ChevronRight, Clear, PlaylistAdd } from '@material-ui/icons';
 import { Nodes } from '../../../../../api/collections/index';
 import { Field } from '../../../field';
 
@@ -15,15 +19,48 @@ export const ViewValuePositionLine = ({ children = '' }: { children?: any; }) =>
   </div>;
 };
 
+export const ViewValuePositionSearch = ({
+  data, position,
+  onClose
+}) => {
+  const [name, setName] = useState('');
+
+  const { founded } = useTracker(() => {
+    const founded = name ? Nodes.find({
+      'strings.title.values.value': name,
+    }).fetch() : [];
+    return { founded };
+  }, [name]);
+
+  return <>
+    <Field
+      type="string"
+      value={name}
+      onChange={e => setName(e.target.value)}
+    />
+    <List dense>
+      {founded.map(f => <ListItem key={f._id} button onClick={() => {
+        Meteor.call(`${Nodes._name}.ns.nesting.put`, { tree: 'nesting', docId: f._id, parentId: data._id,  }, () => {
+          if (onClose) onClose();
+        });
+      }}>
+        {_.get(f, 'strings.title.values.0.value', '')}
+      </ListItem>)}
+    </List>
+  </>;
+};
+
 export const ViewValuePosition = (
   {
     data, value, position, fullHeight = false, PullProps = {}, AddProps = {}, PushProps = {}, ToggleProps = {}, ...props
   }: any
 ) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+
   if (!data) return null;
-  
+
   const founded = data.___nsFoundedTrace && _.find(data.___nsFoundedTrace.positions, p => p.used._id === position._id);
-  
+
   const pull = <IconButton
     style={{ padding: 0 }}
     onClick={e => {
@@ -44,13 +81,40 @@ export const ViewValuePosition = (
     <Add />
   </IconButton>;
 
-  const push = <IconButton
-    style={{ padding: 0 }}
-    onClick={e => alert(123)}
-    {...PushProps}
-  >
-    <PlaylistAdd />
-  </IconButton>;
+  const push = <>
+    <Popover
+      open={!!anchorEl}
+      anchorEl={anchorEl}
+      onClose={() => setAnchorEl(null)}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'center',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+    >
+      <div style={{
+        width: 300,
+        maxHeight: 300,
+        overflow: 'auto',
+      }}>
+        <ViewValuePositionSearch
+          data={data}
+          position={position}
+          onClose={() => setAnchorEl(null)}
+        />
+      </div>
+    </Popover>
+    <IconButton
+      style={{ padding: 0 }}
+      onClick={(e) => setAnchorEl(e.currentTarget)}
+      {...PushProps}
+    >
+      <PlaylistAdd />
+    </IconButton>
+  </>;
 
   const toggle = <IconButton
     style={{ padding: 0, float: 'left' }}
@@ -62,8 +126,8 @@ export const ViewValuePosition = (
       height: fullHeight ? '100%' : 'auto',
       padding: 0,
       paddingLeft: founded
-      ? (position.depth - founded.base.depth) * 10 
-      : 0
+        ? (position.depth - founded.base.depth) * 10
+        : 0
     }}
     {...props}
   >
@@ -120,7 +184,7 @@ export default ({ value, data, column, context }: IConfig) => {
           position={p}
           ToggleProps={{
             disabled,
-            children: data.___nsFoundedTrace || isNest ? <ArrowDropDown/> : <ArrowRight/>,
+            children: data.___nsFoundedTrace || isNest ? <ArrowDropDown /> : <ArrowRight />,
             onClick: () => {
               context.storage.unsetNests(data._id);
               if (!isNest) context.storage.setNest(data._id, p._id);
@@ -129,8 +193,8 @@ export default ({ value, data, column, context }: IConfig) => {
           fullHeight={!!data.___nsFoundedTrace}
         />
       ))}
-      <ViewValuePositionLine/>
+      <ViewValuePositionLine />
     </div>;
   }
-  return <ViewValuePositionLine/>;
+  return <ViewValuePositionLine />;
 };

@@ -5,4 +5,20 @@ export interface IConfig {
   data: any;
   column: IColumn;
   context: IContext;
+  encode?: (data: string) => any;
+  decode?: (data: any) => string;
+};
+
+import string from './string';
+import ns from './ns';
+import formula from './formula';
+import values from './values';
+import strings from './strings';
+
+export {
+  string,
+  ns,
+  formula,
+  values,
+  strings,
 };

@@ -12,18 +12,12 @@ import { wrapCollection } from '../../collection';
 import { TPositions, NestedSets } from '../../nested-sets';
 import { IPosition } from '../../nested-sets/index';
 import { mathEval } from '../../math';
+import { valuesMethods, IValuesTypes, SchemaRules as ValuesSchemaRules } from '../values';
 
 // TODO rename to scripts
 // TODO add script format and dependencies
 
-export interface IFormulaTypes {
-  [type: string]: IFormulaType;
-}
-
-export interface IFormulaType {
-  _id?: string;
-  values: IFormula[];
-}
+export interface IFormulaTypes extends IValuesTypes<string> {}
 
 export interface IFormula {
   _id?: string;
@@ -31,12 +25,12 @@ export interface IFormula {
   [key: string]: any;
 }
 
+export interface IDocFormulas {
+  formulas?: IFormulaTypes;
+}
+
 export const SchemaRules = {
-  'formulas': {
-    type: Object,
-    blackbox: true,
-    optional: true,
-  },
+  'formulas': ValuesSchemaRules,
 };
 
 export const formulasHelpers = ({
@@ -55,57 +49,7 @@ export const formulasHelpers = ({
 export const formulasMethods = ({
   collection,
 }) => {
-  // value
-  Meteor.methods({
-    [`${collection._name}.formulas.set`](docId, type, value) {
-      if (!(typeof(value) === 'object' && typeof(value._id) === 'string')) {
-        throw new Error(`Invalid value object ${JSON.stringify(value)}`);
-      }
-      if (!(typeof(type) === 'string')) {
-        throw new Error(`Invalid type ${type}`);
-      }
-      const node = collection.findOne(docId);
-      if (!node) throw new Error(`Doc ${docId} not founded.`);
-      if (!_.get(node, `formulas.${type}.values`)) throw new Error(`Doc ${docId} not includes values type [type].`);
-      let index = -1;
-      for (let i = 0; i < node.formulas[type].values.length; i++) {
-        if (node.formulas[type].values[i]._id === value._id) index = i;
-      }
-      if (!~index) throw new Error(`Doc ${docId} not includes valueId ${value._id} in type ${type}.`);
-      const $set = {};
-      const keys = _.keys(value);
-      for (let k = 0; k < keys.length; k++) {
-        $set[`formulas.${type}.values.${index}.${keys[k]}`] = value[keys[k]];
-      }
-      collection.update(docId, { $set });
-    },
-    [`${collection._name}.formulas.push`](docId, type, value) {
-      if (!(typeof(value) === 'object')) {
-        throw new Error(`Invalid value object ${JSON.stringify(value)}`);
-      }
-      if (!(typeof(type) === 'string')) {
-        throw new Error(`Invalid type ${type}`);
-      }
-      const node = collection.findOne(docId);
-      if (!node) throw new Error(`Doc ${docId} not founded.`);
-      collection.update(docId, { $push: {
-        [`formulas.${type}.values`]: { ...value, _id: Random.id() },
-      } });
-    },
-    [`${collection._name}.formulas.pull`](docId, type, valueId) {
-      if (!(typeof(valueId) === 'string')) {
-        throw new Error(`Invalid valueId ${valueId}`);
-      }
-      if (!(typeof(type) === 'string')) {
-        throw new Error(`Invalid type ${type}`);
-      }
-      const node = collection.findOne(docId);
-      if (!node) throw new Error(`Doc ${docId} not founded.`);
-      collection.update(docId, { $pull: {
-        [`formulas.${type}.values`]: { _id: valueId },
-      } });
-    },
-  });
+  valuesMethods({ collection, field: 'formulas' });
 };
 
 const getter = (obj, key, fun) => {
@@ -117,13 +61,40 @@ export const generateEnv = ({
 }) => {
   const env: any = {};
   env.doc = doc;
-  env.ns = (config: any) => {
+  env.ns = (config: any, byField = '___nsFoundedTrace.positions.0.used.name') => {
     const ct = typeof(config);
-    const parents = doc.__nsFind({ doc, sort: true, trace: true, field: 'nesting', ...(ct === 'number' ? { limitDepth: config } : config) });
+    const docs = doc.__nsFind({ doc, sort: true, trace: true, field: 'nesting', ...(ct === 'number' ? { limitDepth: config } : config) });
     const results = {};
-    for (let p = 0; p < parents.length; p++) {
-      const name = _.get(parents[p], '___nsFoundedTrace.positions.0.used.name', '');
-      if (name) results[name] = generateEnv({ doc: parents[p] });
+    for (let p = 0; p < docs.length; p++) {
+      const name = _.get(docs[p], byField, '');
+      if (name) results[name] = generateEnv({ doc: docs[p] });
+    }
+    return results;
+  };
+  env.nsBy = (config: any, byField = 'strings.title.values.0.value') =>
+    env.ns(config, byField);
+  env.v = (field) => {
+    const results = {};
+    const fs = doc[field];
+    const fsk = Object.keys(fs);
+    for (let k = 0; k < fsk.length; k++) {
+      const f = fs[fsk[k]];
+      if (f.values[0]) getter(results, fsk[k], () => {
+        return f.values[0].value;
+      });
+    }
+    return results;
+  };
+  env.vs = (field) => {
+    const results = {};
+    const fs = doc[field];
+    const fsk = Object.keys(fs);
+    for (let k = 0; k < fsk.length; k++) {
+      const f = fs[fsk[k]];
+      results[fsk[k]] = [];
+      for (let v = 0; v < f.values.length; v++) {
+        results[fsk[k]].push(f.values[v].value);
+      }
     }
     return results;
   };

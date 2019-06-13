@@ -14,6 +14,8 @@ import { IPosition } from '../../nested-sets/index';
 import { mathEval } from '../../math';
 
 import { nsInit, nsHelpers, nsMethods, IFindConfig, IFounded } from './ns';
+import { IValuesTypes, SchemaRules as ValuesSchemaRules, valuesMethods } from '../values';
+import { IDocFormulas } from './formulas';
 import {
   IFormulaTypes,
   SchemaRules as FormulasSchemaRules,
@@ -24,7 +26,7 @@ import {
 // TODO add types selectors, times, coords, strings, numbers, booleans, selects
 
 // Interface
-export interface INode {
+export interface INode extends IDocFormulas {
   _id?: string;
 
   nesting?: TPositions;
@@ -34,7 +36,8 @@ export interface INode {
 
   ___nsFoundedTrace?: IFounded;
 
-  formulas?: IFormulaTypes;
+  strings?: IValuesTypes<string>;
+  numbers?: IValuesTypes<number>;
 
   users?: INodeUser[];
 }
@@ -56,6 +59,8 @@ export const SchemaRules = {
   ...nsNesting.SimpleSchemaRules(),
 
   ...FormulasSchemaRules,
+  strings: ValuesSchemaRules,
+  numbers: ValuesSchemaRules,
 
   'users': { type: Array, optional: true },
   'users.$': Object,
@@ -115,4 +120,6 @@ if (Meteor.isServer) {
   
   nsMethods({ collection: Nodes, ns: nsNesting });
   formulasMethods({ collection: Nodes });
+  valuesMethods({ collection: Nodes, field: 'strings' });
+  valuesMethods({ collection: Nodes, field: 'numbers' });
 }

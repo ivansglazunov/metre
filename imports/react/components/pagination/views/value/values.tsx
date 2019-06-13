@@ -11,26 +11,24 @@ import { Field } from '../../../field';
 import { toQuery } from '../../to-query';
 import { Nodes } from '../../../../../api/collections';
 
-export const ViewValueFormula = ({ value, v, data, column }) => {
-  const result = data.formulaEval(value.value);
+const defaultParse = (data) => data;
 
+export const ViewValue = ({
+  value, v, data, column,
+  encode=defaultParse, decode=defaultParse,
+}) => {
+  const [field, type] = column.value.split('.');
   return <Grid container justify="space-between" spacing={1}>
-    <Grid item xs={7}>
+    <Grid item xs={10}>
       <Field
-        value={value.value}
-        onChange={e => Meteor.call(`${Nodes._name}.values.formulas.set`, data._id, column.value.split('.')[1], { _id: value._id, value: e.target.value })}
-      />
-    </Grid>
-    <Grid item xs={3}>
-      <Field
-        value={result.value}
-        disabled
+        value={decode(value.value)}
+        onChange={e => Meteor.call(`${Nodes._name}.values.${field}.set`, data._id, type, { _id: value._id, value: encode(e.target.value) })}
       />
     </Grid>
     <Grid item xs={2} style={{ textAlign: 'center' }}>
       <IconButton
         style={{ padding: 0 }}
-        onClick={e => Meteor.call(`${Nodes._name}.values.formulas.pull`, data._id, column.value.split('.')[1], value._id)}
+        onClick={e => Meteor.call(`${Nodes._name}.values.${field}.pull`, data._id, type, value._id)}
       >
         <Clear />
       </IconButton>
@@ -38,7 +36,10 @@ export const ViewValueFormula = ({ value, v, data, column }) => {
   </Grid>
 };
 
-export default ({ value, data, column, context }: IConfig) => {
+export default ({
+  value, data, column, context,
+  encode=defaultParse, decode=defaultParse,
+}: IConfig) => {
   const filters = context.storage.getFilters(column._id);
   const collection = value && _.isArray(value.values) ? value.values : [];
   const q = toQuery('value', filters);
@@ -47,13 +48,13 @@ export default ({ value, data, column, context }: IConfig) => {
   return <div>
     {values.map((value, n) => {
       return <div key={value._id}>
-        <ViewValueFormula data={data} value={value} v={n} column={column}/>
+        <ViewValue data={data} value={value} v={n} column={column} encode={encode} decode={decode}/>
       </div>;
     })}
     <Grid item xs={12} style={{ textAlign: 'center' }}>
       <IconButton
         style={{ padding: 0 }}
-        onClick={e => Meteor.call(`${Nodes._name}.values.formulas.push`, data._id, column.value.split('.')[1], { value: '' })}
+        onClick={e => Meteor.call(`${Nodes._name}.values.strings.push`, data._id, column.value.split('.')[1], { value: '' })}
       >
         <Add />
       </IconButton>

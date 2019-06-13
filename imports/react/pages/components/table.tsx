@@ -24,9 +24,10 @@ export const defaultStore = {
   ],
   columns: [
     { _id: 'ns', getter: 'path', value: 'nesting', type: 'ns' },
-    { _id: 'a', getter: 'path', value: '_id', type: 'string' },
+    { _id: 'a', getter: 'path', value: 'strings.title', type: 'strings' },
     { _id: 'b', getter: 'path', value: 'formulas.width', type: 'formula' },
     { _id: 'c', getter: 'path', value: 'formulas.height', type: 'formula' },
+    { _id: 'd', getter: 'path', value: '_id', type: 'string' },
   ],
 };
 

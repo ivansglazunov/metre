@@ -18,9 +18,7 @@ import { IViews } from '.';
 import { Nodes } from '../../../api/collections/index';
 import { IPosition } from '../../../api/nested-sets/index';
 
-import ViewString from './views/value/string';
-import ViewNS from './views/value/ns';
-import ViewFormula from './views/value/formula';
+import * as views from './views/value';
 
 export const getters = [
   'path',
@@ -31,6 +29,8 @@ export const types = [
   'string',
   'ns',
   'formula',
+  'values',
+  'strings',
 ];
 
 export const Views: IViews = {
@@ -42,17 +42,11 @@ export const Views: IViews = {
     else if (column.getter === 'formula') value = mathEval(column.value, data).result;
     else return null;
 
-    if (column.type === 'string' || !column.type) {
-      return <ViewString value={value} data={data} column={column} context={context}/>;
+    if (~types.indexOf(column.type) && views[column.type]) {
+      const View = views[column.type];
+      return <View value={value} data={data} column={column} context={context}/>;
     }
 
-    if (column.type === 'ns') {
-      return <ViewNS value={value} data={data} column={column} context={context}/>
-    }
-
-    if (column.type === 'formula') {
-      return <ViewFormula value={value} data={data} column={column} context={context}/>
-    }
     return null;
   },
   columnSizes: (context, column) => ({

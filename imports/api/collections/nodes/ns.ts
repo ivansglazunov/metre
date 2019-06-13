@@ -31,51 +31,6 @@ export const nsHelpers = ({
   ns,
 }) => {
   collection.helpers({
-    __nsChildren({ tree, space, options = { subscribe: false } }: { tree?: string; space?: string; options?: any } = {}): any[] {
-      const $or = [];
-      if (this[ns.field]) for (let p = 0; p < this[ns.field].length; p++) {
-        const pos = this[ns.field][p];
-        if (
-          (typeof(tree) === 'string' && tree === pos.tree) || (typeof(tree) !== 'string')
-          &&
-          (typeof(space) === 'string' && space === pos.space) || (typeof(space) !== 'string')
-        ) {
-          const $elemMatch: any = {};
-          if ((typeof(tree) === 'string' && tree === pos.tree)) {
-            $elemMatch.tree = tree;
-          }
-          if ((typeof(space) === 'string' && space === pos.space)) {
-            $elemMatch.space = space;
-          }
-          $elemMatch.left = { $gt: pos.left };
-          $elemMatch.right = { $lt: pos.right };
-          $or.push({ [ns.field]: { $elemMatch } });
-        }
-      }
-      return collection.find($or.length ? { $or } : { _id: { $exists: false } }, options).fetch();
-    },
-    __nsPositions({ tree, space, root, options }: { tree?: string; space?: string; root?: IPosition; options?: any; } = {}): any[] {
-      const nodes = this.__nsChildren({ tree, space, options });
-      let results = [];
-      for (let n = 0; n < nodes.length; n++) {
-        const node = nodes[n];
-        for (let p = 0; p < node[ns.field].length; p++) {
-          const doc = collection.findOne(node._id, { subscribe: false });
-          const position = doc[ns.field][p];
-          if (
-            (typeof(tree) === 'string' && tree === position.tree) || (typeof(tree) !== 'string')
-            &&
-            (typeof(space) === 'string' && space === position.space) || (typeof(space) !== 'string')
-          ) {
-            doc.___nsUsedFromParentPosition = position;
-            if (root) doc.___nsRootUserPosition = root;
-            results.push(doc);
-          }
-        }
-      }
-      results = _.sortBy(results, n => n.___nsUsedFromParentPosition.left);
-      return results;
-    },
     __nsFind(config: IFindConfig, options: any = { subscribe: false }) {
       const pss = parseDocPositions(config);
       const query = generateFindQuery(pss, { field: 'nesting', ...config, doc: this });
