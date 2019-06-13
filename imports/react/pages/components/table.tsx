@@ -96,7 +96,7 @@ export default () => {
       <Tabs value={view} onChange={(event, value) => setView(value)}>
         {views.map(t => <Tab key={t} value={t} label={t} style={{ minWidth: 0 }}/>)}
       </Tabs>
-      {view === 'table' && <Table />}
+      {view === 'table' && <Table style={{ height: '100vh' }}/>}
       {view === 'graph' && <Graph />}
       {view === 'list' && <List />}
     </Grid>
