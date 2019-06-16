@@ -2,6 +2,5 @@
   "name": "metre",
   "version": "0.0.0",
   "packageName": "metre",
-  "desktopHCP": false,
-  "public": { "server": false }
+  "desktopHCP": false
 }

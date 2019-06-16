@@ -1,65 +1,36 @@
+import { ServerStyleSheets, ThemeProvider } from '@material-ui/styles';
+import * as _ from 'lodash';
 import { Meteor } from 'meteor/meteor';
 import { Random } from 'meteor/random';
-import * as  _ from 'lodash';
-
+import { WebApp } from 'meteor/webapp';
 import * as React from 'react';
 import { renderToString } from 'react-dom/server';
-import { onPageLoad } from 'meteor/server-render';
+import { Helmet } from 'react-helmet';
 import { StaticRouter } from 'react-router';
 
-import { Helmet } from 'react-helmet';  
-
-import { SheetsRegistry } from 'react-jss/lib/jss';
-import JssProvider from 'react-jss/lib/JssProvider';
-import { ServerStyleSheets, ThemeProvider } from '@material-ui/styles';
-
-import { Users, Nodes } from '../imports/api/collections';
-import { wrapCollection } from '../imports/api/collection';
+import { wrapCollection } from '../imports/api/metre/collection';
+import { Nodes, Users } from '../imports/api/collections';
+import Metre from '../imports/api/metre/server';
+import { Routes } from '../imports/react/routes';
 
 Nodes; Users; wrapCollection;
 
-// global.metreServerSubs = [];
-// global.metreServerCalls = {};
+const app = Metre.initExpressAndPassport();
+Metre.initSSR();
+Metre.onPageLoad((sink: any, req, userId) => {
+  const sheets = new ServerStyleSheets();
 
-// const subscribePlaceholderStop = () => {};
-// const subscribePlaceholderReady = () => true;
+  const helmet = Helmet.renderStatic();
+  sink.appendToHead(helmet.meta.toString());
+  sink.appendToHead(helmet.title.toString());
 
-// Meteor.subscribe = (name?, query?, options?, callback?) => {
-//   return {
-//     stop: subscribePlaceholderStop,
-//     ready: subscribePlaceholderReady,
-//     subscriptionId: Random.id(),
-//   };
-// };
+  sink.renderIntoElementById('app', renderToString(
+    sheets.collect(
+      <StaticRouter location={sink.request.url} context={{}}>
+        <Routes userId={userId}/>
+      </StaticRouter>,
+    ),
+  ));
 
-// if (_.get(Meteor, 'settings.public.server', true) !== false) {
-//   const { Routes } = require('../imports/react/routes');
-//   const theme = require('../imports/react/theme');
-//   onPageLoad((sink: any) => {
-//     const sheets = new ServerStyleSheets();
-
-//     const helmet = Helmet.renderStatic();
-//     sink.appendToHead(helmet.meta.toString());
-//     sink.appendToHead(helmet.title.toString());
-
-//     global.metreServerSubs = [];
-//     global.metreServerCalls = {};
-
-//     sink.renderIntoElementById('app', renderToString(
-//       sheets.collect(
-//         <StaticRouter location={sink.request.url} context={{}}>
-//           <ThemeProvider theme={theme}>
-//             <Routes/>
-//           </ThemeProvider>
-//         </StaticRouter>,
-//       ),
-//     ));
-    
-//     // @ts-ignore
-//     InjectData.pushData(sink.request, 'metreServerSubs', { subs: global.metreServerSubs, calls: global.metreServerCalls });
-//     global.metreServerSubs = undefined;
-//     global.metreServerCalls = undefined;
-
-//     sink.appendToHead(`<style>${sheets.toString()}</style>`);
-//   });
-// }
+  sink.appendToHead(`<style>${sheets.toString()}</style>`);
+});

@@ -1,64 +1,28 @@
-import { Meteor } from 'meteor/meteor';
+import { ThemeProvider } from '@material-ui/styles';
 import * as React from 'react';
-import { Switch, Route } from 'react-router';
+import { useContext } from 'react';
+import { Route, Switch } from 'react-router';
 
-import Loadable from 'react-loadable';
-import { getBundles } from 'react-loadable/webpack';
+import MetreProvider, { Context } from '../api/metre/react';
+import theme from './theme';
 
-import Nav from './components/nav';
-import LinearProgress from '@material-ui/core/LinearProgress';
+const NotFound = ({}) => {
+  const { userId } = useContext(Context);
+  return <div>
+    userId: {userId}
+  </div>;
+};
 
-const isP = Meteor.isProduction;
-
-const NotFound = isP ? Loadable({
-  loader: () => import('./pages/not-found'),
-  loading: () => <LinearProgress/>,
-}) : require('./pages/not-found').default;
-const NS = isP ? Loadable({
-  loader: () => import('./pages/ns'),
-  loading: () => <LinearProgress/>,
-}) : require('./pages/ns').default;
-const StateTable = isP ? Loadable({
-  loader: () => import('./pages/state-table'),
-  loading: () => <LinearProgress/>,
-}) : require('./pages/state-table').default;
-const ParamsTable = isP ? Loadable({
-  loader: () => import('./pages/params-table'),
-  loading: () => <LinearProgress/>,
-}) : require('./pages/params-table').default;
-const PropsTable = isP ? Loadable({
-  loader: () => import('./pages/props-table'),
-  loading: () => <LinearProgress/>,
-}) : require('./pages/props-table').default;
-const Math = isP ? Loadable({
-  loader: () => import('./pages/math'),
-  loading: () => <LinearProgress/>,
-}) : require('./pages/math').default;
-const FS = isP ? Loadable({
-  loader: () => import('./pages/fs'),
-  loading: () => <LinearProgress/>,
-}) : require('./pages/fs').default;
-const User = isP ? Loadable({
-  loader: () => import('./pages/user'),
-  loading: () => <LinearProgress/>,
-}) : require('./pages/user').default;
-
-// TODO review title and favicon
-
-export class Routes extends React.Component {
+export class Routes extends React.Component<any, any> {
   render() {
-    return <React.Fragment>
-      <Nav/>
-      <Switch>
-        <Route path='/ns' component={NS} />
-        <Route path='/state-table' component={StateTable} />
-        <Route path='/params-table' component={ParamsTable} />
-        <Route path='/props-table' component={PropsTable} />
-        <Route path='/math' component={Math} />
-        <Route path='/fs' component={FS} />
-        <Route path='/user' component={User} />
-        <Route component={NotFound} />
-      </Switch>
-    </React.Fragment>;
+    const { userId } = this.props;
+
+    return <MetreProvider userId={userId}>
+      <ThemeProvider theme={theme}>
+        <Switch>
+          <Route component={NotFound} />
+        </Switch>
+      </ThemeProvider>
+    </MetreProvider>;
   }
 }

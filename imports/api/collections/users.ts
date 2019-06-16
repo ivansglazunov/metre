@@ -3,7 +3,7 @@ import { Mongo } from 'meteor/mongo';
 
 import SimpleSchema from 'simpl-schema';
 
-import { wrapCollection } from '../collection';
+import { wrapCollection } from '../metre/collection';
 
 // Interface
 export interface IUser extends Meteor.User {}

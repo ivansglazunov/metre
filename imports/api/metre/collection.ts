@@ -7,6 +7,9 @@ const debug = Debug('metre:collection');
 
 export const defaultCursorReady = () => true;
 
+/**
+ * Adds subscription and method ready to cursor. Add support for metre ssr.
+ */
 export const wrapCursor = (collection, cursor) => {
   debug(`${collection._name} wrapCursor`, cursor);
   const { forEach, map, fetch, count } = cursor;
@@ -47,6 +50,9 @@ export const wrapCursor = (collection, cursor) => {
 
 export const isCursor = ({ fetch, forEach, map, count }: any) => !!(fetch && forEach && map && count);
 
+/**
+ * Add subscription to each fechable methods. Wrap each cursor. Provide autopublish for results, count and ids by query.
+ */
 export const wrapCollection = (collection) => {
   debug(`wrapCollection ${collection._name}`, collection);
   const { find, findOne, update } = collection;

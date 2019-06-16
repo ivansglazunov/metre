@@ -10,7 +10,7 @@ import { FilesCollection } from 'meteor/ostrio:files';
 import SimpleSchema from 'simpl-schema';
 import * as  _ from 'lodash';
 
-import { wrapCollection } from '../collection';
+import { wrapCollection } from '../metre/collection';
 import { TPositions, NestedSets } from '../nested-sets';
 
 export interface IFile {

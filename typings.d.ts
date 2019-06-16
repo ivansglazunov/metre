@@ -7,6 +7,8 @@ declare var Picker: any;
 declare module NodeJS {
   interface Global {
     metreServerSubs: any;
+    metreServerCalls: any;
+    Metre: any;
   }
 }
 
@@ -17,6 +19,12 @@ declare module "meteor/meteor" {
   }
   interface Subscription {
     autorun: any;
+  }
+}
+
+declare module "meteor/webapp" {
+  module WebApp {
+    export var categorizeRequest: any;
   }
 }
 
@@ -35,7 +43,11 @@ declare module "meteor/mongo" {
 
 declare module "meteor/accounts-base" {
   module Accounts {
-    var _hooksLogin: any[];
-    var _hooksLogout: any[];
+    export var _hooksLogin: any[];
+    export var _hooksLogout: any[];
+    export var _generateStampedLoginToken: () => any;
+    export var _insertLoginToken: (userId, token) => any;
+    export var _bcryptRounds: () => any;
+    export var _hashLoginToken: (token) => any;
   }
 }
