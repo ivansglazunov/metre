@@ -22,7 +22,7 @@ export default ({
   return <Grid
     container
     direction="row"
-    justify="center"
+    justify="flex-start"
     alignItems="flex-start"
     style={{ height: '100%', width: '100%', textAlign: 'center' }}
   >
@@ -32,7 +32,7 @@ export default ({
       </Grid>
     </Hidden>
     <Grid item xs={12} sm={3} style={{ overflow: 'auto', height: '100%' }}>
-      <Hidden xsDown><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
+      <Hidden xsUp><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
       <TriesMenu/>
     </Grid>
   </Grid>;

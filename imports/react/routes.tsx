@@ -22,7 +22,7 @@ const NotFound = ({}) => {
   return <Grid
     container
     direction="row"
-    justify="center"
+    justify="flex-start"
     alignItems="center"
     style={{ height: '100%', width: '100%', textAlign: 'center' }}
   >

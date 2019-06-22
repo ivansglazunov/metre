@@ -24,17 +24,17 @@ export default ({
   return <Grid
     container
     direction="row"
-    justify="center"
+    justify="flex-start"
     alignItems="flex-start"
     style={{ height: '100%', width: '100%', textAlign: 'center' }}
   >
     <Hidden xsDown>
-      <Grid item xs={12} sm={3} style={{ overflow: 'auto', height: '100%' }}>
+      <Grid item xs={12} sm={4} md={3} style={{ overflow: 'auto', height: '100%' }}>
         <Menu tab={'profile'}/>
       </Grid>
     </Hidden>
-    <Grid item xs={12} sm={9} style={{ overflow: 'auto', height: '100%' }}>
-      <Hidden xsDown><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
+    <Grid item xs={12} sm={8} md={9} style={{ overflow: 'auto', height: '100%' }}>
+      <Hidden xsUp><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
       <UserMenu userId={userId}/>
     </Grid>
   </Grid>;
