@@ -32,16 +32,19 @@ export default ({
     alignItems="flex-start"
     style={{ height: '100%', width: '100%', textAlign: 'center' }}
   >
-    <Hidden xsUp>
+    <Hidden only={['xs', 'sm']}>
       <Grid item xs={3} style={{ overflow: 'auto', height: '100%' }}>
         <Menu tab={'tries'}/>
       </Grid>
-      <Grid item xs={3} style={{ overflow: 'auto', height: '100%' }}>
+    </Hidden>
+    <Hidden only={['xs']}>
+      <Grid item sm={5} md={3} style={{ overflow: 'auto', height: '100%' }}>
+        <Hidden only={['md', 'lg']}><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
         <TriesMenu tryId={tryId}/>
       </Grid>
     </Hidden>
-    <Grid item xs={12} sm={6} style={{ overflow: 'auto', height: '100%' }}>
-      <Hidden xsUp><List dense><ListItem button component={Link} to="/tries"><ChevronLeft/></ListItem></List></Hidden>
+    <Grid item xs={12} sm={7} md={6} style={{ overflow: 'auto', height: '100%' }}>
+      <Hidden only={['sm', 'md', 'lg']}><List dense><ListItem button component={Link} to="/tries"><ChevronLeft/></ListItem></List></Hidden>
       <Tri tryId={tryId}/>
     </Grid>
   </Grid>;

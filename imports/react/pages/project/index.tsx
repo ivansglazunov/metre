@@ -28,20 +28,23 @@ export default ({
   return <Grid
     container
     direction="row"
-    justify="center"
+    justify="flex-start"
     alignItems="flex-start"
     style={{ height: '100%', width: '100%', textAlign: 'center' }}
   >
-    <Hidden xsDown>
-      <Grid item sm={3} style={{ overflow: 'auto', height: '100%' }}>
+    <Hidden only={['xs','sm']}>
+      <Grid item md={3} style={{ overflow: 'auto', height: '100%' }}>
         <Menu tab={'projects'}/>
       </Grid>
-      <Grid item sm={3} style={{ overflow: 'auto', height: '100%' }}>
+    </Hidden>
+    <Hidden only={['xs']}>
+      <Grid item sm={5} md={3} style={{ overflow: 'auto', height: '100%' }}>
+        <Hidden only={['md', 'lg']}><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
         <ProjectsMenu userId={userId} projectId={projectId}/>
       </Grid>
     </Hidden>
-    <Grid item xs={12} sm={6} style={{ overflow: 'auto', height: '100%' }}>
-      <Hidden xsUp><List dense><ListItem button component={Link} to="/projects"><ChevronLeft/></ListItem></List></Hidden>
+    <Grid item xs={12} sm={7} md={6} style={{ overflow: 'auto', height: '100%' }}>
+      <Hidden only={['sm', 'md', 'lg']}><List dense><ListItem button component={Link} to="/projects"><ChevronLeft/></ListItem></List></Hidden>
       <Project projectId={projectId}/>
     </Grid>
   </Grid>;

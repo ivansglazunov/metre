@@ -28,13 +28,13 @@ export default ({
     alignItems="flex-start"
     style={{ height: '100%', width: '100%', textAlign: 'center' }}
   >
-    <Hidden xsDown>
+    <Hidden only="xs">
       <Grid item xs={12} sm={4} md={3} style={{ overflow: 'auto', height: '100%' }}>
         <Menu tab={'profile'}/>
       </Grid>
     </Hidden>
     <Grid item xs={12} sm={8} md={9} style={{ overflow: 'auto', height: '100%' }}>
-      <Hidden xsUp><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
+      <Hidden only={['sm', 'md', 'lg']}><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
       <UserMenu userId={userId}/>
     </Grid>
   </Grid>;
