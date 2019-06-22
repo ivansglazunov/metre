@@ -97,9 +97,18 @@ export const setRoles = (userId, roles: any[], group = Roles.GLOBAL_GROUP) => {
 
 // Publish
 Users.publish(function(query, options) {
-  return Users._find(query, { fields: {
-    username: 1, roles: 1,
-  } });
+  // @ts-ignore
+  const user = Meteor.users._findOne(this.userId);
+
+  if (isInRole(user, 'admin') || isInRole(user, 'manager')) {
+    return Users._find(query, { fields: {
+      username: 1, roles: 1,
+    } });
+  } else {
+    return Users._find({ _id: this.userId || null }, { fields: {
+      username: 1, roles: 1,
+    } });
+  }
 });
 
 // Server
