@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import * as  _ from 'lodash';
 import * as Debug from 'debug';
+import { Metre } from './metre';
 
 const debug = Debug('metre:collection');
 
@@ -55,73 +56,84 @@ export const isCursor = ({ fetch, forEach, map, count }: any) => !!(fetch && for
  */
 export const wrapCollection = (collection) => {
   debug(`wrapCollection ${collection._name}`, collection);
-  const { find, findOne, update } = collection;
-  collection.find = function(query: any = {}, options: any = {}) {
-    debug(`${collection._name}.find`);
-    const cursor = find.call(collection, query, options);
-    if (Meteor.subscribe && (!options || !options.subscribe) && this._name) {
-      cursor.sub = Meteor.subscribe(this._name, query, options);
-    }
-    return wrapCursor(collection, cursor);
-  }
-  collection.findOne = function(query: any = {}, options: any = {}) {
-    debug(`${collection._name}.findOne`);
-    const result = findOne.call(collection, query, options);
-    if (Meteor.subscribe && (!options || !options.subscribe) && this._name) {
-      Meteor.subscribe(this._name, query, { ...options, limit: 1 });
-    }
-    return result;
-  }
+  const { find, findOne } = collection;
   collection.publish = (method) => {
-    Meteor.publish(collection._name, function(query, options) {
-      debug(`${collection._name}.publish`);
-      this.autorun(function() {
-        debug(`${collection._name}.publish autorun`);
-        return method.call(this, query, options);
+    if (collection.__published) throw new Error('This collection already published!');
+    collection.__published = true;
+    collection._find = find;
+    collection.find = function(query: any = {}, options: any = {}) {
+      debug(`${collection._name}.find`, query, options);
+      const cursor = 
+      Meteor.isClient || !Metre.__serverRender
+      ? find.call(collection, query, options)
+      : method.call({ userId: Metre.userId }, query, options)
+      if (Meteor.subscribe && (!options || !options.subscribe) && this._name) {
+        cursor.sub = Meteor.subscribe(this._name, query, options);
+      }
+      return wrapCursor(collection, cursor);
+    }
+    collection._findOne = findOne;
+    collection.findOne = function(query: any = {}, options: any = {}) {
+      debug(`${collection._name}.findOne`, query, options);
+      const result = Meteor.isClient || !Metre.__serverRender
+        ? findOne.call(collection, query, options)
+        : method.call({ userId: Metre.userId }, query, options).fetch()[0];
+      if (Meteor.subscribe && (!options || !options.subscribe) && this._name) {
+        Meteor.subscribe(this._name, query, { ...options, limit: 1 });
+      }
+      return result;
+    }
+    if (Meteor.isServer) {
+      Meteor.publish(collection._name, function(query: any = {}, options: any = {}) {
+        debug(`${collection._name}.publish`, query, options);
+        this.autorun(function() {
+          debug(`${collection._name}.publish autorun`);
+          return method.call(this, query, options);
+        });
       });
-    });
-    Meteor.methods({
-      [`${collection._name}.count`](query, options) {
-        debug(`${collection._name}.count start`);
-        const result = method.call(this, query, options);
-        if (_.isArray(result)) return result.length;
-        else if (_.isObject(result)) {
-          if (isCursor(result)) {
-            // @ts-ignore
-            return result.count();
-          } else {
-            return 1;
+      Meteor.methods({
+        [`${collection._name}.count`](query: any = {}, options: any = {}) {
+          debug(`${collection._name}.count start`, query, options);
+          const result = method.call(this, query, options);
+          if (_.isArray(result)) return result.length;
+          else if (_.isObject(result)) {
+            if (isCursor(result)) {
+              // @ts-ignore
+              return result.count();
+            } else {
+              return 1;
+            }
           }
-        }
-      },
-      [`${collection._name}.fetch`](query, options) {
-        debug(`${collection._name}.fetch start`);
-        const result = method.call(this, query, options);
-        if (_.isArray(result)) return result;
-        else if (_.isObject(result)) {
-          if (isCursor(result)) {
-            // @ts-ignore
-            return result.fetch();
-          } else {
-            return [result];
+        },
+        [`${collection._name}.fetch`](query: any = {}, options: any = {}) {
+          debug(`${collection._name}.fetch start`, query, options);
+          const result = method.call(this, query, options);
+          if (_.isArray(result)) return result;
+          else if (_.isObject(result)) {
+            if (isCursor(result)) {
+              // @ts-ignore
+              return result.fetch();
+            } else {
+              return [result];
+            }
           }
-        }
-      },
-      [`${collection._name}.ids`](query, options) {
-        debug(`${collection._name}.ids start`);
-        const result = method.call(this, query, { ...options, fields: { _id: 1 } });
-        if (_.isArray(result)) return result.map(d => d._id);
-        else if (_.isObject(result)) {
-          if (isCursor(result)) {
-            // @ts-ignore
-            return result.map(d => d._id);
-          } else {
-            // @ts-ignore
-            return [result._id];
+        },
+        [`${collection._name}.ids`](query: any = {}, options: any = {}) {
+          debug(`${collection._name}.ids start`, query, options);
+          const result = method.call(this, query, { ...options, fields: { _id: 1 } });
+          if (_.isArray(result)) return result.map(d => d._id);
+          else if (_.isObject(result)) {
+            if (isCursor(result)) {
+              // @ts-ignore
+              return result.map(d => d._id);
+            } else {
+              // @ts-ignore
+              return [result._id];
+            }
           }
-        }
-      },
-    });
+        },
+      });
+    }
   };
   return collection;
 };

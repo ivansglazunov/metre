@@ -36,3 +36,5 @@ tmeasday:check-npm-versions
 ostrio:files
 meteorhacks:picker
 dburles:mongo-collection-instances
+gadicc:blaze-react-component
+alanning:roles

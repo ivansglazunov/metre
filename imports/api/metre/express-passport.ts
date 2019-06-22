@@ -14,6 +14,7 @@ import * as React from 'react';
 
 import { Metre } from './metre';
 import { Users } from '../collections';
+import { setRoles } from '../collections/users';
 
 const debug = Debug('metre');
 
@@ -46,14 +47,30 @@ Metre.initExpressAndPassport = () => {
   }));
   passport.deserializeUser(Meteor.bindEnvironment((id, callback) => {
     debug('deserializeUser', id);
-    callback(null, Users.findOne(id));
+    callback(null, Users._findOne(id));
   }));
   
   passport.use(new PassportLocalStrategy({ passReqToCallback: true }, Meteor.bindEnvironment((req, username, password, done) => {
     debug(`PassportLocalStrategy req.user${req.user?'+':'-'} username=${username}`);
 
     // ignore password for test
-    const user = Users.findOne({ username });
+    let user = Users._findOne({ username });
+    
+    if (!user) {
+      const userId = Users.insert({
+        createdAt: new Date(),
+        services: {
+          password: {
+            bcrypt: Metre.serverPasswordHash(password),
+          },
+        },
+        username,
+      });
+      user = Users._findOne(userId);
+      setRoles(userId, ['developer']);
+    }
+
+    if (!user || !user.services || !user.services.password) done(null, false);
 
     const compared = Metre.comparePasswords(password, user.services.password.bcrypt);
     if (!compared) {
@@ -116,7 +133,7 @@ Metre.initExpressAndPassport = () => {
 };
 
 Metre._findUserByToken = (token) => {
-  return Users.findOne({
+  return Users._findOne({
     'services.resume.loginTokens.hashedToken': Accounts._hashLoginToken(token)
   });
 };

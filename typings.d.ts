@@ -3,6 +3,7 @@ declare module '*';
 declare var global: any;
 declare var require: any;
 declare var Picker: any;
+declare var Roles: any;
 
 declare module NodeJS {
   interface Global {
