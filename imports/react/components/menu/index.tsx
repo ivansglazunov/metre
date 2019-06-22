@@ -13,13 +13,16 @@ export const LoginForm = () => {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
+  const [disabled, setDisabled] = useState(false);
 
   const onLogin = async () => {
+    setDisabled(true);
     setError(false);
     try {
       await Metre.loginWidthUsernameAndPassword(login, password);
     } catch(error) {
       setError(true);
+      setDisabled(false);
     }
   };
 
@@ -27,6 +30,7 @@ export const LoginForm = () => {
     <Field
       label="login"
       value={login}
+      disabled={disabled}
       error={error}
       onChange={e => setLogin(e.target.value)}
       onKeyPress={e => {
@@ -36,6 +40,7 @@ export const LoginForm = () => {
     <Field
       label="password"
       value={password}
+      disabled={disabled}
       error={error}
       onChange={e => setPassword(e.target.value)}
       onKeyPress={e => {
@@ -44,6 +49,7 @@ export const LoginForm = () => {
     />
     <Button
       fullWidth
+      disabled={disabled}
       onClick={() => onLogin()}
     >
       Login OR Create
