@@ -15,6 +15,8 @@ import { Link } from 'react-router-dom';
 import { Field } from '../field';
 import TriesMenu from '../tries';
 import Test from '../test';
+import { isInRole } from '../../../api/collections/users';
+import Chart from './chart';
 
 export default withTracker<any, any>(({
   projectId,
@@ -39,6 +41,7 @@ export default withTracker<any, any>(({
     <Tabs value={tab} centered onChange={(event, tab) => setTab(tab)}>
       <Tab value='project' label='Project' style={{ minWidth: 0 }}/>
       <Tab value='tries' label='Tries' style={{ minWidth: 0 }}/>
+      <Tab value='chart' label='Chart' style={{ minWidth: 0 }}/>
       <Tab value='try' label='Try' style={{ minWidth: 0 }}/>
     </Tabs>
     {tab === 'project' && <div
@@ -133,6 +136,7 @@ export default withTracker<any, any>(({
       </div>
     </div>}
     {tab === 'tries' && <TriesMenu query={{ projectId: project._id }}/>}
+    {tab === 'chart' && <Chart projectId={projectId}/>}
     {tab === 'try' && <Test projectId={projectId}/>}
   </>;
 });
