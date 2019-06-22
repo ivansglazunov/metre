@@ -55,37 +55,39 @@ export class Field extends React.Component<any, any, any> {
     const { style, onValidate, error, allowInvalidValue, ...props } = this.props;
     const { value, invalid } = this.state;
 
-    return <TextField
-      {...props}
-      onChange={this.handleChange}
-      onFocus={this.handleFocus}
-      onBlur={this.handleBlur}
-      value={value || ''}
-      error={invalid || error}
-      style={{margin: 0, ...style}}
-      margin="normal"
-      variant="outlined"
-      InputLabelProps={{
-        shrink: true,
-      }}
-      inputProps={{
-        ...(props.inputProps || {}),
-        style: {
-          padding: 3,
-          ...((props.inputProps && props.inputProps.style) || {}),
-        },
-      }}
-      SelectProps={{
-        ...(props.SelectProps || {}),
-        SelectDisplayProps: {
-          ...((props.SelectProps && props.SelectDisplayProps) || {}),
+    return <div style={{ padding: '12px 0' }}>
+      <TextField
+        {...props}
+        onChange={this.handleChange}
+        onFocus={this.handleFocus}
+        onBlur={this.handleBlur}
+        value={value || ''}
+        error={invalid || error}
+        style={{margin: 0, ...style}}
+        margin="normal"
+        variant="outlined"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        inputProps={{
+          ...(props.inputProps || {}),
           style: {
             padding: 3,
-            ...((props.SelectProps && props.SelectDisplayProps && props.SelectDisplayProps.style) || {}),
+            ...((props.inputProps && props.inputProps.style) || {}),
           },
-        },
-      }}
-      fullWidth
-    />;
+        }}
+        SelectProps={{
+          ...(props.SelectProps || {}),
+          SelectDisplayProps: {
+            ...((props.SelectProps && props.SelectDisplayProps) || {}),
+            style: {
+              padding: 3,
+              ...((props.SelectProps && props.SelectDisplayProps && props.SelectDisplayProps.style) || {}),
+            },
+          },
+        }}
+        fullWidth
+      />
+    </div>;
   }
 };
