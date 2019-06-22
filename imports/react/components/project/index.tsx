@@ -86,7 +86,11 @@ export default withTracker<any, any>(({
               return false;
             }
           }}
-          onChange={e => Projects.update(project._id, { $set: { schema: JSON.parse(e.target.value) } })}
+          onChange={e => {
+            try {
+              Projects.update(project._id, { $set: { schema: JSON.parse(e.target.value) } })
+            } catch(error) {}
+          }}
         />
       </div>
       <div>
@@ -104,7 +108,11 @@ export default withTracker<any, any>(({
               return false;
             }
           }}
-          onChange={e => Projects.update(project._id, { $set: { input: JSON.parse(e.target.value) } })}
+          onChange={e => {
+            try {
+              Projects.update(project._id, { $set: { input: JSON.parse(e.target.value) } })
+            } catch(error) {}
+          }}
         />
       </div>
       <div>

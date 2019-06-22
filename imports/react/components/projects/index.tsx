@@ -99,8 +99,8 @@ const ProjectsCore = withRouter<any>(({
     {!hideTabs && <Tabs centered value={tab} onChange={(event, tab) => setTab(tab)}>
       {isInRole(user, 'admin') && <Tab value="all" label="All" style={{ minWidth: 0 }}/>}
       <Tab value="available" label="Available" style={{ minWidth: 0 }}/>
-      {isInRole(user, 'owner') && <Tab value="owned" label="Owned" style={{ minWidth: 0 }}/>}
-      {isInRole(user, 'owner') && <Tab label="+" style={{ minWidth: 0 }} onClick={() => {
+      {(isInRole(user, 'owner') || isInRole(user, 'admin')) && <Tab value="owned" label="Owned" style={{ minWidth: 0 }}/>}
+      {(isInRole(user, 'owner') || isInRole(user, 'admin')) && <Tab label="+" style={{ minWidth: 0 }} onClick={() => {
         const projectId = Projects.insert({
           title: 'New project',
           schema: {
@@ -110,10 +110,10 @@ const ProjectsCore = withRouter<any>(({
                 "type": "number",
               }
             },
-            "input": {
-              "data": 123
-            }
-          }
+          },
+          input: {
+            "data": 123
+          },
         });
         setTab('owned');
         history.push(`/project/${projectId}`);

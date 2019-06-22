@@ -62,7 +62,7 @@ export class Field extends React.Component<any, any, any> {
       onBlur={this.handleBlur}
       value={value || ''}
       error={invalid || error}
-      style={{margin: 0, padding: '12px 0', ...style}}
+      style={{margin: 0, ...style}}
       margin="normal"
       variant="outlined"
       InputLabelProps={{
