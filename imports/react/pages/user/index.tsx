@@ -1,4 +1,4 @@
-import { Button, Paper, Grid, List, ListItem, ListItemText } from '@material-ui/core';
+import { Button, Paper, Grid, List, ListItem, ListItemText, Hidden } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { withTracker } from 'meteor/react-meteor-data';
 import * as React from 'react';
@@ -15,6 +15,7 @@ import UsersMenu from '../../components/users';
 import UserMenu from '../../components/user';
 import Tri from '../../components/try';
 import { useMetre } from '../../../api/metre/react';
+import { ChevronLeft } from '@material-ui/icons';
 
 export default ({
   match: {
@@ -32,13 +33,16 @@ export default ({
     alignItems="flex-start"
     style={{ height: '100%', width: '100%', textAlign: 'center' }}
   >
-    <Grid item xs={3} style={{ overflow: 'auto', height: '100%' }}>
-      <Menu tab={'users'}/>
-    </Grid>
-    <Grid item xs={3} style={{ overflow: 'auto', height: '100%' }}>
-      <UsersMenu userId={userId}/>
-    </Grid>
-    <Grid item xs={6} style={{ overflow: 'auto', height: '100%' }}>
+    <Hidden xsUp>
+      <Grid item xs={3} style={{ overflow: 'auto', height: '100%' }}>
+        <Menu tab={'users'}/>
+      </Grid>
+      <Grid item xs={3} style={{ overflow: 'auto', height: '100%' }}>
+        <UsersMenu userId={userId}/>
+      </Grid>
+    </Hidden>
+    <Grid item xs={12} sm={6} style={{ overflow: 'auto', height: '100%' }}>
+      <Hidden xsDown><List dense><ListItem button component={Link} to="/users"><ChevronLeft/></ListItem></List></Hidden>
       <UserMenu userId={userId}/>
     </Grid>
   </Grid>;
