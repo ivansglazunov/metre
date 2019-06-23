@@ -53,10 +53,10 @@ export default withTracker<any, any>(({
           </ListItemSecondaryAction>
         </ListItem>
         <ListItem button divider
-          disabled={isInRole(user, 'manager')}
-          onClick={() => setRoles(userId, ['manager'])}
+          disabled={isInRole(user, 'owner')}
+          onClick={() => setRoles(userId, ['owner'])}
         >
-          Manager
+          Owner
           <ListItemSecondaryAction>
             <Work/>
           </ListItemSecondaryAction>
@@ -72,8 +72,8 @@ export default withTracker<any, any>(({
         </ListItem>
       </>
       : <>
-        {isInRole(user, 'manager') && <ListItem divider disabled>
-          Manager
+        {isInRole(user, 'owner') && <ListItem divider disabled>
+          Owner
           <ListItemSecondaryAction>
             <Work/>
           </ListItemSecondaryAction>

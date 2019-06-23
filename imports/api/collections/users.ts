@@ -100,7 +100,7 @@ Users.publish(function(query, options) {
   // @ts-ignore
   const user = Meteor.users._findOne(this.userId);
 
-  if (isInRole(user, 'admin') || isInRole(user, 'manager')) {
+  if (isInRole(user, 'admin') || isInRole(user, 'owner')) {
     return Users._find(query, { fields: {
       username: 1, roles: 1,
     } });

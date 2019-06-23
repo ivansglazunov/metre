@@ -81,7 +81,7 @@ export const Page = withTracker<any, any>(({
         <ListItem divider component={Link} to={`/profile`} selected={tab === "profile"}>
           <ListItemText primary="Profile"/>
         </ListItem>
-        {(isInRole(user, 'admin') || isInRole(user, 'manager')) &&
+        {(isInRole(user, 'admin') || isInRole(user, 'owner')) &&
           <ListItem divider component={Link} to="/users" selected={tab === "users"}>
             <ListItemText primary="Users"/>
           </ListItem>

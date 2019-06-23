@@ -53,7 +53,7 @@ const Component = ({
           {
             isInRole(user, 'admin')
             ? <AllInclusive/>
-            : isInRole(user, 'manager')
+            : isInRole(user, 'owner')
             ? <Work/>
             : isInRole(user, 'developer')
             ? <Keyboard/>
