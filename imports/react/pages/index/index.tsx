@@ -24,7 +24,7 @@ export default withTracker<any, any>(({ metre, match,userId }) => {
     alignItems="center"
     style={{ height: '100%', width: '100%', textAlign: 'center' }}
   >
-    <Grid item xs={12} sm={8} md={6} lg={4} style={{ overflow: 'auto', height: '100%' }}>
+    <Grid item xs={12} sm={8} md={6} lg={4} style={{ overflowX: 'hidden', overflowY: 'scroll', height: '100%' }}>
       <Menu tab={''}/>
     </Grid>
   </Grid>;

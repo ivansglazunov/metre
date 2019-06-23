@@ -7,7 +7,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { Meteor } from 'meteor/meteor';
 
-import { Projects, Tries } from '../../../api/collections';
+import { Users, Projects, Tries } from '../../../api/collections';
 import Menu from '../menu';
 import { Load } from '../load';
 import ReactTable from 'react-table';
@@ -20,16 +20,20 @@ import Chart from './chart';
 
 export default withTracker<any, any>(({
   projectId,
+  userId,
 }) => {
-  const ps = Projects.find({ _id: projectId });
+  const uc = Users.find({ _id: userId });
+  const pc = Projects.find({ _id: projectId });
   return {
     projectId,
-    loading: !ps.ready(),
-    project: ps.fetch()[0],
+    loading: !pc.ready() || !uc.ready(),
+    project: pc.fetch()[0],
+    user: uc.fetch()[0],
   };
 })(({
   projectId,
   project,
+  user,
   loading,
 }) => {
   const [tab, setTab] = useState('project');
@@ -59,6 +63,7 @@ export default withTracker<any, any>(({
           label="title"
           variant="outlined"
           value={project.title}
+          disabled={!(isInRole(user, 'admin') || isInRole(user, 'owner'))}
           onChange={e => Projects.update(project._id, { $set: { title: e.target.value } })}
         />
       </div>
@@ -68,6 +73,7 @@ export default withTracker<any, any>(({
           variant="outlined"
           multiline
           value={project.description}
+          disabled={!(isInRole(user, 'admin') || isInRole(user, 'owner'))}
           onChange={e => Projects.update(project._id, { $set: { description: e.target.value } })}
         />
       </div>
@@ -80,6 +86,7 @@ export default withTracker<any, any>(({
           variant="outlined"
           multiline
           value={JSON.stringify(project.schema, null, 2)}
+          disabled={!(isInRole(user, 'admin') || isInRole(user, 'owner'))}
           allowInvalidValue={true}
           onValidate={e => {
             try {
@@ -102,6 +109,7 @@ export default withTracker<any, any>(({
           variant="outlined"
           multiline
           value={JSON.stringify(project.input, null, 2)}
+          disabled={!(isInRole(user, 'admin') || isInRole(user, 'owner'))}
           allowInvalidValue={true}
           onValidate={e => {
             try {
@@ -123,6 +131,7 @@ export default withTracker<any, any>(({
           control={
             <Checkbox
               checked={project.status}
+              disabled={!(isInRole(user, 'admin') || isInRole(user, 'owner'))}
               onChange={e => Projects.update(project._id, { $set: { status: !project.status } })}
             />
           }

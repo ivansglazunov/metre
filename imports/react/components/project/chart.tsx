@@ -1,45 +1,57 @@
 import * as React from 'react';
 import {
-  ResponsiveContainer, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip
+  ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Tries } from '../../../api/collections';
+import { Tries, Projects } from '../../../api/collections';
 import ReactResizeDetector from 'react-resize-detector';
+import * as generateColor from 'string-to-color';
 
 export default withTracker<any, any>((props) => {
   const projectId = props.projectId;
 
-  const sc = Tries.find({ projectId, errors: { $exists: true, $size: 0 } }, { sort: { createdTime: 1 } });
-  const fc = Tries.find({ projectId, errors: { $exists: true, $not: {$size: 0} } }, { sort: { createdTime: 1 } });
+  const project = Projects.findOne(projectId);
+  const tc = Tries.find({ projectId, errors: { $exists: true } }, { sort: { createdTime: 1 } });
+  
+  const startTime = (project && project.createdTime) || 0
 
-  const success = sc.map(t => ({ x: t.userId, y: t.speed }));
-  const fail = fc.map(t => ({ x: t.userId, y: t.speed }));
-  const loading = !sc.ready() || !fc.ready();
+  const byUserId: any = {};
+  tc.forEach(tr => {
+    if (!byUserId[tr.userId]) byUserId[tr.userId] = {
+      name: tr.userId,
+      data: [
+        { createdTime: tr.createdTime - startTime, speed: tr.speed },
+      ],
+    };
+    else byUserId[tr.userId].data.push({ createdTime: tr.createdTime - startTime, speed: tr.speed })
+  });
+
+  const series: any[] = [];
+  for (let id in byUserId) {
+    series.push(byUserId[id]);
+  }
+  console.log(byUserId, series);
+
+  const loading = !tc.ready();
 
   return {
     ...props,
     loading,
-    success,
-    fail,
+    series,
   };
 })(({
-  success,
-  fail,
+  series,
 }) => {
-  return <ResponsiveContainer width={'100%'} height="100%">
-    <ScatterChart
-      width={400}
-      height={400}
-      margin={{
-        top: 20, right: 20, bottom: 20, left: 40,
-      }}
-      >
-      <CartesianGrid />
-      <XAxis dataKey="x" name="user" />
-      <YAxis dataKey="y" name="speed" unit="ms" />
-      <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-      <Scatter name="success" data={success} fill="#008000" />
-      <Scatter name="fail" data={fail} fill="#ff0000" />
-    </ScatterChart>;
-  </ResponsiveContainer>
+  return <ResponsiveContainer width={'98%'} height="80%">
+    <LineChart>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="speed" type="number"/>
+      <YAxis dataKey="createdTime" type="number"/>
+      <Tooltip />
+      <Legend />
+      {series.map(s => (
+        <Line dataKey="createdTime" data={s.data} name={s.name} key={s.name} stroke={generateColor(s.name)}/>
+      ))}
+    </LineChart>
+  </ResponsiveContainer>;
 });
