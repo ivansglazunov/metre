@@ -15,6 +15,7 @@ import TriesMenu from '../../components/tries';
 import Tri from '../../components/try';
 import { useMetre } from '../../../api/metre/react';
 import { ChevronLeft } from '@material-ui/icons';
+import { GridContainer } from '../../components/grid-container';
 
 export default ({
   match: {
@@ -25,27 +26,38 @@ export default ({
 }) => {
   const { userId } = useMetre();
 
-  return <Grid
-    container
-    direction="row"
-    justify="flex-start"
-    alignItems="flex-start"
-    style={{ height: '100%', width: '100%', textAlign: 'center' }}
-  >
-    <Hidden implementation="css" only={['xs', 'sm']}>
-      <Grid item xs={3} style={{ overflowX: 'hidden', overflowY: 'scroll', height: '100%' }}>
-        <Menu tab={'tries'}/>
-      </Grid>
-    </Hidden>
-    <Hidden implementation="css" only={['xs']}>
-      <Grid item sm={5} md={3} style={{ overflowX: 'hidden', overflowY: 'scroll', height: '100%' }}>
-        <Hidden implementation="css" only={['md', 'lg']}><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
-        <TriesMenu tryId={tryId}/>
-      </Grid>
-    </Hidden>
-    <Grid item xs={12} sm={7} md={6} style={{ overflowX: 'hidden', overflowY: 'scroll', height: '100%' }}>
-      <Hidden implementation="css" only={['sm', 'md', 'lg']}><List dense><ListItem button component={Link} to="/tries"><ChevronLeft/></ListItem></List></Hidden>
-      <Tri tryId={tryId}/>
-    </Grid>
+  const c0 = <Grid item xs={3} style={{ overflowX: 'hidden', overflowY: 'scroll', height: '100%' }}>
+    <Menu tab={'tries'}/>
   </Grid>;
+
+  const c1 = <Grid item sm={5} md={3} style={{ overflowX: 'hidden', overflowY: 'scroll', height: '100%' }}>
+    <Hidden implementation="css" only={['md', 'lg']}><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
+    <TriesMenu tryId={tryId}/>
+  </Grid>;
+
+  const c2 = <Grid item xs={12} sm={7} md={6} style={{ overflowX: 'hidden', overflowY: 'scroll', height: '100%' }}>
+    <Hidden implementation="css" only={['sm', 'md', 'lg']}><List dense><ListItem button component={Link} to="/tries"><ChevronLeft/></ListItem></List></Hidden>
+    <Tri tryId={tryId}/>
+  </Grid>;
+  
+  return <>
+    <Hidden implementation="css" only={['sm','md','lg']}>
+      <GridContainer>
+        {c2}
+      </GridContainer>
+    </Hidden>
+    <Hidden implementation="css" only={['xs','md','lg']}>
+      <GridContainer>
+        {c1}
+        {c2}
+      </GridContainer>
+    </Hidden>
+    <Hidden implementation="css" only={['xs','sm']}>
+      <GridContainer>
+        {c0}
+        {c1}
+        {c2}
+      </GridContainer>
+    </Hidden>
+  </>;
 };
