@@ -32,19 +32,19 @@ export default ({
     alignItems="flex-start"
     style={{ height: '100%', width: '100%', textAlign: 'center' }}
   >
-    <Hidden only={['xs', 'sm']}>
+    <Hidden implementation="css" only={['xs', 'sm']}>
       <Grid item xs={3} style={{ overflowX: 'hidden', overflowY: 'scroll', height: '100%' }}>
         <Menu tab={'tries'}/>
       </Grid>
     </Hidden>
-    <Hidden only={['xs']}>
+    <Hidden implementation="css" only={['xs']}>
       <Grid item sm={5} md={3} style={{ overflowX: 'hidden', overflowY: 'scroll', height: '100%' }}>
-        <Hidden only={['md', 'lg']}><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
+        <Hidden implementation="css" only={['md', 'lg']}><List dense><ListItem button component={Link} to="/"><ChevronLeft/></ListItem></List></Hidden>
         <TriesMenu tryId={tryId}/>
       </Grid>
     </Hidden>
     <Grid item xs={12} sm={7} md={6} style={{ overflowX: 'hidden', overflowY: 'scroll', height: '100%' }}>
-      <Hidden only={['sm', 'md', 'lg']}><List dense><ListItem button component={Link} to="/tries"><ChevronLeft/></ListItem></List></Hidden>
+      <Hidden implementation="css" only={['sm', 'md', 'lg']}><List dense><ListItem button component={Link} to="/tries"><ChevronLeft/></ListItem></List></Hidden>
       <Tri tryId={tryId}/>
     </Grid>
   </Grid>;
