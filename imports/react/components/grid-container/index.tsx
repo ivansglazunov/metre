@@ -9,7 +9,7 @@ export const GridContainer = ({
     direction="row"
     justify="flex-start"
     alignItems="flex-start"
-    style={{ height: '100%', width: '100%', textAlign: 'center' }}
+    style={{ height: '100%', width: '100%', textAlign: 'center', position: 'absolute', top: 0, left: 0 }}
   >
     {children}
   </Grid>;
