@@ -38,7 +38,7 @@ export default ({
 
   const c2 = <Grid item xs={12} sm={7} md={6} style={{ overflowX: 'hidden', overflowY: 'scroll', height: '100%' }}>
     <Hidden implementation="css" only={['sm', 'md', 'lg']}><List dense><ListItem button component={Link} to="/users"><ChevronLeft/></ListItem></List></Hidden>
-    <UserMenu userId={userId}/>
+    <UserMenu currentUserId={_userId} userId={userId}/>
   </Grid>;
 
   return <>

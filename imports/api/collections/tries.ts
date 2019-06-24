@@ -82,9 +82,9 @@ Tries.publish(function(query = {}, options = {}) {
   if (!isInRole(user, 'developer') && !isInRole(user, 'owner') && !isInRole(user, 'admin')) return Tries._find({ _id: null });
 
   const $and: any[] = [];
-  if (!_.isEmpty(query)) $and.push(query);
+  if (!_.isEmpty(query)) $and.push(typeof(query) === 'string' ? { _id: query } : query);
   if (isInRole(user, 'developer')) $and.push({ userId: this.userId });
-  const q = _.isEmpty($and) ? query : { $and };
+  const q = _.isEmpty($and) ? typeof(query) === 'string' ? { _id: query } : query : { $and };
   return Tries._find(q, options);
 });
 

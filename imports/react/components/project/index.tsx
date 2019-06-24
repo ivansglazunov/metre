@@ -139,7 +139,10 @@ export default withTracker<any, any>(({
         />
       </div>
       <div>
-        <pre><code>
+        <pre style={{
+          'wordWrap': 'break-word',
+          'whiteSpace': 'pre-wrap',
+        }}><code>
           {JSON.stringify(project, null, 2)}
         </code></pre>
       </div>

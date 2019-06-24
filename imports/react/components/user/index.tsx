@@ -18,17 +18,23 @@ import { ChevronLeft, AllInclusive, Work, Keyboard } from '@material-ui/icons';
 import { isInRole, setRoles } from '../../../api/collections/users';
 
 export default withTracker<any, any>(({
+  currentUserId,
   userId,
 }) => {
   const us = Users.find({ _id: userId });
+  const cus = Users.find({ _id: currentUserId });
   return {
+    currentUserId,
     userId,
-    loading: !us.ready(),
+    loading: !us.ready() || !cus.ready(),
     user: us.fetch()[0],
+    currentUser: cus.fetch()[0],
   };
 })(({
+  currentUserId,
   userId,
   user,
+  currentUser,
   loading,
 }) => {
   const [tab, setTab] = useState('projects');
@@ -41,7 +47,7 @@ export default withTracker<any, any>(({
       <ListItem divider>
         <ListItemText primary={user.username} secondary={user._id}/>
       </ListItem>
-      {isInRole(user, 'admin')
+      {isInRole(currentUser, 'admin')
       ? <>
         <ListItem button divider
           disabled={isInRole(user, 'admin')}

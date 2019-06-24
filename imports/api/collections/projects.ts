@@ -85,7 +85,7 @@ Projects.publish(function(query = {}, options = {}) {
     ],
   }];
   const q = { $and, };
-  if (!_.isEmpty(query)) $and.push(query);
+  if (!_.isEmpty(query)) $and.push(typeof(query) === 'string' ? { _id: query } : query);
   return Projects._find(q, options);
 });
 
