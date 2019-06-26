@@ -21,6 +21,7 @@ Metre.loginWidthUsernameAndPassword = async (username, password) => {
 Metre.logout = async() => {
   await axios.post(`/passport/logout`);
   Meteor.logout();
+  Metre.saveUserId(null);
 };
 
 Metre.initClient = async (userId) => {
@@ -32,7 +33,7 @@ Metre.initClient = async (userId) => {
 };
 
 Metre.saveUserId = (userId) => {
-  Metre.passportUserId = userId;
+  Metre.userId = userId;
 };
 
 Metre._passportLoginWithMeteorToken = async (token) => {
@@ -42,7 +43,7 @@ Metre._passportLoginWithMeteorToken = async (token) => {
   }
 };
 
-Metre.passportUserId = undefined;
+Metre.userId = undefined;
 
 Accounts.onLogin(() => {
   Metre.saveUserId(Meteor.userId());

@@ -24,13 +24,13 @@ export const SchemaRules = {};
 export const Schema = new SimpleSchema(SchemaRules);
 Nodes.attachSchema(Schema);
 
+// Publish
+Nodes.publish(function(query, options) {
+  return Nodes._find(query, options);
+});
+
 // Server
 if (Meteor.isServer) {
-  // Publish
-  Nodes.publish(function(query, options) {
-    return Nodes.find(query, options);
-  });
-
   // Access
   Nodes.allow({
     insert(userId, doc) {

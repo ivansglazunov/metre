@@ -46,14 +46,16 @@ Metre.initExpressAndPassport = () => {
   }));
   passport.deserializeUser(Meteor.bindEnvironment((id, callback) => {
     debug('deserializeUser', id);
-    callback(null, Users.findOne(id));
+    callback(null, Users._findOne(id));
   }));
   
   passport.use(new PassportLocalStrategy({ passReqToCallback: true }, Meteor.bindEnvironment((req, username, password, done) => {
     debug(`PassportLocalStrategy req.user${req.user?'+':'-'} username=${username}`);
 
     // ignore password for test
-    const user = Users.findOne({ username });
+    let user = Users._findOne({ username });
+
+    if (!user || !user.services || !user.services.password) done(null, false);
 
     const compared = Metre.comparePasswords(password, user.services.password.bcrypt);
     if (!compared) {
@@ -116,7 +118,7 @@ Metre.initExpressAndPassport = () => {
 };
 
 Metre._findUserByToken = (token) => {
-  return Users.findOne({
+  return Users._findOne({
     'services.resume.loginTokens.hashedToken': Accounts._hashLoginToken(token)
   });
 };

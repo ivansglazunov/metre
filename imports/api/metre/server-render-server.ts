@@ -57,6 +57,9 @@ Metre.onPageLoad = (callback: (sink: any, req: any, userId?: string) => void) =>
 
     const user = sink.request._req.user;
     const userId = user ? user._id : undefined;
+
+    Metre.__serverRender = true;
+    Metre.userId = userId;
     
     callback(sink, sink.request._req, userId);
     
@@ -66,5 +69,8 @@ Metre.onPageLoad = (callback: (sink: any, req: any, userId?: string) => void) =>
       calls: global.metreServerCalls,
       userId,
     });
+
+    Metre.userId = undefined;
+    delete Metre.__serverRender;
   });
 };

@@ -48,7 +48,7 @@ Metre.onPageLoad = (callback: (userId: string) => void) => {
         }
       } else Meteor.connection._send = originalSend;
 
-      callback(Metre.passportUserId);
+      callback(Metre.userId);
 
       if (metreArgs) Meteor.connection._send = originalSend;
     });

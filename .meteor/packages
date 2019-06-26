@@ -36,3 +36,4 @@ tmeasday:check-npm-versions
 ostrio:files
 meteorhacks:picker
 dburles:mongo-collection-instances
+alanning:roles

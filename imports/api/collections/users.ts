@@ -87,15 +87,50 @@ Schema.User = new SimpleSchema({
 
 Users.attachSchema(Schema.User);
 
+export const isInRole = (user, role, group = Roles.GLOBAL_GROUP) => {
+  return !!(user && user.roles && user.roles[group] && ~user.roles[group].indexOf(role));
+};
+Users.isInRole = isInRole;
+
+export const setRoles = (userId, roles: any[], group = Roles.GLOBAL_GROUP) => {
+  return Roles.setUserRoles(userId, roles, group);
+};
+Users.setRoles = setRoles;
+
+// Publish
+Users.publish(function(query, options) {
+  // @ts-ignore
+  const user = Meteor.users._findOne(this.userId);
+
+  if (isInRole(user, 'admin') || isInRole(user, 'owner')) {
+    return Users._find(typeof(query) === 'string' ? { _id: query } : query, { fields: {
+      username: 1, roles: 1,
+    } });
+  } else {
+    return Users._find({ _id: this.userId || null }, { fields: {
+      username: 1, roles: 1,
+    } });
+  }
+});
+
 // Server
 if (Meteor.isServer) {
-  // Publish
-  Users.publish(function(query, options) {
-    return Users.find(query, options);
+  // Access
+  Users.allow({
+    insert(userId, doc) {
+      return true;
+    },
+    update(userId, doc, fieldNames, modifier) {
+      return true;
+    },
+    remove(userId, doc) {
+      return true;
+    },
   });
 
   // Access
-  Users.allow({
+  // @ts-ignore
+  Meteor.roles.allow({
     insert(userId, doc) {
       return true;
     },
