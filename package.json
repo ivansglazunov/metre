@@ -14,7 +14,7 @@
     "@material-ui/styles": "^4.1.2",
     "array-move": "^2.1.0",
     "async": "^3.1.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
