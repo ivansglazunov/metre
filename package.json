@@ -27,7 +27,7 @@
     "jsonschema": "^1.2.4",
     "jss": "^9.8.7",
     "lodash": "^4.17.11",
-    "mathjs": "^6.0.2",
+    "mathjs": "^7.5.1",
     "meteor-node-stubs": "^0.4.1",
     "mingo": "^2.3.5",
     "moment": "^2.24.0",
