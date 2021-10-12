@@ -77,7 +77,7 @@
     "@types/react-sortable-hoc": "^0.6.5",
     "chromedriver": "^75.0.0",
     "debug": "^4.1.1",
-    "electron": "5.0.5",
+    "electron": "11.5.0",
     "electron-builder": "20.44.4",
     "mocha": "^6.1.4",
     "selenium-webdriver": "^4.0.0-alpha.1",
